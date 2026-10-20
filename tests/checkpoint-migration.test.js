@@ -4,7 +4,8 @@ import { resolve, join, sep } from 'node:path';
 import { createHash } from 'node:crypto';
 import { SOURCES, validateState, updateData, selectUpdateSources } from '../scripts/lib/data-automation.mjs';
 import { exportState, restoreState } from '../scripts/lib/update-state.mjs';
-const base = resolve('.cache/migration-tests'), now = Date.parse('2026-10-20T12:00:00Z'), commit = 'a'.repeat(40);
+import { CHECKPOINT_NOW, checkpointFixture } from './fixtures/checkpoint.js';
+const base = resolve('.cache/migration-tests'), now = CHECKPOINT_NOW, commit = 'a'.repeat(40);
 const hash = text => createHash('sha256').update(text).digest('hex');
 let root, archive;
 // Synthetic retired v1 archive only; never a public snapshot or an updater fixture.
@@ -12,12 +13,13 @@ const retired = () => ({ version: 1, source: '臺灣銀行', sourceUrl: 'https:/
   quotedAt: '2026-10-20T00:42:00+08:00', fetchedAt: '2026-10-20T01:00:00.000Z',
   rates: 'USD JPY EUR GBP HKD CNY KRW AUD CAD SGD CHF ZAR SEK NZD THB PHP IDR VND MYR'.split(' ').map(code => ({ code, name: code, cash: { buy: 1, sell: 2 }, spot: { buy: null, sell: null } })), evidence: null });
 beforeEach(async () => {
+  vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(now);
   await mkdir(base, { recursive: true }); root = await mkdtemp(join(base, 'case-')); archive = join(root, 'archive');
   await mkdir(join(root, 'public/data'), { recursive: true }); await mkdir(join(root, '.cache/data-updates'), { recursive: true });
-  for (const source of SOURCES) await writeFile(join(root, 'public/data', source + '.json'), await readFile('public/data/' + source + '.json'));
+  for (const source of SOURCES) await writeFile(join(root, 'public/data', source + '.json'), JSON.stringify(checkpointFixture(source)));
   await writeFile(join(root, '.cache/data-updates/status.json'), JSON.stringify({ version: 1, sources: {} }));
 });
-afterEach(async () => { if (!resolve(root).startsWith(base + sep)) throw Error('unsafe cleanup'); await rm(root, { recursive: true }); });
+afterEach(async () => { vi.useRealTimers(); if (!resolve(root).startsWith(base + sep)) throw Error('unsafe cleanup'); await rm(root, { recursive: true }); });
 async function legacy() {
   await exportState(root, archive, commit);
   const text = JSON.stringify(retired()); await writeFile(join(archive, 'exchange.json'), text);
@@ -81,4 +83,22 @@ it('rejects the retired source and status rather than silently running or accept
   expect(() => selectUpdateSources('exchange')).toThrow();
   expect(() => validateState({ version: 1, sources: { exchange: {} } })).toThrow();
   const runner = vi.fn(); await expect(updateData({ root, sources: ['exchange'], runner })).rejects.toThrow(); expect(runner).not.toHaveBeenCalled();
+});
+it.each(SOURCES)('rejects a checksummed future %s snapshot without changing active data', async source => {
+  await exportState(root, archive, commit); const before = await bytes();
+  const future = checkpointFixture(source); future.fetchedAt = new Date(now + 6 * 60000).toISOString();
+  await change(source + '.json', future);
+  await expect(restoreState(root, archive, now, { exact: true, expectedCommit: commit })).rejects.toThrow('future_snapshot');
+  expect(await bytes()).toEqual(before);
+});
+it('accepts newer valid news through the unchanged updater and preserves other sources', async () => {
+  const before = await bytes();
+  const newer = checkpointFixture('news'); newer.fetchedAt = '2026-10-20T11:45:00.000Z';
+  newer.articles[0] = { ...newer.articles[0], title: 'New synthetic checkpoint news',
+    publishedAt: '2026-10-20T11:30:00.000Z', fetchedAt: newer.fetchedAt };
+  const runner = vi.fn(async (source, { directory }) => writeFile(join(directory, source + '.json'), JSON.stringify(newer)));
+  const result = await updateData({ root, sources: ['news'], runner, now: () => now });
+  expect(result.failed).toBe(0); expect(result.results[0]).toMatchObject({ source: 'news', status: 'updated', code: 'ok' });
+  expect(JSON.parse(await readFile(join(root, 'public/data/news.json'))).articles[0].publishedAt).toBe(newer.articles[0].publishedAt);
+  const after = await bytes(); for (const index of [0, 2, 3]) expect(after[index]).toEqual(before[index]);
 });
