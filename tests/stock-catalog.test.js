@@ -28,7 +28,7 @@ describe('stock catalog search and provenance', () => {
 describe('catalog transport', () => {
   it('fetches only the same-origin snapshot', async () => {
     const mock = vi.fn().mockResolvedValue({ ok: true, json: async () => catalogFixture() });
-    expect((await loadStockCatalog({ fetchImpl: mock })).stocks).toHaveLength(3); expect(mock.mock.calls[0][0]).toBe('/data/stocks.json');
+    expect((await loadStockCatalog({ fetchImpl: mock })).stocks).toHaveLength(3); expect(mock.mock.calls[0][0]).toBe(`${import.meta.env.BASE_URL}data/stocks.json`);
   });
   it('handles HTTP/API failure, malformed JSON and offline errors', async () => {
     await expect(loadStockCatalog({ fetchImpl: async () => ({ ok: false, status: 503 }) })).rejects.toThrow('503');

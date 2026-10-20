@@ -1,5 +1,7 @@
 # 本機公開候選版本
 
+目前狀態（Phase 8B）：已於 Phase 8A 公開至 https://github.com/Duke11111/dailyinfo ，main 為全新根提交 `399edd1`。Actions 整體停用、Pages 未部署、資料更新未啟用。以下保留候選版建立時的歷史過程；部署準備見 [PAGES.md](PAGES.md)，本階段變更尚未 Commit／Push。
+
 此版本由完整工作樹匯出，包含 Phase 6D 自動更新架構；沒有複製原始 Git 歷史、環境檔、依賴、快取、使用者資料或舊建置產物。原始開發專案及其歷史保留不變。
 
 本目錄使用全新 Git repository。使用者已從 GitHub Settings → Emails 確認實際 noreply Email，並明確授權以 Duke11111 身分建立乾淨首次本地提交。只在本 repository 設定 `user.name`／`user.email` 與 `user.useConfigOnly=true`，不變更全域 Git 身分，不自行組合或猜測地址。提交身分使用使用者確認的 GitHub noreply，不含原始私人 Email。

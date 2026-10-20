@@ -49,7 +49,7 @@ it('validates the actual imported snapshot and all five feeds', () => {
 });
 it('reads the same-origin production snapshot', async () => {
   const fetcher = vi.fn(async () => ({ ok: true, json: async () => newsFixture() }));
-  expect((await fetchNewsSnapshot({ fetchImpl: fetcher })).articles).toHaveLength(2); expect(fetcher.mock.calls[0][0]).toBe('/data/news.json');
+  expect((await fetchNewsSnapshot({ fetchImpl: fetcher })).articles).toHaveLength(2); expect(fetcher.mock.calls[0][0]).toBe(`${import.meta.env.BASE_URL}data/news.json`);
 });
 it.each(['HTTP', 'JSON', 'offline', 'invalid'])('reports %s snapshot errors', async mode => {
   const fetchImpl = async () => {

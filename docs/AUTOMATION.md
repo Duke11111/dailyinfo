@@ -1,5 +1,7 @@
 # Phase 6D：資料更新與發布操作說明
 
+> Phase 8B 現況：Repository 已公開，Actions 整體停用，Pages 未部署。本機 `data-update.yml` 已移除 schedule，只保留手動入口；下面頻率與啟用方式屬未來 Phase 8D 的待授權方案，不代表目前有排程。首次網站部署改用獨立 [Pages 手動流程](PAGES.md)，不開資料更新開關或設定 Secrets。
+
 ## 現況與建議方案
 
 已備妥「GitHub Actions + 免費靜態網站」流程，**目前沒有啟用排程、設定 Secrets、推送或部署**。預設兩道開關都關閉。待使用者決定平台並授權後才啟用；現有本機網站仍照常運作。

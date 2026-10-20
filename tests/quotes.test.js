@@ -38,7 +38,7 @@ describe('financial parsing', () => {
 describe('snapshot loading and shared cache', () => {
   it('loads a same-origin production-compatible snapshot', async () => {
     const fetcher = vi.fn().mockResolvedValue({ ok: true, json: async () => quoteFixture() });
-    const data = await fetchQuoteSnapshot({ fetchImpl: fetcher }); expect(data.quotes).toHaveLength(3); expect(fetcher.mock.calls[0][0]).toBe('/data/quotes.json'); expect(fetcher.mock.calls[0][1].cache).toBe('no-store');
+    const data = await fetchQuoteSnapshot({ fetchImpl: fetcher }); expect(data.quotes).toHaveLength(3); expect(fetcher.mock.calls[0][0]).toBe(`${import.meta.env.BASE_URL}data/quotes.json`); expect(fetcher.mock.calls[0][1].cache).toBe('no-store');
   });
   it('handles HTTP, malformed JSON, empty responses and offline errors', async () => {
     await expect(fetchQuoteSnapshot({ fetchImpl: async () => ({ ok: false, status: 503 }) })).rejects.toThrow('503');

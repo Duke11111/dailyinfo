@@ -1,6 +1,6 @@
 # DailyInfo 每日資訊整合平台
 
-> 本機公開候選版本，包含 Phase 6D。原始 Git 歷史未帶入，私人路徑已清理；使用經確認的 GitHub noreply 身分建立乾淨本地首次提交，未 Push、部署或啟用排程。[公開準備與身分狀態](docs/PUBLIC_CANDIDATE.md) · [Actions SHA 查證](docs/ACTIONS_PINS.md)。
+> Repository 已公開：[Duke11111/dailyinfo](https://github.com/Duke11111/dailyinfo)，首次提交 `399edd1`，不含原始 Git 歷史。**GitHub Pages 尚未部署、Repository Actions 仍停用、資料自動更新未啟用。** Phase 8B 部署準備僅存在本機未提交變更。[Pages 安全部署說明](docs/PAGES.md) · [公開準備與身分狀態](docs/PUBLIC_CANDIDATE.md) · [Actions SHA 查證](docs/ACTIONS_PINS.md)。
 
 期中專案，截止日期 **2026/10/30**。目前版本 **v0.10.0 / Phase 6C**，加入每日星座運勢與個人化首頁，保留天氣／AQI、股票、外幣、新聞、地震及個人資料，等待驗收。
 
@@ -12,7 +12,7 @@
 
 已新增統一入口 `npm.cmd run update:data`、到期檢查 `npm.cmd run update:data -- --scheduled`、指定來源 `npm.cmd run update:data -- --sources=quotes,news` 及驗證 `npm.cmd run verify:data`。各來源隔離執行、驗證後才替換；失敗保留舊快照，內容未變不重複發布。天氣與 AQI 維持原有前端查詢。
 
-GitHub Actions 定時／手動工作流程與可選 Pages 發布已備妥，**目前完全未啟用、未設定雲端 Secrets、未 Push 或部署**。更新及發布各有獨立開關，正式平台留待決定。CWA 僅 Node 讀取，CI 可用 repository secret，不需公開金鑰。[完整頻率、額度、啟用及還原說明](docs/AUTOMATION.md)。Phase 6C 本地基線：`7fed01f`。
+資料更新工作流程保留手動入口，Phase 8B 已在本機移除 schedule；更新及資料發布開關仍未設定，Repository Actions 停用，未設定雲端 Secrets。獨立 Pages 手動部署只驗證及發布既有快照，不更新外部來源。[資料更新說明](docs/AUTOMATION.md)；首次網站部署以 [Phase 8B 說明](docs/PAGES.md) 為準。舊基線 `7fed01f` 僅為開發紀錄，不在公開 Git 歷史內。
 
 建議 Node.js 24 LTS。本次環境：Node.js 24.19.0、npm 11.17.0。
 
@@ -21,7 +21,7 @@ npm.cmd ci
 npm.cmd run dev -- --port 5173 --strictPort
 ```
 
-開啟 <http://127.0.0.1:5173/>。Windows PowerShell 使用 `npm.cmd` 可避免修改執行原則或 PATH。開發伺服器只綁定本機。
+開啟 <http://127.0.0.1:5173/dailyinfo/>。Windows PowerShell 使用 `npm.cmd` 可避免修改執行原則或 PATH。開發伺服器只綁定本機。
 
 ```powershell
 npm.cmd test
@@ -30,7 +30,7 @@ npm.cmd run preview
 node scripts/check-weather.mjs
 ```
 
-`preview` 預設網址為 <http://127.0.0.1:4173/>；建置輸出為 `dist/`，不可直接以 `file://` 開啟 ES Modules。
+Vite 預設 base 為 `/dailyinfo/`；`preview` 網址為 <http://127.0.0.1:4173/dailyinfo/>。建置輸出為 `dist/`，不可直接以 `file://` 開啟 ES Modules。離線部署驗收：`npm.cmd run build -- --base=/dailyinfo/`，再執行 `npm.cmd run verify -- --dist`；不呼叫外部更新 API。
 
 ## Phase 6B：外幣匯率與換算
 

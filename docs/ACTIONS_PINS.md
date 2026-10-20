@@ -15,4 +15,6 @@
 
 最小權限維持：更新 job `contents:read`／`actions:read`；可選 Pages job 才有 `pages:write`／`id-token:write`，checkpoint job 為 `actions:read`。沒有 `contents:write`、PAT 或 git push。CWA key 僅更新與驗證步驟可見，且 Node 子程序只對地震腳本繼承該 key；其他資料來源不繼承。建置與部署步驟不含 CWA key。
 
-目前沒有設定 `DATA_AUTOMATION_ENABLED`／`DATA_PUBLISH_ENABLED`，沒有雲端 Secrets 或遠端 repository，排程及對外發布均未啟用。真正啟用前仍需使用者授權及雲端驗收。
+Phase 8B（2026-10-20）再次以官方 repository `git ls-remote` 查證 checkout v4、setup-node v4、upload-pages-artifact v3、deploy-pages v4，結果與上表完全相同；獨立 `pages-manual.yml` 重用這四個完整 SHA。build job 僅 contents:read，deploy job 才有 pages:write／id-token:write；兩者都不使用 Secrets，不執行資料更新。
+
+Repository 已公開，Actions 仍整體停用；`DATA_AUTOMATION_ENABLED`／`DATA_PUBLISH_ENABLED` 均未設定。Phase 8B 本機版本移除資料 schedule，Pages 僅手動觸發。尚未 Commit／Push 這些準備、未部署網站；真正啟用前仍需另外授權。

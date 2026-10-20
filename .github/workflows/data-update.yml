@@ -1,9 +1,7 @@
 name: DailyInfo data update (disabled until approved)
 
 on:
-  schedule:
-    # UTC; Taiwan 00:17, 03:17, 06:17, 09:17, 12:17, 15:17, 18:17, 21:17.
-    - cron: '17 1,4,7,10,13,16,19,22 * * *'
+  # No automatic triggers. Restore an approved schedule only in Phase 8D.
   workflow_dispatch:
     inputs:
       source:

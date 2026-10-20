@@ -1,5 +1,14 @@
 # DailyInfo 驗收紀錄
 
+## Phase 8B：GitHub Pages 部署準備（2026/10/20）
+
+- 僅修改公開版；HEAD 仍 `399edd109980524be01db269239010e7753e2856`，本階段未 Commit／Push。Repository 已公開，開始與結束均經 GitHub API 確認 Actions `enabled:false`；Variables 查詢為空，沒有設定 DATA_AUTOMATION_ENABLED 或 DATA_PUBLISH_ENABLED。未啟用 Pages／Secrets／雲端工作流程，也未呼叫任何外部資料更新 API。
+- `vite.config.js` 設定 base `/dailyinfo/`。六個快照服務原本即使用 BASE_URL，沒有修改業務邏輯、localStorage 結構、天氣／AQI URL 或地圖邏輯。三個既有 URL 測試改用 BASE_URL 比對，以驗證正式子路徑。
+- 本機 `data-update.yml` 移除 schedule，保留 workflow_dispatch 及既有更新／發布開關。新增 `pages-manual.yml`，只允許手動與預設分支，Node 24、乾淨安裝、測試、建置、公開產物驗證後才上傳並部署。build 只給 contents:read；deploy 只給 pages:write／id-token:write，沒有 Secrets 或來源更新步驟。四個官方 Actions SHA 再次透過官方 git ls-remote 確認。
+- 統一完整驗收一次：`npm.cmd test` **36 檔、517/517 通過**（8.36 秒）；新增 3 項部署安全測試。`npm.cmd run build -- --base=/dailyinfo/` **成功，52 模組、213 ms**；`npm.cmd run verify -- --dist` **成功**，HTML 3 個子路徑資源、CSS URL、六份快照與公開原檔一致性、schema／日期與秘密／私人路徑檢查通過。未讀取 .env.local，未知秘密精確值未比對。
+- 另以短暫本機 Vite preview 在 `/dailyinfo/` 離線 HTTP 驗證 **12 個不同路徑回應 200**（首頁、favicon、JS／CSS、六份 JSON），完成後關閉測試程序；7 個 Hash 入口（包含股票外幣入口）解析正確。全套既有頁面／路由由完整回歸測試覆蓋。沒有重做 Chrome 真人操作、外部天氣／AQI／OSM 網路請求或雲端部署；不能宣稱正式 Pages 已可用。截圖未變動，沿用既有隱私稽核。
+- `git diff --check` 通過；本階段只留下本機未提交變更，GitHub 遠端仍是原 Initial Commit。正式啟用必須先在 Actions 停用時審核並 Push 移除 schedule 的版本，再另行授權啟用 Actions／Pages 及手動部署。詳細設定、停止發布與 Phase 8D 恢復排程見 `docs/PAGES.md`。
+
 ## 本機公開候選版本安全準備（2026/10/20）
 
 - 從原始完整工作樹匯出 149 個檔案，包含 Phase 6D 未提交的完整變更，未複製原始 `.git`、`.env.local`、依賴、私人快取或舊建置產物。原始專案及 11 個提交保留不變，沒有重寫歷史。
