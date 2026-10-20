@@ -1,5 +1,17 @@
 # Phase 6D：資料更新與發布操作說明
 
+## Phase 8D-2C：Checkpoint-only 手動發布
+
+`source=checkpoint` 不執行來源更新步驟。僅接受 workflow_dispatch、main、initialize_state=false、publish_current=true、DATA_PUBLISH_ENABLED=true、DATA_DEPLOY_TARGET=pages，並必填 checkpoint_run（本次核准 Run `39391679062`）。任一條件不符，還原步驟受控失敗，不部署、不初始化。
+
+還原時挑選最新未過期、來自成功 main data-update workflow 的 checkpoint；其 Run ID 必須與核准值一致，不會默默改用較舊或未核准資料。Manifest commit 必須與來源 Run head SHA 一致，五份資料、status、checksum、schema 及時間全數驗證後，才精確還原 checkpoint。此模式不混入 main 上較新的 JSON；原 all／core／exchange 等更新模式仍保留原有「較新 main 資料優先」行為。
+
+建置使用 /dailyinfo/，公開產物以 npm run verify -- --dist 檢查；內部 status／manifest 仍只在 checkpoint artifact，不放入 public／dist。部署 job 仍只有 pages:write／id-token:write，更新 job 只有 contents:read／actions:read。沒有新增 Actions、schedule 或 push 觸發器。
+
+本次驗收只允許一個 checkpoint Run，不另外執行 pages-manual 或 core。成功部署後 DATA_PUBLISH_ENABLED 必須關回 false，DATA_DEPLOY_TARGET 移除。DATA_AUTOMATION_ENABLED 不變。正式 JSON 應與核准 checkpoint 的五份資料完全相同；第六份 stocks.json（目錄）來自未變動的 main。若失敗，停止、不改成重新抓來源或重試部署。
+
+匯率快照仍採原牌告時間與 24 小時過期判斷。若驗收時間尚未超過門檻，不能捏造「已過期」標示；門檻之外的提示由既有 Mock 測試驗證。
+
 ## Phase 8D-2A：四來源 core（本機準備，未提交）
 
 `data-update.yml` 手動選項新增 `core`，只執行 quotes、news、earthquakes、horoscope。`all` 仍執行五來源，`exchange` 仍可單獨手動診斷；預設選項保持 all，不改既有行為。統一入口 `npm.cmd run update:data -- --sources=core` 使用固定來源白名單；個別或逗號分隔選擇仍有效，未知／重複或混合別名會拒絕。

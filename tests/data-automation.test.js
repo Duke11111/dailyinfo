@@ -131,10 +131,22 @@ it('keeps manually committed fresher data when restoring a previous checkpoint',
   await updateData({ root, sources: ['news'], now, runner: runner() }); const dir = join(root, 'checkpoint'); await exportState(root, dir);
   const value = fixture('exchange'); value.fetchedAt = captured; value.quotedAt = '2026-10-20T08:00:00+08:00'; await writeFile(path('exchange'), JSON.stringify(value)); await restoreState(root, dir, now()); expect(JSON.parse(await read('exchange')).quotedAt).toBe(value.quotedAt);
 });
+it('checkpoint-only restores approved bytes exactly instead of mixing newer main data', async () => {
+  await updateData({ root, sources: ['news'], now, runner: runner() }); const dir = join(root, 'exact-checkpoint'), commit = 'a'.repeat(40); await exportState(root, dir, commit);
+  const approved = await read('exchange'), newer = fixture('exchange'); newer.quotedAt = '2026-10-20T08:00:00+08:00'; newer.fetchedAt = captured;
+  await writeFile(path('exchange'), JSON.stringify(newer));
+  await restoreState(root, dir, now(), { exact: true, expectedCommit: commit }); expect(await read('exchange')).toBe(approved);
+});
+it('checkpoint-only rejects bad checksum or provenance before writing any snapshot', async () => {
+  await updateData({ root, sources: ['news'], now, runner: runner() }); const dir = join(root, 'exact-checkpoint'), commit = 'a'.repeat(40); await exportState(root, dir, commit);
+  const before = await read('quotes');
+  await expect(restoreState(root, dir, now(), { exact: true, expectedCommit: 'b'.repeat(40) })).rejects.toThrow('approval');
+  await writeFile(join(dir, 'news.json'), '{}'); await expect(restoreState(root, dir, now(), { exact: true, expectedCommit: commit })).rejects.toThrow('checksum'); expect(await read('quotes')).toBe(before);
+});
 it('workflow is opt-in, default-branch only and scopes secrets away from build/deploy', async () => {
   const workflow = await readFile(resolve('.github/workflows/data-update.yml'), 'utf8'); expect(workflow).toContain("vars.DATA_AUTOMATION_ENABLED == 'true'"); expect(workflow).toContain('github.event.repository.default_branch'); expect(workflow).toContain('cancel-in-progress: false'); expect(workflow).toContain('workflow_dispatch:'); expect(workflow).not.toMatch(/^\s+(?:schedule|push|pull_request|workflow_run):/m); expect(workflow).not.toContain('git push'); expect(workflow).not.toContain('contents: write'); expect(workflow).toContain("needs.deploy.result == 'success' || needs.deploy.result == 'skipped'");
   const build = workflow.slice(workflow.indexOf('- name: Test and build'), workflow.indexOf('- name: Verify built')); expect(build).not.toContain('CWA_API_KEY:'); expect(workflow).toContain("vars.DATA_PUBLISH_ENABLED == 'true'");
-  expect(workflow).toContain('options: [all, core, quotes, news, earthquakes, exchange, horoscope]');
+  expect(workflow).toContain('options: [all, core, quotes, news, earthquakes, exchange, horoscope, checkpoint]');
   expect(workflow).toContain('npm run update:data -- --sources=core --scheduled');
   expect(workflow).toContain('npm run update:data -- "--sources=$SOURCE"');
 });

@@ -7,8 +7,12 @@ on:
       source:
         description: Source to update (core excludes exchange; manual runs bypass due checks)
         type: choice
-        options: [all, core, quotes, news, earthquakes, exchange, horoscope]
+        options: [all, core, quotes, news, earthquakes, exchange, horoscope, checkpoint]
         default: all
+      checkpoint_run:
+        description: Approved checkpoint run ID (required only for checkpoint publication)
+        type: string
+        default: ''
       initialize_state:
         description: First run only - approve validated repository snapshots as baseline
         type: boolean
@@ -51,7 +55,13 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           INITIALIZE_STATE: ${{ inputs.initialize_state }}
+          CHECKPOINT_ONLY: ${{ inputs.source == 'checkpoint' }}
+          APPROVED_CHECKPOINT_RUN: ${{ inputs.checkpoint_run }}
+          PUBLISH_CURRENT: ${{ inputs.publish_current }}
+          PUBLISH_ENABLED: ${{ vars.DATA_PUBLISH_ENABLED }}
+          DEPLOY_TARGET: ${{ vars.DATA_DEPLOY_TARGET }}
       - name: Isolated source updates
+        if: inputs.source != 'checkpoint'
         id: refresh
         shell: bash
         env:
@@ -92,10 +102,10 @@ jobs:
         if: steps.decision.outputs.changed == 'true'
         run: |
           npm test
-          npm run build -- --base=./
+          npm run build -- --base=/dailyinfo/
       - name: Verify built output before uploading
         if: steps.decision.outputs.changed == 'true'
-        run: npm run verify:data -- --dist
+        run: npm run verify -- --dist
         env:
           CWA_API_KEY: ${{ secrets.CWA_API_KEY }}
       - name: Prepare validated checkpoint

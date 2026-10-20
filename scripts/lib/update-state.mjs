@@ -17,13 +17,15 @@ export async function exportState(root, directory, commit = '') {
   for (const [name, text] of Object.entries(files)) await writeFile(join(directory, name), text);
   await writeFile(join(directory, 'manifest.json'), JSON.stringify({ version: 1, commit, hashes: Object.fromEntries(names.map(name => [name, digest(files[name])])) }));
 }
-export async function restoreState(root, directory, now = Date.now()) {
+export async function restoreState(root, directory, now = Date.now(), { exact = false, expectedCommit } = {}) {
   const entries = await readdir(directory);
   if (entries.length !== names.length + 1 || entries.some(name => ![...names, 'manifest.json'].includes(name))) throw Error('State file list invalid');
   for (const name of entries) if (!(await lstat(join(directory, name))).isFile()) throw Error('State entry invalid');
   const manifestText = await readFile(join(directory, 'manifest.json'), 'utf8'); assertPublicSafe(manifestText);
   const manifest = JSON.parse(manifestText);
   if (manifest.version !== 1 || typeof manifest.commit !== 'string' || manifest.commit && !/^[a-f0-9]{40}$/.test(manifest.commit) || !manifest.hashes) throw Error('State manifest invalid');
+  if (exact && (!/^[a-f0-9]{40}$/.test(manifest.commit) || expectedCommit && manifest.commit !== expectedCommit
+    || Object.keys(manifest.hashes).sort().join(',') !== [...names].sort().join(','))) throw Error('State approval invalid');
   const incoming = {};
   for (const name of names) {
     const text = await readFile(join(directory, name), 'utf8'); assertPublicSafe(text);
@@ -31,6 +33,7 @@ export async function restoreState(root, directory, now = Date.now()) {
     const raw = JSON.parse(text);
     if (name === 'status.json') { incoming[name] = JSON.stringify(validateState(raw)); continue; }
     const source = name.slice(0, -5), data = validateData(source, raw, now);
+    if (exact) { incoming[name] = text; continue; }
     let previous;
     try { previous = validateData(source, JSON.parse(await readFile(join(root, 'public/data', name), 'utf8')), now); } catch (error) { if (error.code !== 'ENOENT') throw error; }
     // A manually committed fresher snapshot always wins over the older CI checkpoint.
