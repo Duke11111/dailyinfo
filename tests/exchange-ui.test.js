@@ -2,7 +2,7 @@
 import { beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { mountExchange, mountExchangeSummary } from '../src/pages/exchange.js';
 import { mountOverview } from '../src/pages/overview.js';
-import { exchangeFixture, exchangeCaptured } from './fixtures/exchange.js';
+import { exchangeFixture, exchangeCaptured, fullExchangeFixture } from './fixtures/exchange.js';
 import { quoteFixture } from './fixtures/quotes.js';
 import { newsFixture } from './fixtures/news.js';
 import { eqFixture } from './fixtures/earthquakes.js';
@@ -16,6 +16,11 @@ const amount = value => { const input = host.querySelector('input[inputmode="dec
 const click = label => [...host.querySelectorAll('button')].find(button => button.textContent === label).click();
 beforeEach(() => { document.body.innerHTML = '<div id="host"></div>'; host = document.querySelector('#host'); localStorage.clear(); });
 afterEach(() => { dispose?.(); });
+it('discloses HTML-only verification rather than claiming CSV cross-checking', async () => {
+  const data = fullExchangeFixture(); data.evidence = { mode: 'html-only', reason: 'csv_text_html', validation: 'official-table-19-v1', htmlSha256: 'a'.repeat(64) };
+  await boot(data); expect(host.textContent).toContain('未進行 CSV 交叉核對');
+  expect(host.textContent).toContain('19 種幣別與欄位完整性檢查');
+});
 it('shows independent bank columns and searches Chinese aliases / ISO codes', async () => {
   await boot(); const search = host.querySelector('input[type=search]'); search.value = '美元'; search.dispatchEvent(new Event('input')); expect(host.querySelectorAll('tbody tr')).toHaveLength(1); expect(host.querySelector('tbody').textContent).toContain('USD');
   change('查詢報價類型', 'cash'); expect(host.querySelectorAll('thead th')).toHaveLength(3); expect(host.querySelector('thead').textContent).not.toContain('即期'); click('清空幣別搜尋'); expect(host.querySelectorAll('tbody tr')).toHaveLength(4);

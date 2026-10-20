@@ -1,5 +1,19 @@
 # 臺灣銀行牌告匯率來源與使用方式
 
+## 官方 HTML 備援（本機實作，未提交／未雲端驗收）
+
+本節為最新設計；下列 Phase 8D-1.x 記錄保留為歷史。遵守本次禁止外部請求的限制，僅檢視既有來源紀錄、解析程式與公開快照，沒有重新連線查核官方條款或目前頁面結構。HTML 固定測試樣本為清楚標示的合成資料，不是擷取的真實銀行回應；不能據此宣稱 GitHub Runner 已可成功取得官方 HTML。
+
+重用原有 HTML 幣別／四類報價解析。updateExchange 的 allowHtmlFallback 預設 false；既有 update-exchange CLI 明確傳入 true。只有 CSV 端點成功回應但 MIME 恰為 text/html 時，才另外 GET 固定的官方牌告頁 EXCHANGE_SOURCE；絕不解析 CSV 端點的 HTML 本文。CSV 正常時仍逐幣逐欄與官方 HTML 核對，不因 CSV 格式錯誤、價格不一致、403、429、redirect、逾時或其他 MIME 而退到 HTML。每輪仍最多兩個一般 GET、無重試／代理／繞過限制，UTF-8、HTTP、逾時與大小限制不變。
+
+HTML-only 必須有完整 HTML 文件外框、官方標題、唯一牌告時間及唯一匯率表；表頭的幣別、現金／即期欄群與銀行買入／賣出順序、每列四個唯一欄位、19 種固定幣別及名稱皆需符合。缺列、重複列／欄、未知幣別、空白值、異常數值、買入大於賣出、錯誤／防護頁、頁面轉址、無效或未來日期均拒絕。明確的 -／--／零佔位保留為 null，不填造數字；全無報價的幣別拒絕。官方結構或幣別清單改動會停止更新，需另行審查，不能自行放寬。
+
+新快照 evidence 明示 mode=html-only、reason=csv_text_html、validation=official-table-19-v1 及 htmlSha256，不產生 csvSha256，也不能夾帶假 CSV 證據。downloadUrl 仍是既有官方下載參考，並不代表該次取得 CSV。匯率頁顯示未進行 CSV 交叉核對。原有雙來源 evidence、version=1 與前端讀取保持相容，Checkpoint 仍驗證五份資料、schema、checksum 與來源日期；失敗仍保留舊快照並以原有白名單數字 exit status 回報。
+
+相比雙格式核對，HTML-only 能驗證來源端點、結構、完整性、值域、時間及舊檔日期不倒退，但無法獨立驗出結構正確且看似合理的官方 HTML 誤值。HTML SHA-256 僅代表此次內容摘要，並非銀行數位簽章、真實性證明或另一份獨立資料。此限制必須隨快照如實記錄。
+
+後續另行授權後，先確認 schedule 關閉、發布 false、部署目標未設定，審查並只提交本次檔案；以一次 source=exchange、initialize_state=false、publish_current=false 的 main 手動 Run 驗收。CSV 一次 GET；若遇已知 text/html，才請求官方 HTML 一次。核對 updated／unchanged／failed、安全錯誤碼、19 幣別、四種報價、牌告時間、HTML-only evidence 與新 checkpoint；比較其他四份快照及正式站雜湊不變。不重新初始化、不重試、不部署。若官方 HTML 仍是防護頁或未符合結構，停止並回報，不能宣稱已修復連線問題。
+
 ## Phase 8D-1.3：端點／MIME 精準診斷（本機未提交）
 
 只在 MIME 不符時回報固定代碼，例如 `unexpected_content_type_csv_text_plain`、`unexpected_content_type_html_application_json`。`csv`／`html` 是程式內固定端點標籤，不是伺服器網址。MIME 僅分類為 text/plain、text/html、text/csv、application/octet-stream、application/json、missing、other；參數、任意型別及伺服器文字不進入代碼。

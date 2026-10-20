@@ -7,7 +7,8 @@ import { snapshotTarget } from '../scripts/lib/snapshot-target.mjs';
 import { quoteFixture } from './fixtures/quotes.js';
 import { newsFixture } from './fixtures/news.js';
 import { eqFixture } from './fixtures/earthquakes.js';
-import { exchangeFixture } from './fixtures/exchange.js';
+import { exchangeFixture, fullExchangeHtml } from './fixtures/exchange.js';
+import { parseBankHtml } from '../scripts/lib/exchange-import.mjs';
 import { SIGNS } from '../src/services/horoscope.js';
 import { ExchangeUpdateError, exchangeExitStatus } from '../scripts/lib/exchange-errors.mjs';
 
@@ -55,6 +56,18 @@ it('keeps all five snapshots and prior exchange diagnostics in a core checkpoint
   expect((await readdir(directory)).sort()).toEqual(['earthquakes.json', 'exchange.json', 'horoscope.json', 'manifest.json', 'news.json', 'quotes.json', 'status.json']);
   expect(await read('exchange')).toBe(before);
   expect(JSON.parse(await readFile(join(directory, 'status.json'), 'utf8')).sources.exchange.code).toBe('unexpected_content_type_csv_text_html');
+});
+it('validates and restores HTML-only exchange evidence without changing the other four sources', async () => {
+  const other = CORE_SOURCES;
+  const before = Object.fromEntries(await Promise.all(other.map(async source => [source, await read(source)])));
+  const snapshot = parseBankHtml(fullExchangeHtml(), captured);
+  await writeFile(path('exchange'), JSON.stringify(snapshot));
+  await mkdir(join(root, '.cache/data-updates'), { recursive: true });
+  await writeFile(join(root, '.cache/data-updates/status.json'), JSON.stringify({ version: 1, sources: {} }));
+  const directory = join(root, 'html-checkpoint'); await exportState(root, directory); await restoreState(root, directory, now());
+  const restored = validateData('exchange', JSON.parse(await read('exchange')), now());
+  expect(restored.rates).toHaveLength(19); expect(restored.evidence).toEqual(snapshot.evidence);
+  for (const source of other) expect(await read(source)).toBe(before[source]);
 });
 it('scheduled core isolates a failure, preserves all valid snapshots and throttles the next attempt', async () => {
   const before = Object.fromEntries(await Promise.all(SOURCES.map(async source => [source, await read(source)])));

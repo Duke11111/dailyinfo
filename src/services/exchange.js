@@ -25,7 +25,12 @@ export function validateExchangeSnapshot(raw) {
     if (['cash', 'spot'].every(mode => clean[mode].buy === null && clean[mode].sell === null)) throw Error('幣別沒有有效報價。');
     return clean;
   });
-  const evidence = raw.evidence && ['csvSha256', 'htmlSha256'].every(key => /^[a-f0-9]{64}$/.test(raw.evidence[key])) ? { csvSha256: raw.evidence.csvSha256, htmlSha256: raw.evidence.htmlSha256 } : null;
+  let evidence = raw.evidence && ['csvSha256', 'htmlSha256'].every(key => /^[a-f0-9]{64}$/.test(raw.evidence[key])) ? { csvSha256: raw.evidence.csvSha256, htmlSha256: raw.evidence.htmlSha256 } : null;
+  if (raw.evidence?.mode === 'html-only') {
+    if (Object.keys(raw.evidence).sort().join(',') !== 'htmlSha256,mode,reason,validation' || raw.evidence.reason !== 'csv_text_html'
+      || raw.evidence.validation !== 'official-table-19-v1' || !/^[a-f0-9]{64}$/.test(raw.evidence.htmlSha256) || rates.length !== Object.keys(CURRENCY_NAMES).length) throw Error('HTML 備援證據無效。');
+    evidence = { mode: 'html-only', reason: 'csv_text_html', validation: 'official-table-19-v1', htmlSha256: raw.evidence.htmlSha256 };
+  }
   return { version: 1, source: '臺灣銀行', sourceUrl: EXCHANGE_SOURCE, downloadUrl: EXCHANGE_CSV, licenseUrl: EXCHANGE_LICENSE, base: 'TWD', unit: 1, quotedAt, fetchedAt: raw.fetchedAt, rates, evidence };
 }
 export function filterCurrencies(rates, query = '') {

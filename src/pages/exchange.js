@@ -32,6 +32,7 @@ export function mountExchange(host, { store = exchangeStore, now = Date.now } = 
     if (loading) status.append(el('p', '正在讀取匯率快照…'));
     if (snapshot) {
       status.append(el('strong', `銀行牌告：${formatTime(snapshot.quotedAt)}（臺灣時間）`), el('p', `快照擷取：${formatTime(snapshot.fetchedAt)}${readAt ? ` · 網頁讀取：${formatTime(new Date(readAt).toISOString())}${cached ? '（共用快取）' : ''}` : ''}`, 'stock-help'));
+      if (snapshot.evidence?.mode === 'html-only') status.append(el('p', '驗證方式：臺灣銀行官方 HTML 牌告頁，19 種幣別與欄位完整性檢查；未進行 CSV 交叉核對。', 'stock-help'));
       if (isExchangeStale(snapshot, now())) status.append(el('p', '牌告或快照已超過 24 小時，可能過期；請以標示時間為準。', 'stock-error'));
     } else status.append(el('p', '目前沒有有效匯率快照。', 'stock-help'));
     error.textContent = failure ? `${failure} 既有有效資料及個人設定均保留。` : '';

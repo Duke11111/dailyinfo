@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFile, writeFile, rename, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { EXCHANGE_SOURCE, EXCHANGE_CSV, EXCHANGE_LICENSE, validateExchangeSnapshot } from '../../src/services/exchange.js';
+import { EXCHANGE_SOURCE, EXCHANGE_CSV, EXCHANGE_LICENSE, CURRENCY_NAMES, validateExchangeSnapshot } from '../../src/services/exchange.js';
 import { ExchangeUpdateError, exchangeNetworkError, exchangeMimeFailureCode } from './exchange-errors.mjs';
 
 const missing = new Set(['', '-', '--', '0', '0.00000']);
@@ -15,37 +15,74 @@ export function parseBankExchange(csv, html, fetchedAt = new Date().toISOString(
   try { return parseExchange(csv, html, fetchedAt); }
   catch (error) { throw error instanceof ExchangeUpdateError ? error : new ExchangeUpdateError('parse_error'); }
 }
-function parseExchange(csv, html, fetchedAt) {
-  const rows = csv.replace(/^\uFEFF/, '').trim().split(/\r?\n/).map(line => line.split(',').map(value => value.trim()));
-  const header = rows.shift();
-  if (header?.[0] !== '幣別' || header[1] !== '匯率' || header[2] !== '現金' || header[3] !== '即期' || header[11] !== '匯率' || header[12] !== '現金' || header[13] !== '即期' || !rows.length) throw new ExchangeUpdateError('csv_format_error', '官方 CSV 欄位異常，停止更新。');
+function readBankPage(html, strict = false) {
   // Malformed server HTML/CSS must not reach the process console through jsdom.
   const dom = new JSDOM(html, { virtualConsole: new VirtualConsole() });
   try {
     const document = dom.window.document;
-    const stamp = document.body.textContent.match(/牌價最新掛牌時間[：:]\s*(\d{4}\/\d{2}\/\d{2} \d{2}:\d{2})/)?.[1];
+    const stamps = [...document.body.textContent.matchAll(/牌價最新掛牌時間[：:]\s*(\d{4}\/\d{2}\/\d{2} \d{2}:\d{2})/g)];
+    const stamp = stamps[0]?.[1];
     if (!stamp) throw new ExchangeUpdateError('quote_time_error', '官方網頁未提供可驗證的牌告時間。');
     const quotedAt = stamp.replaceAll('/', '-').replace(' ', 'T') + ':00+08:00';
+    let scope = document;
+    if (strict) {
+      const title = document.title;
+      if (document.doctype?.name !== 'html' || !/<\/table\s*>/i.test(html) || !/<\/body\s*>/i.test(html) || !/<\/html\s*>\s*$/i.test(html)
+        || !title.includes('臺灣銀行') || !title.includes('牌告匯率') || stamps.length !== 1
+        || /captcha|access denied|just a moment|驗證碼|存取遭拒|機器人驗證/i.test(document.body.textContent)
+        || document.querySelector('meta[http-equiv="refresh" i]')) throw new ExchangeUpdateError('parse_error');
+      const tables = [...document.querySelectorAll('table')].filter(table => table.querySelector('td[data-table="本行現金買入"]'));
+      if (tables.length !== 1) throw new ExchangeUpdateError('parse_error');
+      scope = tables[0];
+      const heads = [...scope.querySelectorAll('thead th')], label = node => node.textContent.replace(/\s+/g, '').trim();
+      const cash = heads.findIndex(node => label(node) === '現金匯率' && node.getAttribute('colspan') === '2');
+      const spot = heads.findIndex(node => label(node) === '即期匯率' && node.getAttribute('colspan') === '2');
+      const sides = heads.map(label).filter(text => ['本行買入', '本行賣出'].includes(text));
+      if (!heads.some(node => label(node) === '幣別') || cash < 0 || spot <= cash
+        || sides.join(',') !== '本行買入,本行賣出,本行買入,本行賣出'
+        || !scope.querySelector('tbody')) throw new ExchangeUpdateError('parse_error');
+    }
     const table = new Map();
-    for (const row of document.querySelectorAll('tr')) {
-      if (!row.querySelector('td[data-table="本行現金買入"]')) continue;
+    const keys = ['本行現金買入', '本行現金賣出', '本行即期買入', '本行即期賣出'];
+    for (const row of scope.querySelectorAll(strict ? 'tbody tr' : 'tr')) {
+      if (!strict && !row.querySelector('td[data-table="本行現金買入"]')) continue;
       const label = (row.querySelector('td .hidden-phone') ?? row.querySelector('td')).textContent.replace(/\s+/g, ' ').trim();
       const match = label.match(/^(.+?)\s*\(([A-Z]{3})\)$/); if (!match || table.has(match[2])) throw new ExchangeUpdateError('parse_error', '官方網頁幣別格式異常。');
-      const fields = ['本行現金買入', '本行現金賣出', '本行即期買入', '本行即期賣出'].map(name => {
-        const cell = row.querySelector(`td[data-table="${name}"]`); if (!cell) throw new ExchangeUpdateError('parse_error', '官方網頁匯率欄位缺失。'); return parseBankRate(cell.textContent);
+      if (strict && (!Object.hasOwn(CURRENCY_NAMES, match[2]) || ![CURRENCY_NAMES[match[2]], match[2] === 'USD' ? '美金' : ''].filter(Boolean).includes(match[1].trim())
+        || [...row.querySelectorAll('td[data-table]')].map(cell => cell.getAttribute('data-table')).filter(name => keys.includes(name)).join(',') !== keys.join(','))) throw new ExchangeUpdateError('parse_error');
+      const fields = keys.map(name => {
+        const cells = row.querySelectorAll(`td[data-table="${name}"]`); if (cells.length !== 1) throw new ExchangeUpdateError('parse_error', '官方網頁匯率欄位缺失。');
+        if (strict && !cells[0].textContent.trim()) throw new ExchangeUpdateError('parse_error');
+        return parseBankRate(cells[0].textContent);
       }); table.set(match[2], { name: match[1].trim(), fields });
     }
-    const rates = rows.map(row => {
-      if (row.length < 21 || row.length > 22 || (row.length === 22 && row[21] !== '') || row[1] !== '本行買入' || row[11] !== '本行賣出') throw new ExchangeUpdateError('csv_format_error', '官方 CSV 買賣欄位異常。');
-      const code = row[0], page = table.get(code), values = [row[2], row[12], row[3], row[13]].map(parseBankRate);
-      if (!page || values.some((value, i) => value !== page.fields[i])) throw new ExchangeUpdateError('csv_html_mismatch', 'CSV 與官方網頁報價不一致，可能更新中；保留舊快照。');
-      return { code, name: page.name, cash: { buy: values[0], sell: values[1] }, spot: { buy: values[2], sell: values[3] } };
-    });
-    if (rates.length !== table.size) throw new ExchangeUpdateError('csv_html_mismatch', 'CSV 與網頁幣別範圍不一致。');
-    return validateExchangeSnapshot({ version: 1, source: '臺灣銀行', sourceUrl: EXCHANGE_SOURCE, downloadUrl: EXCHANGE_CSV, licenseUrl: EXCHANGE_LICENSE, base: 'TWD', unit: 1, quotedAt, fetchedAt, rates, evidence: { csvSha256: createHash('sha256').update(csv).digest('hex'), htmlSha256: createHash('sha256').update(html).digest('hex') } });
+    if (strict && table.size !== Object.keys(CURRENCY_NAMES).length) throw new ExchangeUpdateError('parse_error');
+    return { quotedAt, table };
   } finally { dom.window.close(); }
 }
-export async function updateExchange({ target = new URL('../../public/data/exchange.json', import.meta.url), fetchImpl = fetch, now = Date.now } = {}) {
+const snapshotBase = (quotedAt, fetchedAt, rates, evidence) => ({ version: 1, source: '臺灣銀行', sourceUrl: EXCHANGE_SOURCE, downloadUrl: EXCHANGE_CSV, licenseUrl: EXCHANGE_LICENSE, base: 'TWD', unit: 1, quotedAt, fetchedAt, rates, evidence });
+export function parseBankHtml(html, fetchedAt = new Date().toISOString()) {
+  try {
+    const { quotedAt, table } = readBankPage(html, true);
+    const rates = [...table].map(([code, { name, fields }]) => ({ code, name, cash: { buy: fields[0], sell: fields[1] }, spot: { buy: fields[2], sell: fields[3] } }));
+    return validateExchangeSnapshot(snapshotBase(quotedAt, fetchedAt, rates, { mode: 'html-only', reason: 'csv_text_html', validation: 'official-table-19-v1', htmlSha256: createHash('sha256').update(html).digest('hex') }));
+  } catch (error) { throw error instanceof ExchangeUpdateError ? error : new ExchangeUpdateError('parse_error'); }
+}
+function parseExchange(csv, html, fetchedAt) {
+  const rows = csv.replace(/^\uFEFF/, '').trim().split(/\r?\n/).map(line => line.split(',').map(value => value.trim()));
+  const header = rows.shift();
+  if (header?.[0] !== '幣別' || header[1] !== '匯率' || header[2] !== '現金' || header[3] !== '即期' || header[11] !== '匯率' || header[12] !== '現金' || header[13] !== '即期' || !rows.length) throw new ExchangeUpdateError('csv_format_error', '官方 CSV 欄位異常，停止更新。');
+  const { quotedAt, table } = readBankPage(html);
+  const rates = rows.map(row => {
+    if (row.length < 21 || row.length > 22 || (row.length === 22 && row[21] !== '') || row[1] !== '本行買入' || row[11] !== '本行賣出') throw new ExchangeUpdateError('csv_format_error', '官方 CSV 買賣欄位異常。');
+    const code = row[0], page = table.get(code), values = [row[2], row[12], row[3], row[13]].map(parseBankRate);
+    if (!page || values.some((value, i) => value !== page.fields[i])) throw new ExchangeUpdateError('csv_html_mismatch', 'CSV 與官方網頁報價不一致，可能更新中；保留舊快照。');
+    return { code, name: page.name, cash: { buy: values[0], sell: values[1] }, spot: { buy: values[2], sell: values[3] } };
+  });
+  if (rates.length !== table.size) throw new ExchangeUpdateError('csv_html_mismatch', 'CSV 與網頁幣別範圍不一致。');
+  return validateExchangeSnapshot(snapshotBase(quotedAt, fetchedAt, rates, { csvSha256: createHash('sha256').update(csv).digest('hex'), htmlSha256: createHash('sha256').update(html).digest('hex') }));
+}
+export async function updateExchange({ target = new URL('../../public/data/exchange.json', import.meta.url), fetchImpl = fetch, now = Date.now, allowHtmlFallback = false } = {}) {
   // At most two ordinary official requests, no retries, proxy, browser evasion or polling.
   const get = async (url, type, endpoint) => {
     let response;
@@ -64,8 +101,13 @@ export async function updateExchange({ target = new URL('../../public/data/excha
     if (text.includes('\uFFFD')) throw new ExchangeUpdateError('encoding_error');
     return text;
   };
-  const csv = await get(EXCHANGE_CSV, 'text/csv', 'csv'), html = await get(EXCHANGE_SOURCE, 'text/html', 'html');
-  const snapshot = parseBankExchange(csv, html, new Date(now()).toISOString());
+  let csv;
+  try { csv = await get(EXCHANGE_CSV, 'text/csv', 'csv'); }
+  catch (error) {
+    if (allowHtmlFallback !== true || !(error instanceof ExchangeUpdateError) || error.safeCode !== 'unexpected_content_type_csv_text_html') throw error;
+  }
+  const html = await get(EXCHANGE_SOURCE, 'text/html', 'html');
+  const snapshot = csv === undefined ? parseBankHtml(html, new Date(now()).toISOString()) : parseBankExchange(csv, html, new Date(now()).toISOString());
   let previous;
   try { previous = validateExchangeSnapshot(JSON.parse(await readFile(target, 'utf8'))); }
   catch (error) { if (error.code !== 'ENOENT') throw new ExchangeUpdateError('previous_snapshot_invalid'); }
