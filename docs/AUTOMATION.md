@@ -1,5 +1,23 @@
 # Phase 6D：資料更新與發布操作說明
 
+## Phase 8D-2A：四來源 core（本機準備，未提交）
+
+`data-update.yml` 手動選項新增 `core`，只執行 quotes、news、earthquakes、horoscope。`all` 仍執行五來源，`exchange` 仍可單獨手動診斷；預設選項保持 all，不改既有行為。統一入口 `npm.cmd run update:data -- --sources=core` 使用固定來源白名單；個別或逗號分隔選擇仍有效，未知／重複或混合別名會拒絕。
+
+未來 schedule 分支預備使用 `--sources=core --scheduled`；CLI 的排程選擇也排除 exchange，再交由既有 isDue 判斷：新聞／地震約 150 分鐘間隔，股票臺灣平日 17:00 後（未獨立判斷交易所假日）、星座臺灣每日 09:00 後。沒有跳過到期檢查，沒有新增 schedule 觸發器。本階段不改 Variables、Secrets 或雲端設定。
+
+只排除匯率的「更新請求」，不刪除或跳過驗證匯率快照。還原、公開快照驗證與 checkpoint 仍處理五份 JSON、status 與 manifest，保留上輪有效匯率與診斷狀態；各來源失敗仍隔離並保留舊資料。匯率頁、牌告時間、過期提示及 MIME 接受規則沒有改動。四個 core 更新腳本與真實資料來源均未改寫，Mock 只用於測試。
+
+本機相關驗收：`npm.cmd test -- tests/data-automation.test.js tests/deployment.test.js tests/public-candidate-security.test.js`，3 檔、43/43 通過（2.33 秒）；沒有執行真實資料更新、全套重複測試或部署。
+
+### 下一階段單次手動更新與 Pages 發布方案（必須另行授權）
+
+1. 審查、Commit／Push 本機變更後，確認兩個 workflow 都仍只有 workflow_dispatch，原有 checkpoint 有效；不重新初始化，不更新匯率。
+2. 另外取得「發布更新後四來源資料」授權，才允許設定 DATA_DEPLOY_TARGET=pages 與 DATA_PUBLISH_ENABLED=true；本階段兩者保持原狀。若尚未授權發布，只執行候選驗收即可。
+3. 只手動觸發一次 data-update.yml，main、source=core、initialize_state=false。要明確驗收同一輪更新及 Pages 發布時，可設定 publish_current=true，確保沒有新內容時也會建立發布候選；這不代表向來源取得新資料。需另行授權才執行。
+4. 分別檢查四來源結果及資料日期、exchange 舊快照保留、測試／建置／安全檢查、deploy 與 checkpoint 成功。單一來源失敗可能仍發布混合新舊但已驗證的資料，不能把 Run success 當成四來源全成功；若要先人工審閱候選內容，應分成更新與發布兩階段，不宣稱單一 Run 可插入現有流程沒有的人工審核。
+5. 核對正式 Pages 的日期與資源後，依授權範圍決定是否關閉發布開關。schedule 繼續保持不存在；真正啟用排程必須另行授權。不可另跑 pages-manual.yml，避免用 main 的舊快照覆蓋剛發布的 checkpoint 資料。
+
 > Phase 8B 現況：Repository 已公開，Actions 整體停用，Pages 未部署。本機 `data-update.yml` 已移除 schedule，只保留手動入口；下面頻率與啟用方式屬未來 Phase 8D 的待授權方案，不代表目前有排程。首次網站部署改用獨立 [Pages 手動流程](PAGES.md)，不開資料更新開關或設定 Secrets。
 
 ## 現況與建議方案

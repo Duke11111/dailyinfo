@@ -1,7 +1,7 @@
 import { beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { mkdtemp, mkdir, readFile, writeFile, rm, readdir } from 'node:fs/promises';
 import { resolve, join, sep } from 'node:path';
-import { SOURCES, updateData, validateData, validateState, isDue, contentDigest, assertPublicSafe, verifyPublicTree } from '../scripts/lib/data-automation.mjs';
+import { SOURCES, CORE_SOURCES, selectUpdateSources, updateData, validateData, validateState, isDue, contentDigest, assertPublicSafe, verifyPublicTree } from '../scripts/lib/data-automation.mjs';
 import { exportState, restoreState } from '../scripts/lib/update-state.mjs';
 import { snapshotTarget } from '../scripts/lib/snapshot-target.mjs';
 import { quoteFixture } from './fixtures/quotes.js';
@@ -20,6 +20,42 @@ async function seed() { for (const source of SOURCES) await writeFile(path(sourc
 function runner(transform = data => data) { return vi.fn(async (source, { directory }) => { const data = fixture(source); data.fetchedAt = captured; await writeFile(join(directory, `${source}.json`), JSON.stringify(transform(data, source))); }); }
 beforeEach(async () => { await mkdir(base, { recursive: true }); root = await mkdtemp(join(base, 'test-')); await mkdir(join(root, 'public/data'), { recursive: true }); await seed(); });
 afterEach(async () => { vi.unstubAllEnvs(); if (!resolve(root).startsWith(base + sep)) throw Error('Cleanup outside test workspace'); await rm(root, { recursive: true }); });
+
+it('selects core without changing all or individual manual source behavior', () => {
+  expect(selectUpdateSources('core')).toEqual(['quotes', 'news', 'earthquakes', 'horoscope']);
+  expect(selectUpdateSources()).toEqual(SOURCES); expect(selectUpdateSources('exchange')).toEqual(['exchange']);
+  expect(selectUpdateSources('quotes,news')).toEqual(['quotes', 'news']);
+  for (const value of ['core,exchange', 'quotes,quotes', '../bad', '', null]) expect(() => selectUpdateSources(value)).toThrow('unknown_source');
+});
+it('excludes exchange from scheduled selection without bypassing per-source due checks', async () => {
+  expect(selectUpdateSources('all', true)).toEqual(CORE_SOURCES);
+  expect(() => selectUpdateSources('exchange', true)).toThrow();
+  const perform = runner(), report = await updateData({ root, sources: selectUpdateSources('core', true), scheduled: true, runner: perform, now });
+  // Taiwan 09:00: news / earthquakes / horoscope due, quotes wait until 17:00.
+  expect(perform.mock.calls.map(([source]) => source)).toEqual(['news', 'earthquakes', 'horoscope']);
+  expect(report.results.find(item => item.source === 'quotes').code).toBe('not_due');
+});
+it.each(CORE_SOURCES)('isolates a failed core source %s and never runs exchange', async failedSource => {
+  const before = Object.fromEntries(await Promise.all(SOURCES.map(async source => [source, await read(source)]))), perform = runner();
+  const report = await updateData({ root, sources: selectUpdateSources('core'), now, runner: async (source, options) => {
+    if (source === failedSource) throw Error('synthetic failure only'); await perform(source, options);
+  } });
+  expect(report.failed).toBe(1); expect(report.results.map(item => item.source)).toEqual(CORE_SOURCES);
+  expect(perform.mock.calls.map(([source]) => source)).toEqual(CORE_SOURCES.filter(source => source !== failedSource));
+  for (const item of report.results) expect(item.status).toBe(item.source === failedSource ? 'failed' : 'unchanged');
+  for (const source of SOURCES) expect(await read(source)).toBe(before[source]);
+});
+it('keeps all five snapshots and prior exchange diagnostics in a core checkpoint', async () => {
+  const before = await read('exchange');
+  await mkdir(join(root, '.cache/data-updates'), { recursive: true });
+  await writeFile(join(root, '.cache/data-updates/status.json'), JSON.stringify({ version: 1, sources: { exchange: { attemptedAt: captured, status: 'failed', code: 'unexpected_content_type_csv_text_html' } } }));
+  const report = await updateData({ root, sources: selectUpdateSources('core'), now, runner: runner(data => { if (data.articles) data.articles[0].title = 'Updated core fixture'; return data; }) });
+  expect(report.failed).toBe(0); expect(report.changed).toBe(true);
+  const directory = join(root, 'core-checkpoint'); await exportState(root, directory); await restoreState(root, directory, now());
+  expect((await readdir(directory)).sort()).toEqual(['earthquakes.json', 'exchange.json', 'horoscope.json', 'manifest.json', 'news.json', 'quotes.json', 'status.json']);
+  expect(await read('exchange')).toBe(before);
+  expect(JSON.parse(await readFile(join(directory, 'status.json'), 'utf8')).sources.exchange.code).toBe('unexpected_content_type_csv_text_html');
+});
 
 it.each(SOURCES)('validates %s with actual module schema and updates independently', async source => {
   const before = Object.fromEntries(await Promise.all(SOURCES.map(async name => [name, await read(name)])));
@@ -98,4 +134,7 @@ it('keeps manually committed fresher data when restoring a previous checkpoint',
 it('workflow is opt-in, default-branch only and scopes secrets away from build/deploy', async () => {
   const workflow = await readFile(resolve('.github/workflows/data-update.yml'), 'utf8'); expect(workflow).toContain("vars.DATA_AUTOMATION_ENABLED == 'true'"); expect(workflow).toContain('github.event.repository.default_branch'); expect(workflow).toContain('cancel-in-progress: false'); expect(workflow).toContain('workflow_dispatch:'); expect(workflow).not.toMatch(/^\s+(?:schedule|push|pull_request|workflow_run):/m); expect(workflow).not.toContain('git push'); expect(workflow).not.toContain('contents: write'); expect(workflow).toContain("needs.deploy.result == 'success' || needs.deploy.result == 'skipped'");
   const build = workflow.slice(workflow.indexOf('- name: Test and build'), workflow.indexOf('- name: Verify built')); expect(build).not.toContain('CWA_API_KEY:'); expect(workflow).toContain("vars.DATA_PUBLISH_ENABLED == 'true'");
+  expect(workflow).toContain('options: [all, core, quotes, news, earthquakes, exchange, horoscope]');
+  expect(workflow).toContain('npm run update:data -- --sources=core --scheduled');
+  expect(workflow).toContain('npm run update:data -- "--sources=$SOURCE"');
 });

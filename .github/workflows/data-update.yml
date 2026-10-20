@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
     inputs:
       source:
-        description: Source to update (all bypasses scheduled due checks)
+        description: Source to update (core excludes exchange; manual runs bypass due checks)
         type: choice
-        options: [all, quotes, news, earthquakes, exchange, horoscope]
+        options: [all, core, quotes, news, earthquakes, exchange, horoscope]
         default: all
       initialize_state:
         description: First run only - approve validated repository snapshots as baseline
@@ -61,7 +61,7 @@ jobs:
         run: |
           set +e
           if [ "$EVENT" = "schedule" ]; then
-            npm run update:data -- --scheduled
+            npm run update:data -- --sources=core --scheduled
           elif [ "$SOURCE" = "all" ]; then
             npm run update:data
           else

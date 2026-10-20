@@ -13,6 +13,14 @@ import { EXCHANGE_ERROR_CODES, exchangeCodeFromExitStatus } from './exchange-err
 
 export const PROJECT_ROOT = fileURLToPath(new URL('../../', import.meta.url));
 export const SOURCES = Object.freeze(['quotes', 'news', 'earthquakes', 'exchange', 'horoscope']);
+export const CORE_SOURCES = Object.freeze(SOURCES.filter(source => source !== 'exchange'));
+export function selectUpdateSources(selection = 'all', scheduled = false) {
+  const sources = selection === 'all' ? [...SOURCES] : selection === 'core' ? [...CORE_SOURCES] : typeof selection === 'string' ? selection.split(',') : [];
+  if (!sources.length || new Set(sources).size !== sources.length || sources.some(source => !SOURCES.includes(source))) throw safeFailure('unknown_source');
+  const selected = scheduled ? sources.filter(source => CORE_SOURCES.includes(source)) : sources;
+  if (!selected.length) throw safeFailure('unknown_source');
+  return selected;
+}
 const validators = { quotes: validateQuoteSnapshot, news: validateNewsSnapshot, earthquakes: validateEarthquakeSnapshot, exchange: validateExchangeSnapshot, horoscope: validateHoroscope };
 const runFile = promisify(execFile);
 const hash = value => createHash('sha256').update(value).digest('hex');
