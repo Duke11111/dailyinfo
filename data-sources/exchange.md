@@ -1,5 +1,17 @@
 # 臺灣銀行牌告匯率來源與使用方式
 
+## Phase 8D-1.1：安全診斷（本機未提交）
+
+首次雲端 Run `39371257503` 僅留下 exchange 的 `update_failed`；子程序與統一入口原先都丟棄細節，不能事後判定銀行故障、封鎖、CSV／HTML 競態或解析問題。本階段不請求銀行、不重新觸發 Actions，只用 Mock 驗證診斷。
+
+新增白名單代碼：`network_error`、`dns_error`、`tls_error`、`connection_error`、`request_timeout`、`http_403`、`http_429`、`http_5xx`、`http_error`、`redirect_error`、`unexpected_content_type`、`encoding_error`、`response_too_large`、`csv_format_error`、`quote_time_error`、`csv_html_mismatch`、`parse_error`、`date_regression`、`previous_snapshot_invalid`、`filesystem_error`，以及未知情況的 `update_failed`。
+
+匯率子程序只以 64 起算的固定數字 exit status 傳遞代碼；統一入口不讀取／轉印子程序輸出來決定代碼。非白名單或其他來源仍回到既有通用錯誤。CLI 只輸出固定句型與固定代碼，JSDOM parser console 也隔離，不轉印原始錯誤、HTTP 本文、Cookie、Location 或標頭。Redirect 採 manual 後直接拒絕所有 3xx，不會跟隨或繞過限制。UTF-8 解碼出現替代字元或不支援的 charset 會拒絕，不猜測轉碼。
+
+保留 CSV／HTML 逐幣逐欄核對、牌告時間與日期倒退驗證、舊快照驗證和同目錄暫存後 rename。checkpoint 的 exchange 失敗狀態可保存新代碼，原 `update_failed` 格式仍可恢復，其他四個來源不接受匯率專用代碼。
+
+後續須另行授權：審查、Commit／Push 本機修正後，只執行一次 exchange-only workflow（main、source=exchange、initialize_state=false、publish_current=false）。該更新腳本最多兩次官方 GET（CSV 一次、HTML 一次；前者失敗則不發第二次），無重試；發布保持關閉，不設定排程。先說明並取得真實請求授權，才執行；本階段未進行這些動作。
+
 查核日期：2026/10/20。本次使用臺灣銀行官方下載與官方牌告網頁，不使用中間市場或其他銀行資料。
 
 ## 官方來源及授權

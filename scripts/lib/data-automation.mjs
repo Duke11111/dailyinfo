@@ -9,6 +9,7 @@ import { validateNewsSnapshot } from '../../src/services/news.js';
 import { validateEarthquakeSnapshot } from '../../src/services/earthquakes.js';
 import { validateExchangeSnapshot } from '../../src/services/exchange.js';
 import { validateHoroscope, taipeiDate } from '../../src/services/horoscope.js';
+import { EXCHANGE_ERROR_CODES, exchangeCodeFromExitStatus } from './exchange-errors.mjs';
 
 export const PROJECT_ROOT = fileURLToPath(new URL('../../', import.meta.url));
 export const SOURCES = Object.freeze(['quotes', 'news', 'earthquakes', 'exchange', 'horoscope']);
@@ -50,7 +51,7 @@ export function validateState(raw, now = Date.now()) {
   const sources = {};
   for (const name of Object.keys(raw.sources)) {
     const item = raw.sources[name];
-    if (!SOURCES.includes(name) || !iso(item?.attemptedAt) || Date.parse(item.attemptedAt) > now + 300000 || !['updated', 'unchanged', 'failed'].includes(item.status) || !['ok', 'update_failed', 'validation_failed'].includes(item.code) || item.lastSuccessAt != null && (!iso(item.lastSuccessAt) || Date.parse(item.lastSuccessAt) > Date.parse(item.attemptedAt))) throw safeFailure('state_invalid');
+    if (!SOURCES.includes(name) || !iso(item?.attemptedAt) || Date.parse(item.attemptedAt) > now + 300000 || !['updated', 'unchanged', 'failed'].includes(item.status) || !['ok', 'update_failed', 'validation_failed'].includes(item.code) && !(name === 'exchange' && item.status === 'failed' && EXCHANGE_ERROR_CODES.includes(item.code)) || item.lastSuccessAt != null && (!iso(item.lastSuccessAt) || Date.parse(item.lastSuccessAt) > Date.parse(item.attemptedAt))) throw safeFailure('state_invalid');
     sources[name] = { attemptedAt: item.attemptedAt, status: item.status, code: item.code, ...(item.lastSuccessAt ? { lastSuccessAt: item.lastSuccessAt } : {}) };
   }
   return { version: 1, sources };
@@ -72,7 +73,7 @@ export async function runSource(source, { root, directory }) {
     const env = { ...process.env, DAILYINFO_DATA_DIR: directory };
     if (source !== 'earthquakes') delete env.CWA_API_KEY;
     await runFile(process.execPath, [join(root, 'scripts', `update-${source}.mjs`)], { cwd: root, env, timeout: 210000, maxBuffer: 1048576, windowsHide: true });
-  } catch { throw safeFailure('update_failed'); }
+  } catch (error) { throw safeFailure(source === 'exchange' ? exchangeCodeFromExitStatus(error.code) : 'update_failed'); }
 }
 export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, scheduled = false, now = Date.now, runner = runSource } = {}) {
   if (!sources.length || new Set(sources).size !== sources.length || sources.some(name => !SOURCES.includes(name))) throw safeFailure('unknown_source');
@@ -90,9 +91,11 @@ export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, sched
       const target = join(root, 'public/data', `${source}.json`), directory = join(staging, source); await mkdir(directory);
       let previous;
       try {
-        const raw = await optionalJson(target); previous = raw ? validateData(source, raw, now()) : null;
+        try {
+          const raw = await optionalJson(target); previous = raw ? validateData(source, raw, now()) : null;
+        } catch (error) { if (source === 'exchange') throw safeFailure('previous_snapshot_invalid'); throw error; }
         if (previous) await copyFile(target, join(directory, `${source}.json`));
-        try { await runner(source, { root, directory }); } catch { throw safeFailure('update_failed'); }
+        try { await runner(source, { root, directory }); } catch (error) { throw safeFailure(source === 'exchange' && EXCHANGE_ERROR_CODES.includes(error.safeCode) ? error.safeCode : 'update_failed'); }
         const rawNext = await optionalJson(join(directory, `${source}.json`));
         const next = validateData(source, rawNext, now());
         if (previous && (sourceDate(source, next) < sourceDate(source, previous) || Date.parse(next.fetchedAt) < Date.parse(previous.fetchedAt))) throw safeFailure('validation_failed');
@@ -104,7 +107,7 @@ export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, sched
         const accepted = changed ? next : previous;
         results.push({ source, ...item, sourceDate: sourceDate(source, accepted), fetchedAt: accepted.fetchedAt });
       } catch (error) {
-        const code = error.safeCode === 'update_failed' ? 'update_failed' : 'validation_failed';
+        const code = error.safeCode === 'update_failed' || source === 'exchange' && EXCHANGE_ERROR_CODES.includes(error.safeCode) ? error.safeCode : 'validation_failed';
         const item = { attemptedAt: startedAt, status: 'failed', code, ...(state.sources[source]?.lastSuccessAt ? { lastSuccessAt: state.sources[source].lastSuccessAt } : {}) };
         state.sources[source] = item; results.push({ source, ...item });
       }

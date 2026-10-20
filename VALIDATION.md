@@ -1,5 +1,13 @@
 # DailyInfo 驗收紀錄
 
+## Phase 8D-1.1：匯率失敗安全診斷（2026/10/20）
+
+- 唯讀檢查 Run `39371257503` 與原始更新鏈路，確認舊日誌只能得知 exchange `update_failed`，不能事後還原 DNS／TLS／HTTP／格式／日期等實際原因。沒有重新請求臺銀或其他資料來源、沒有執行 Actions，也沒有修改 Variables／Secrets／預算或部署。
+- 新增 `scripts/lib/exchange-errors.mjs` 固定白名單及數字 exit status 協定；更新匯率 importer／CLI 與統一入口，細分網路、狀態碼、Redirect、Content-Type／編碼、解析、報價不一致、時間及檔案保護錯誤。CLI 不再輸出任意 error.message，JSDOM parser console 隔離；不依子程序 stdout／stderr 解析或轉印診斷。其他來源維持通用代碼。原 CSV／HTML 核對與原子寫入保留。
+- Mock 涵蓋 DNS／TLS／連線／逾時、403／429／5xx、Redirect 不跟隨、回應類型／編碼／大小、CSV 欄位、牌告時間、無效數值、報價不一致、日期倒退、舊快照及暫存寫入失敗；全部確認舊目標位元組不變。實際本機測試子程序驗證僅數字狀態可傳遞，惡意輸出／Actions 指令與未知代碼不外洩；驗證新代碼可存 checkpoint、舊格式相容，其他來源仍可繼續。
+- 最終相關驗收：`npm.cmd test -- tests/exchange-update.test.js tests/exchange.test.js tests/data-automation.test.js tests/public-candidate-security.test.js`，**4 檔、94/94 通過**（1.66 秒）。前端未變，未重跑全套測試或正式建置；雲端實際原因與新錯誤碼仍待另行授權的 exchange-only 一次驗收。
+- 公開快照、工作流程及 main 不修改；Phase 8D-1.1 僅本機未提交變更。真實驗證的最小方案及代碼列表見 `data-sources/exchange.md`，必須另行授權 Commit／Push 及最多兩次官方 GET，發布開關維持關閉、不得開 schedule。
+
 ## Phase 8B：GitHub Pages 部署準備（2026/10/20）
 
 - 僅修改公開版；HEAD 仍 `399edd109980524be01db269239010e7753e2856`，本階段未 Commit／Push。Repository 已公開，開始與結束均經 GitHub API 確認 Actions `enabled:false`；Variables 查詢為空，沒有設定 DATA_AUTOMATION_ENABLED 或 DATA_PUBLISH_ENABLED。未啟用 Pages／Secrets／雲端工作流程，也未呼叫任何外部資料更新 API。

@@ -9,6 +9,7 @@ import { newsFixture } from './fixtures/news.js';
 import { eqFixture } from './fixtures/earthquakes.js';
 import { exchangeFixture } from './fixtures/exchange.js';
 import { SIGNS } from '../src/services/horoscope.js';
+import { ExchangeUpdateError, exchangeExitStatus } from '../scripts/lib/exchange-errors.mjs';
 
 const captured = '2026-10-20T01:00:00.000Z', now = () => Date.parse(captured);
 const fixture = source => ({ quotes: quoteFixture, news: newsFixture, earthquakes: eqFixture, exchange: exchangeFixture, horoscope: () => ({ version: 1, source: 'https://freehoroscopeapi.com', language: 'en', fetchedAt: captured, readings: SIGNS.map(sign => ({ sign: sign.code, date: '2026-10-20', text: 'Synthetic test only.' })) }) })[source]();
@@ -60,6 +61,28 @@ it('uses isolated output paths while preserving the ordinary local defaults', ()
 it('suppresses stdout/stderr from an actual failing Node updater process', async () => {
   await mkdir(join(root, 'scripts')); await writeFile(join(root, 'scripts/update-quotes.mjs'), "console.log('private-test-token'); console.error('private-test-token'); process.exit(1);");
   const before = await read('quotes'), report = await updateData({ root, sources: ['quotes'], now }); expect(report.failed).toBe(1); expect(JSON.stringify(report)).not.toContain('private-test-token'); expect(await read('quotes')).toBe(before);
+});
+it.each([[exchangeExitStatus(new ExchangeUpdateError('http_403')), 'http_403'], [1, 'update_failed']])('uses only numeric child status %s for exchange diagnostics', async (exit, code) => {
+  await mkdir(join(root, 'scripts'));
+  await writeFile(join(root, 'scripts/update-exchange.mjs'), `console.log('private-test-token ::error::untrusted'); console.error('{"code":"http_429","secret":"private-test-token"}'); process.exit(${exit});`);
+  const before = await read('exchange'), report = await updateData({ root, sources: ['exchange'], now });
+  expect(report.results[0].code).toBe(code); expect(await read('exchange')).toBe(before); expect(JSON.stringify(report)).not.toMatch(/private-test-token|untrusted|http_429/);
+  const checkpoint = join(root, 'diagnostic-checkpoint'); await exportState(root, checkpoint); await restoreState(root, checkpoint, now());
+  expect(JSON.parse(await readFile(join(root, '.cache/data-updates/status.json'), 'utf8')).sources.exchange.code).toBe(code);
+});
+it('scopes diagnostics to exchange, preserves old checkpoints and continues other sources', async () => {
+  const before = await read('exchange'), perform = runner();
+  const report = await updateData({ root, sources: ['exchange', 'news'], now, runner: async (source, options) => {
+    if (source === 'exchange') throw Object.assign(Error('private-test-token'), { safeCode: 'csv_html_mismatch' });
+    await perform(source, options);
+  } });
+  expect(report.results[0].code).toBe('csv_html_mismatch'); expect(report.results[1].status).toBe('unchanged'); expect(await read('exchange')).toBe(before);
+  expect(() => validateState({ version: 1, sources: { quotes: { attemptedAt: captured, status: 'failed', code: 'http_403' } } }, now())).toThrow();
+  expect(validateState({ version: 1, sources: { exchange: { attemptedAt: captured, status: 'failed', code: 'update_failed' } } }, now()).sources.exchange.code).toBe('update_failed');
+});
+it('identifies corrupt exchange baseline before executing an updater', async () => {
+  await writeFile(path('exchange'), '{broken'); const perform = runner(), report = await updateData({ root, sources: ['exchange'], runner: perform, now });
+  expect(report.results[0].code).toBe('previous_snapshot_invalid'); expect(perform).not.toHaveBeenCalled(); expect(await read('exchange')).toBe('{broken');
 });
 it('rejects exact secret values, credential fields and forbidden public files', async () => { expect(() => assertPublicSafe('test-private-key', ['test-private-key'])).toThrow(); expect(() => assertPublicSafe({ Authorization: 'anything' })).toThrow(); await writeFile(join(root, 'public/data/unsafe.json'), 'test-private-key'); await expect(verifyPublicTree(join(root, 'public'), ['test-private-key'])).rejects.toThrow(); await rm(join(root, 'public/data/unsafe.json')); await writeFile(join(root, 'public/.env.local'), 'not-a-real-key'); await expect(verifyPublicTree(join(root, 'public'))).rejects.toThrow(); });
 it('exports and validates a persistent checkpoint before restoring any files', async () => {
