@@ -33,7 +33,6 @@ npm.cmd run import:stocks
 npm.cmd run update:quotes
 npm.cmd run update:news
 npm.cmd run update:earthquakes
-npm.cmd run update:exchange
 ```
 
 地震更新僅由本機 Node.js 腳本讀取既有 `.env.local` 的 `CWA_API_KEY`，訪客不需要此檔案或金鑰。不要把金鑰放在命令列、`VITE_` 變數、前端、公開 JSON 或任何提交中。各更新腳本在失敗時保留原有有效資料；沒有排程自動更新。更新成功後仍須重新建置並重新發布 `dist/` 才會影響公開網站。

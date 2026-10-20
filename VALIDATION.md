@@ -1,12 +1,15 @@
 # DailyInfo 驗收紀錄
 
-## Phase 8D-1.1：匯率失敗安全診斷（2026/10/20）
+## Phase 8H-1：移除退役功能與四來源遷移（2026/10/20）
 
-- 唯讀檢查 Run `39371257503` 與原始更新鏈路，確認舊日誌只能得知 exchange `update_failed`，不能事後還原 DNS／TLS／HTTP／格式／日期等實際原因。沒有重新請求臺銀或其他資料來源、沒有執行 Actions，也沒有修改 Variables／Secrets／預算或部署。
-- 新增 `scripts/lib/exchange-errors.mjs` 固定白名單及數字 exit status 協定；更新匯率 importer／CLI 與統一入口，細分網路、狀態碼、Redirect、Content-Type／編碼、解析、報價不一致、時間及檔案保護錯誤。CLI 不再輸出任意 error.message，JSDOM parser console 隔離；不依子程序 stdout／stderr 解析或轉印診斷。其他來源維持通用代碼。原 CSV／HTML 核對與原子寫入保留。
-- Mock 涵蓋 DNS／TLS／連線／逾時、403／429／5xx、Redirect 不跟隨、回應類型／編碼／大小、CSV 欄位、牌告時間、無效數值、報價不一致、日期倒退、舊快照及暫存寫入失敗；全部確認舊目標位元組不變。實際本機測試子程序驗證僅數字狀態可傳遞，惡意輸出／Actions 指令與未知代碼不外洩；驗證新代碼可存 checkpoint、舊格式相容，其他來源仍可繼續。
-- 最終相關驗收：`npm.cmd test -- tests/exchange-update.test.js tests/exchange.test.js tests/data-automation.test.js tests/public-candidate-security.test.js`，**4 檔、94/94 通過**（1.66 秒）。前端未變，未重跑全套測試或正式建置；雲端實際原因與新錯誤碼仍待另行授權的 exchange-only 一次驗收。
-- 公開快照、工作流程及 main 不修改；Phase 8D-1.1 僅本機未提交變更。真實驗證的最小方案及代碼列表見 `data-sources/exchange.md`，必須另行授權 Commit／Push 及最多兩次官方 GET，發布開關維持關閉、不得開 schedule。
+- 起始工作樹乾淨，HEAD 0a22d583ac648c9b1d4b19fd70009f60a44e8e76。本機備份分支 backup/pre-remove-exchange-20261020 保存完整原版本；已確認可從分支讀出原頁面及快照。沒有 Commit／Push、雲端流程、Variables／Secrets 或費用變更。
+- 頁面、導覽、首頁摘要、換算器、服務／更新腳本、專用測試／樣本、公開快照、文件及專用截圖已刪除。瀏覽器程式與產物沒有退役功能或臺銀端點。jsdom 仍由新聞與測試使用，因此保留；沒有新增依賴。
+- SOURCES／CORE_SOURCES／all／core 都是 quotes、news、earthquakes、horoscope；workflow 移除退役選項，原 schedule／automation 雙開關、手動流程、checkpoint-only 與 Pages 發布雙條件保留。
+- 新 Checkpoint Manifest v2：四份來源、status、manifest 共六檔。v1 七檔先完整驗證每個 checksum、Schema、時間、秘密與來源 commit，再排除退役快照和狀態；舊 archive 不修改、不重新初始化。僅留 Node-only 凍結舊格式驗證，不包含任何更新／請求／換算。普通還原與 exact 既有政策保留。
+- 完整 Vitest：37 檔、533/533 通過；新遷移測試 20 項，包含 v1/v2、checksum 損壞、錯誤 Schema／日期／狀態、缺檔／多檔、來源 commit 不符、秘密內容、較新資料／exact 政策、禁止覆寫舊 archive、四來源錯誤隔離。測試數量因移除專用測試而減少。
+- 正式建置成功，49 模組；npm.cmd run verify -- --dist 通過，五份公開 JSON（四來源加股票目錄）與原檔一致，無退役資料及臺銀前端請求。四份來源和股票目錄與 HEAD 逐位元組一致。
+- 本機 Chrome 正式建置 http://127.0.0.1:5187/dailyinfo/ 實測：首頁四卡、天氣 7 日／AQI、股票搜尋與自選保存、新聞收藏保存、地震 32 標記／6 張底圖及列表定位、星座切換、深色／海洋藍／大字級重新載入保存均正常。1440x900 桌面與 390x844 手機無明顯水平溢出；沒有應用程式 JS 例外。測試自選／收藏及外觀還原，不清除使用者 localStorage。新聞保留本機原有 95 則快照，未抓新 RSS。
+- 雲端四來源 migration、Actions 或正式 Pages 未實跑，需下一階段另行授權；本機通過不能當作雲端已完成遷移。以下較早階段的測試數量與快照數量為歷史紀錄。
 
 ## Phase 8B：GitHub Pages 部署準備（2026/10/20）
 
@@ -14,7 +17,7 @@
 - `vite.config.js` 設定 base `/dailyinfo/`。六個快照服務原本即使用 BASE_URL，沒有修改業務邏輯、localStorage 結構、天氣／AQI URL 或地圖邏輯。三個既有 URL 測試改用 BASE_URL 比對，以驗證正式子路徑。
 - 本機 `data-update.yml` 移除 schedule，保留 workflow_dispatch 及既有更新／發布開關。新增 `pages-manual.yml`，只允許手動與預設分支，Node 24、乾淨安裝、測試、建置、公開產物驗證後才上傳並部署。build 只給 contents:read；deploy 只給 pages:write／id-token:write，沒有 Secrets 或來源更新步驟。四個官方 Actions SHA 再次透過官方 git ls-remote 確認。
 - 統一完整驗收一次：`npm.cmd test` **36 檔、517/517 通過**（8.36 秒）；新增 3 項部署安全測試。`npm.cmd run build -- --base=/dailyinfo/` **成功，52 模組、213 ms**；`npm.cmd run verify -- --dist` **成功**，HTML 3 個子路徑資源、CSS URL、六份快照與公開原檔一致性、schema／日期與秘密／私人路徑檢查通過。未讀取 .env.local，未知秘密精確值未比對。
-- 另以短暫本機 Vite preview 在 `/dailyinfo/` 離線 HTTP 驗證 **12 個不同路徑回應 200**（首頁、favicon、JS／CSS、六份 JSON），完成後關閉測試程序；7 個 Hash 入口（包含股票外幣入口）解析正確。全套既有頁面／路由由完整回歸測試覆蓋。沒有重做 Chrome 真人操作、外部天氣／AQI／OSM 網路請求或雲端部署；不能宣稱正式 Pages 已可用。截圖未變動，沿用既有隱私稽核。
+- 另以短暫本機 Vite preview 在 `/dailyinfo/` 離線 HTTP 驗證 **12 個不同路徑回應 200**（首頁、favicon、JS／CSS、六份 JSON），完成後關閉測試程序；7 個 Hash 入口解析正確。全套既有頁面／路由由完整回歸測試覆蓋。沒有重做 Chrome 真人操作、外部天氣／AQI／OSM 網路請求或雲端部署；不能宣稱正式 Pages 已可用。截圖未變動，沿用既有隱私稽核。
 - `git diff --check` 通過；本階段只留下本機未提交變更，GitHub 遠端仍是原 Initial Commit。正式啟用必須先在 Actions 停用時審核並 Push 移除 schedule 的版本，再另行授權啟用 Actions／Pages 及手動部署。詳細設定、停止發布與 Phase 8D 恢復排程見 `docs/PAGES.md`。
 
 ## 本機公開候選版本安全準備（2026/10/20）
@@ -59,48 +62,6 @@
 - 新增檔案：`src/services/horoscope.js`、`src/components/horoscope.js`、`src/horoscope.css`、`scripts/lib/horoscope-import.mjs`、`scripts/update-horoscope.mjs`、`public/data/horoscope.json`、`tests/horoscope.test.js`、`tests/horoscope-ui.test.js`、`tests/horoscope-update.test.js`、`data-sources/horoscope.md`、`docs/screenshots/phase6c-horoscope.png`。
 - 修改檔案：`src/pages/overview.js`、`src/main.js`、`package.json`、`package-lock.json`、`tests/overview.test.js`、`README.md`、`VALIDATION.md`。Phase 6C 尚未提交，等待驗收。
 - 限制：英文、無評分／分類、來源時區不明；僅按來源日期標籤與臺灣日期對照，非臺灣時區專屬運勢。沒有背景排程，展示當天請手動執行 `npm.cmd run update:horoscope` 再建置，若來源尚未發布臺灣當日資料會拒絕更新並保留舊檔。未開始 Phase 7。
-
-## Phase 6B / v0.9.0（2026/10/20）
-
-工作區確認為 `<project-root>`。檢查 Phase 6A 候選變更與常見秘密格式，確認 `.env.local` 忽略且未追蹤後建立本地基線 **`7837083`**。未讀取真實金鑰、改動其他專案／PATH、推送或付費；Phase 6B 尚未提交，等待驗收。
-
-### 官方來源與快照
-
-- 臺灣銀行官方 CSV 下載及牌告頁，無需註冊／金鑰。Chrome 實際讀取官網「政府網站資料開放宣告」與「引用本行資訊說明」，確認政府資料開放授權第 1 版、來源署名、不得收查詢費等營利限制；本專案免費課堂展示，不用銀行標誌、不嵌入／行銷銀行服務。條款與來源見 [data-sources/exchange.md](data-sources/exchange.md)。
-- 以一般 Node.js 請求成功下載，沒有繞過限制。CSV 不含牌告時間，因此逐幣核對 HTML 的現金買／賣及即期買／賣，完整一致後使用官方「牌價最新掛牌時間」，不採下載時間或非營業頁標題日期代替。
-- 真實快照 **19 幣**，包含要求的 USD、JPY、EUR、GBP、HKD、CNY、KRW、AUD。牌告 **2026/10/20 00:42**，擷取 **00:57:45.688（臺灣）**；正式產物 `dist/data/exchange.json` 與公開快照逐位元相同。
-- USD 現金買入／賣出 **32.045／32.715**、即期 **32.37／32.52**；JPY 即期 **0.2023／0.2073**；EUR 即期 **36.085／36.685**。原始零佔位與 HTML 缺值核對後轉為 null，例如 KRW 即期顯示未提供，不補成現金價。
-- `npm.cmd run update:exchange` 每次最多兩個官方請求、各 20 秒逾時、不自動重試；新舊快照先驗證，再暫存及原子替換。來源不同步、錯誤、損壞或時間倒退均保留舊資料。瀏覽器只讀網站 JSON，五分鐘快取、十秒重讀間隔，不逐次輸入請求銀行。
-
-### 完成功能及驗證
-
-- 股票市場新增兩個財經分頁，匯率入口 `#/stocks?view=exchange`。獨立匯率表格、中文／ISO 搜尋、常用八幣快捷選擇、現金／即期欄位切換，保留股票搜尋、自選股與歷史走勢。
-- 換算器依現金／即期與方向正確使用銀行買入或賣出；BigInt 定點處理，最多六位小數、金額上限一兆，保留零值、拒絕負數／指數／超限等輸入。結果註明牌告估算，不含未知費用或成交保證。
-- 首頁在股票卡片加入 USD／JPY／EUR 即期銀行賣出摘要，標示每 1 外幣折 TWD 與銀行牌告時間；沒有新增第五張卡片，外匯失敗不阻斷股票及其他資料。
-
-| 項目 | 實際結果 |
-| --- | --- |
-| 完整 Vitest | **29 檔、463 / 463 項通過**，5.48 秒；新增 48 項（包含財經分頁導覽） |
-| 測試涵蓋 | CSV／HTML 解析及時間核對、缺值／買賣／現金即期區分、搜尋、雙向與小數／大額換算、API 錯誤／快取、更新失敗原檔位元保留、首頁隔離、XSS、主題字級及原 415 項回歸 |
-| 正式建置 | **成功**，49 模組，最終 149 ms；主 JS 158.35 kB（gzip 52.32 kB），沒有新增依賴 |
-| 最後視覺修正 | 正式畫面發現原表單樣式僅限股票容器，補上匯率頁 input／select 樣式；相關 UI 8 項再驗證通過並重建，未修改換算程式或重跑整套測試 |
-| 資安／範圍 | 候選變更常見秘密格式命中 0；未讀取 `.env.local`。原天氣／AQI 服務、股票頁、新聞／地震頁及既有快照無變更。套件鎖檔只有專案版本變更，`git diff --check` 通過 |
-
-### Chrome 實測
-
-- 開發站 5174、正式產物 4173 均成功讀取 19 幣。搜尋、USD／JPY／KRW 快捷鍵、現金／即期切換與財經分頁往返正常；原股票探索仍有十筆，沒有改動群組或收藏。
-- **100 USD → TWD**：現金銀行買入 32.045 得 **3,204.50 TWD**；即期買入 32.37 得 **3,237.00 TWD**。**1000 TWD → USD**：現金銀行賣出 32.715 得 **30.567018 USD**。小數 1000.5 USD 現金換 TWD 得 **32,061.0225**；零正常、負數及超過一兆顯示錯誤，KRW 即期不能換算。
-- 首頁顯示即期銀行賣出 **USD 32.52、JPY 0.2073、EUR 36.685**，牌告仍為 00:42。標準字級實測摘要約 **83px**，四張卡片保留；股票、五則新聞及三筆地震仍顯示。
-- 實際 CSS 寬度 **1280／1440／1920px** 均無整頁橫向溢出。1440px 深色／海洋藍／大字時表格約 630px、容器約 582px，以可聚焦水平捲動瀏覽；1920px 表格與容器約 720px。五種強調色及三種模式／字級另由單元測試涵蓋，開發站原偏好已還原。
-- 正式站重新讀取僅改變網頁讀取時間，銀行牌告 00:42 與擷取 00:57 不變；沒有向使用者宣稱即時取得銀行新報價。最終 input 圓角 7px、字級繼承全站設定，修正後截圖見 [匯率與換算器](docs/screenshots/phase6b-exchange.png)。
-
-### 檔案與限制
-
-新增 `src/services/exchange.js`、`src/pages/exchange.js`、`src/exchange.css`、`scripts/update-exchange.mjs`、`scripts/lib/exchange-import.mjs`、`public/data/exchange.json`、三個 exchange 測試檔及 `tests/fixtures/exchange.js`、`data-sources/exchange.md` 與一張截圖。
-
-修改 `src/main.js`、`src/pages/overview.js`、`tests/navigation.test.js`、套件版本／更新指令、README／VALIDATION 及展示指南。沒有新帳號、交易、匯款、銀行登入或其他大型功能。
-
-核心需求均完成。快照需維護者更新後重新建置／發布；來源正好變動而 CSV／HTML 不一致時會保護性拒絕更新，需稍後手動重試。銀行未提供的欄位不能換算，估算小數並非銀行實際結算／現鈔面額規則。沒有自動排程、投資建議或公開部署。
 
 ## Phase 6A / v0.8.0（2026/10/20）
 
@@ -539,3 +500,43 @@ Phase 1.5 程式開發到此停止，等待驗收；未開始下一階段 API �
 - 未公開部署或建立 GitHub 遠端；Git 為 `main`，尚無 commit。
 
 Phase 1 到此停止，等待使用者驗收；股票、新聞、地震僅有頁面，尚無 API 資料功能。
+
+
+## Phase 8H-1 file changes
+
+```text
+ M .github/workflows/data-update.yml
+ M README.md
+ M VALIDATION.md
+ D data-sources/exchange.md
+ M docs/AUTOMATION.md
+ M docs/DEMO.md
+ M docs/PAGES.md
+ D docs/screenshots/phase6b-exchange.png
+ M package.json
+ D public/data/exchange.json
+ M scripts/lib/data-automation.mjs
+ M scripts/lib/deployment-check.mjs
+ D scripts/lib/exchange-errors.mjs
+ D scripts/lib/exchange-import.mjs
+ M scripts/lib/snapshot-target.mjs
+ M scripts/lib/update-state.mjs
+ D scripts/update-exchange.mjs
+ D src/exchange.css
+ M src/main.js
+ D src/pages/exchange.js
+ M src/pages/overview.js
+ D src/services/exchange.js
+ M tests/data-automation.test.js
+ D tests/exchange-close.test.js
+ D tests/exchange-html-fallback.test.js
+ D tests/exchange-ui.test.js
+ D tests/exchange-update.test.js
+ D tests/exchange.test.js
+ D tests/fixtures/exchange.js
+ M tests/navigation.test.js
+ M tests/schedule-policy.test.js
+?? scripts/lib/legacy-checkpoint.mjs
+?? tests/checkpoint-migration.test.js
+?? tests/retired-feature.test.js
+```

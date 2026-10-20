@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       source:
-        description: Source to update (core excludes exchange; manual runs bypass due checks)
+        description: Source to update (four sources; manual runs bypass due checks)
         type: choice
-        options: [all, core, quotes, news, earthquakes, exchange, horoscope, checkpoint]
+        options: [all, core, quotes, news, earthquakes, horoscope, checkpoint]
         default: all
       checkpoint_run:
         description: Approved checkpoint run ID (required only for checkpoint publication)

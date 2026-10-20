@@ -1,134 +1,30 @@
-# Phase 6D：資料更新與發布操作說明
+# DailyInfo 四來源資料更新與發布
 
-## Phase 8D-3A：獨立排程開關（僅本機準備，未提交或啟用）
+只管理 quotes、news、earthquakes、horoscope。all 與 core 都選擇這四個來源；個別來源仍可手動選擇。stocks.json 是獨立靜態目錄，不屬於更新 Checkpoint。天氣與 AQI 保留前端 API／快取。移除前的完整版本保存在本機分支 backup/pre-remove-exchange-20261020，沒有推送或重寫歷史。
 
-本節為最新排程設計；下方各階段保留為歷史紀錄。公開站已於 Phase 8D-2C 成功發布，本階段沒有操作 GitHub Variables、Commit、Push、Workflow 或外部資料來源。
+## 更新與安全開關
 
-`data-update.yml` 預備每日 UTC 10:17／臺灣 18:17（`17 10 * * *`）。排程更新 job 必須同時滿足 `DATA_AUTOMATION_ENABLED == 'true'`、`DATA_SCHEDULE_ENABLED == 'true'`，且在預設分支 main 執行。新開關未設定、false 或其他值時，整個更新 job 略過，不啟動 runner、不安裝依賴、不還原或更新資料、不產生 checkpoint、不部署；GitHub 仍可能建立顯示 skipped 的排程 Run 紀錄。手動 workflow_dispatch 不檢查 DATA_SCHEDULE_ENABLED；既有 all／core／exchange 與 checkpoint-only 授權條件不變。
+- npm.cmd run update:data 更新四個來源；--sources=core --scheduled 保留各來源 isDue，手動選擇不受到期時間限制。
+- 新聞／地震至少間隔 150 分鐘；股票臺灣平日 17:00 後；星座每日 09:00 後。同日每日來源不重複嘗試，含失敗。
+- 保留來源獨立錯誤處理、舊檔保護、秘密及格式驗證、鎖、原子寫入。子程序 stdout／stderr 不轉印。
+- 工作流程保留既有 workflow_dispatch 及每日 UTC 10:17／臺灣 18:17 schedule，沒有新增觸發器。
+- 更新須 DATA_AUTOMATION_ENABLED=true 及預設分支。排程另須 main 及 DATA_SCHEDULE_ENABLED=true；未設定／false 跳過整個 job，不取得 runner，手動流程不受排程開關限制。
+- 排程只執行 core --scheduled，INITIALIZE_STATE 固定 false。
+- Pages 發布須有變更候選（或手動 publish_current）、DATA_PUBLISH_ENABLED=true、DATA_DEPLOY_TARGET=pages 全部符合。關閉發布不阻止有效 checkpoint 保存。
+- checkpoint-only 仍須 main 手動、核准最新有效 checkpoint_run、initialize_state=false、publish_current=true 及明確發布開關；不執行來源腳本。
+- 更新成功且 deploy 成功或 skipped 才保存 checkpoint；部署失敗不推進狀態。
+- 固定 Actions SHA、Node 24、標準 ubuntu-latest、最小權限與 github-pages 分支限制不變。CWA_API_KEY 只透過原 Node 環境使用，不進前端或公開資料。不得變更 US$0 費用保護。
 
-排程固定執行 `core --scheduled`，只含 quotes、news、earthquakes、horoscope；永不請求 exchange。沿用 isDue：股票臺灣週一至週五 17:00 後每日一次，星座每日 09:00 後一次，新聞／地震距上次嘗試至少 150 分鐘。每日一輪的設定代表新聞／地震通常每天更新一次，並非每 150 分鐘觸發；週末仍可更新新聞、地震與星座。未額外判斷交易所國定休市，股票保留最後有效交易日期。跨 UTC 午夜以 Asia/Taipei 日期判斷；延遲到臺灣午夜後時股票／星座需等其當日截止時刻，不保證補跑。
+## Checkpoint v2 與舊 v1 遷移
 
-排程 INITIALIZE_STATE 固定 false，只能還原成功預設分支更新流程的有效 checkpoint。五份快照（包含既有匯率）、status、manifest、schema、來源時間及 checksum 繼續驗證；metadata 的 expires_at 已到期亦拒絕，不只依賴 expired 標記。沒有有效 checkpoint 就失敗，不初始化、不退回舊 JSON 假裝成功。現有持久 checkpoint 保留七天；停用超過期限時必須另行授權手動恢復，不能靠排程自行初始化。部分來源失敗保留舊快照且其餘來源繼續；發布決策仍可能接受含有效舊資料的候選，不能將 workflow success 視為四來源皆更新成功。
+新 Manifest version=2，精確包含四份 JSON 與 status.json 的 SHA-256；加 manifest 共六個檔案。持久 Artifact 保留七天，候選一日。只還原成功同 repository、預設分支的 data-update 流程，拒絕過期或不符核准 Run 的狀態，不自動初始化。
 
-Pages Artifact 及 deploy 仍須有變更候選、DATA_PUBLISH_ENABLED=true 與 DATA_DEPLOY_TARGET=pages 全部符合；發布開關 false 或目標未設定時不部署。更新成功、部署成功或略過後才保存 checkpoint。建置驗證、秘密隔離、固定 SHA、最小權限、互斥及原子寫入不變。
+舊五來源 v1 必須有原七個檔案及完全對應的 Manifest keys。先檢查一般檔案、全部 checksum、秘密、commit 來源、所有 Schema 與時間；以 scripts/lib/legacy-checkpoint.mjs 的凍結唯讀驗證檢查退役快照與狀態白名單。任一失敗，在寫入前停止。全部驗證後才排除退役檔案／狀態、還原其餘四份；舊 archive 不修改，下一次 export 產生 v2，不能用新 export 覆寫舊目錄。
 
-注意 GitHub 字串比較不區分大小寫，因此另以 fromJSON 驗證開關是合法的 true。未設定／false 會正常略過；誤填大寫 TRUE 會在 job 條件解析時失敗並阻擋執行，不會取得 runner 或執行來源腳本。手動觸發會短路略過這項排程專屬檢查。
+唯讀相容層沒有網路、更新、換算或 UI，不打包進瀏覽器；只保留驗證舊檔所需欄位和來源識別。普通還原繼續保留 main 較新有效資料，exact 模式精確還原核准的四份內容，均不跳過 checksum 或 schema。
 
-### Phase 8D-3B 待明確授權後的最小驗收順序
+## 後續另行授權的雲端驗收
 
-1. 唯讀確認 main／origin/main、最新有效 checkpoint、費用保護與變數；DATA_SCHEDULE_ENABLED 必須未設定／false，DATA_PUBLISH_ENABLED=false、DATA_DEPLOY_TARGET 未設定。只 Commit／Push 本階段必要檔案，不改公開快照；Push 不觸發更新或部署。
-2. 若要驗收一次真正的定時更新，另行授權暫時設定 DATA_SCHEDULE_ENABLED=true；DATA_AUTOMATION_ENABLED 維持 true，發布維持關閉，不手動觸發替代排程。
-3. 等待下一次臺灣 18:17 的 schedule Run（GitHub 可能延遲或漏跑，不能承諾準時）。只監看該 Run 一次，逐項核對四來源 updated／unchanged／failed／not_due、exchange 雜湊不變、checkpoint 還原及新 checksum、deploy skipped、正式站快照不變。不重試；漏跑時回報，另等使用者決定。
-4. 一輪驗收後將 DATA_SCHEDULE_ENABLED 關回 false，確認發布仍關閉。持續排程或自動 Pages 發布須另取得明確授權；不得順便設定發布開關或提高預算。
+保持 schedule 與 publish 關閉，審查提交必要變更並確認有效舊 checkpoint。只執行一次手動 core、initialize_state=false、publish_current=false，核對 v1 完整驗證、v2 保存、四來源個別結果、deploy skipped 及正式站雜湊不變。失敗不改成初始化、不重試。正式發布與持續排程仍需各自授權。
 
-## Phase 8D-2C：Checkpoint-only 手動發布
-
-`source=checkpoint` 不執行來源更新步驟。僅接受 workflow_dispatch、main、initialize_state=false、publish_current=true、DATA_PUBLISH_ENABLED=true、DATA_DEPLOY_TARGET=pages，並必填 checkpoint_run（本次核准 Run `39391679062`）。任一條件不符，還原步驟受控失敗，不部署、不初始化。
-
-還原時挑選最新未過期、來自成功 main data-update workflow 的 checkpoint；其 Run ID 必須與核准值一致，不會默默改用較舊或未核准資料。Manifest commit 必須與來源 Run head SHA 一致，五份資料、status、checksum、schema 及時間全數驗證後，才精確還原 checkpoint。此模式不混入 main 上較新的 JSON；原 all／core／exchange 等更新模式仍保留原有「較新 main 資料優先」行為。
-
-建置使用 /dailyinfo/，公開產物以 npm run verify -- --dist 檢查；內部 status／manifest 仍只在 checkpoint artifact，不放入 public／dist。部署 job 仍只有 pages:write／id-token:write，更新 job 只有 contents:read／actions:read。沒有新增 Actions、schedule 或 push 觸發器。
-
-本次驗收只允許一個 checkpoint Run，不另外執行 pages-manual 或 core。成功部署後 DATA_PUBLISH_ENABLED 必須關回 false，DATA_DEPLOY_TARGET 移除。DATA_AUTOMATION_ENABLED 不變。正式 JSON 應與核准 checkpoint 的五份資料完全相同；第六份 stocks.json（目錄）來自未變動的 main。若失敗，停止、不改成重新抓來源或重試部署。
-
-匯率快照仍採原牌告時間與 24 小時過期判斷。若驗收時間尚未超過門檻，不能捏造「已過期」標示；門檻之外的提示由既有 Mock 測試驗證。
-
-## Phase 8D-2A：四來源 core（本機準備，未提交）
-
-`data-update.yml` 手動選項新增 `core`，只執行 quotes、news、earthquakes、horoscope。`all` 仍執行五來源，`exchange` 仍可單獨手動診斷；預設選項保持 all，不改既有行為。統一入口 `npm.cmd run update:data -- --sources=core` 使用固定來源白名單；個別或逗號分隔選擇仍有效，未知／重複或混合別名會拒絕。
-
-未來 schedule 分支預備使用 `--sources=core --scheduled`；CLI 的排程選擇也排除 exchange，再交由既有 isDue 判斷：新聞／地震約 150 分鐘間隔，股票臺灣平日 17:00 後（未獨立判斷交易所假日）、星座臺灣每日 09:00 後。沒有跳過到期檢查，沒有新增 schedule 觸發器。本階段不改 Variables、Secrets 或雲端設定。
-
-只排除匯率的「更新請求」，不刪除或跳過驗證匯率快照。還原、公開快照驗證與 checkpoint 仍處理五份 JSON、status 與 manifest，保留上輪有效匯率與診斷狀態；各來源失敗仍隔離並保留舊資料。匯率頁、牌告時間、過期提示及 MIME 接受規則沒有改動。四個 core 更新腳本與真實資料來源均未改寫，Mock 只用於測試。
-
-本機相關驗收：`npm.cmd test -- tests/data-automation.test.js tests/deployment.test.js tests/public-candidate-security.test.js`，3 檔、43/43 通過（2.33 秒）；沒有執行真實資料更新、全套重複測試或部署。
-
-### 下一階段單次手動更新與 Pages 發布方案（必須另行授權）
-
-1. 審查、Commit／Push 本機變更後，確認兩個 workflow 都仍只有 workflow_dispatch，原有 checkpoint 有效；不重新初始化，不更新匯率。
-2. 另外取得「發布更新後四來源資料」授權，才允許設定 DATA_DEPLOY_TARGET=pages 與 DATA_PUBLISH_ENABLED=true；本階段兩者保持原狀。若尚未授權發布，只執行候選驗收即可。
-3. 只手動觸發一次 data-update.yml，main、source=core、initialize_state=false。要明確驗收同一輪更新及 Pages 發布時，可設定 publish_current=true，確保沒有新內容時也會建立發布候選；這不代表向來源取得新資料。需另行授權才執行。
-4. 分別檢查四來源結果及資料日期、exchange 舊快照保留、測試／建置／安全檢查、deploy 與 checkpoint 成功。單一來源失敗可能仍發布混合新舊但已驗證的資料，不能把 Run success 當成四來源全成功；若要先人工審閱候選內容，應分成更新與發布兩階段，不宣稱單一 Run 可插入現有流程沒有的人工審核。
-5. 核對正式 Pages 的日期與資源後，依授權範圍決定是否關閉發布開關。schedule 繼續保持不存在；真正啟用排程必須另行授權。不可另跑 pages-manual.yml，避免用 main 的舊快照覆蓋剛發布的 checkpoint 資料。
-
-> Phase 8B 現況：Repository 已公開，Actions 整體停用，Pages 未部署。本機 `data-update.yml` 已移除 schedule，只保留手動入口；下面頻率與啟用方式屬未來 Phase 8D 的待授權方案，不代表目前有排程。首次網站部署改用獨立 [Pages 手動流程](PAGES.md)，不開資料更新開關或設定 Secrets。
-
-## 現況與建議方案
-
-已備妥「GitHub Actions + 免費靜態網站」流程，**目前沒有啟用排程、設定 Secrets、推送或部署**。預設兩道開關都關閉。待使用者決定平台並授權後才啟用；現有本機網站仍照常運作。
-
-建議免費方案是公開 repository 搭配 GitHub Pages（需另行同意公開程式碼與現有公開資料）。GitHub Free 的 Pages 適用公開 repository；私人 repository 的 Pages 需要符合其他方案資格，不能假設免費，也不會自行升級。若希望程式碼保留私人，應先決定其他免費靜態託管平台，再更換發布 job；其 API Token／額度需另行評估，不在本階段開通。
-
-## 更新時程（Asia/Taipei）
-
-| 來源 | 初始建議頻率 | 理由與限制 |
-| --- | --- | --- |
-| 股票 | 週一至週五 18:17，當日一次 | 晚於程式的 17:00 門檻；不推測假日行事曆，休市或尚未發布時保留最後有效交易日，不稱即時行情。若官方延後，需手動重跑。 |
-| 新聞 | 每 3 小時 | 每輪五個官方 RSS，各一次；不抓全文。每天最多 40 次 RSS 請求。 |
-| 地震 | 每 3 小時 | 兩種官方報告各一次，每天最多 16 次；不是地震預警，無分鐘級即時保證。啟用前確認自己的 CWA 帳號額度。 |
-| 外幣 | 週一至週五 15:17，當日一次 | 官方 CSV 與網頁各一次，保留銀行牌告時間；不冒稱最新成交匯率。 |
-| 星座 | 每天 09:17，當日一次 | 十二星座各一次、兩個 worker；留出 UTC 換日時間。來源日期不符合臺灣今天會拒絕更新，當天可手動再試，不無限重試。 |
-| 天氣／AQI | 現有前端查詢及快取 | 不加入排程、不變更現有服務。 |
-
-統一 UTC cron：`17 1,4,7,10,13,16,19,22 * * *`，臺灣依序為 09:17、12:17、15:17、18:17、21:17、00:17、03:17、06:17。避開整點。Node 以臺灣時間判斷來源是否到期；排程延遲後仍可執行當日合適的工作。新聞／地震另設 150 分鐘間隔，避免手動重跑後立即重複請求。每日來源在合適時段嘗試一次，失敗留待下次日程或手動觸發；早於門檻的手動更新不會阻止當日盤後更新。
-
-這是低頻、保守的展示用初始設定，不是來源承諾的更新 SLA。各來源與授權仍沿用 `data-sources/` 紀錄；資料提供者或 GitHub runner IP 可能限制存取，失敗時不繞過、不無限重試。
-
-## 本地入口與保護
-
-```powershell
-npm.cmd run update:data
-npm.cmd run update:data -- --sources=quotes,exchange
-npm.cmd run update:data -- --scheduled
-npm.cmd run verify:data
-npm.cmd run build
-npm.cmd run verify:data -- --dist
-```
-
-第一個指令明確更新全部來源（含使用既有安全機制的地震腳本），`--sources` 只接受五個固定代碼。`--scheduled` 依時區及上次嘗試時間挑選來源。原本各項 `update:*` 指令仍可使用，預設輸出路徑不變；不要同時執行直接更新與統一更新指令。
-
-統一入口不重寫來源解析器：每個既有 Node 腳本以 `DAILYINFO_DATA_DIR` 寫入專案 `.cache/data-updates/run-*` 的獨立暫存目錄，先帶入對應舊快照。整個 child process 有 210 秒期限；stdout、stderr 與原始例外均不轉印。只要某來源失敗或產出異常，就捨棄其候選檔，繼續其他來源。
-
-候選資料再經既有 schema 驗證、禁止秘密欄位／常見密鑰格式與已提供 CWA secret 精確字串檢查、未來日期與日期倒退檢查。星座必須是臺灣當日資料。舊快照損壞會拒絕覆寫，留待人工檢查。
-
-有實質變更才原子替換對應公開 JSON。忽略單純 `fetchedAt`、原始 hash、HTTP headers 及匯率 evidence 的變動；真正內容、交易日期、牌告時間、運勢日期仍會觸發更新。內容沒變時，公開快照擷取時間保留原值；最新「檢查成功時間」另記於安全狀態，不假裝重新發布。網站依原介面顯示實際資料日期及快照擷取時間，瀏覽器刷新只讀已發布檔案／既有快取。
-
-`.cache/data-updates/status.json` 保存各來源的 attemptedAt、lastSuccessAt、updated/unchanged/failed 與固定錯誤代碼；`report.json` 保存本輪結果，不含原始錯誤、外部完整回應或金鑰。兩檔不進 Git、不進前端／正式建置。成功 exit 0、部分來源失敗 exit 2、入口／鎖／狀態異常 exit 1。Actions 對 exit 2 顯示 warning 並可發布其他有效資料；所有公開快照仍須驗證通過。
-
-本機 `lock` 與 Actions concurrency 阻止統一入口重疊，已執行的工作不會被新排程取消。異常中止若留下 `.cache/data-updates/lock`，先確認沒有 Node 更新程序，再人工移除該空目錄；不自動清除可能仍有效的鎖。
-
-## 雲端持久化與失敗恢復
-
-GitHub runner 每次是乾淨環境，不能只依賴 checkout 的舊 JSON。流程會還原同 repository、預設分支、同工作流程、schedule/workflow_dispatch 成功執行留下的 `dailyinfo-data-state` artifact；其五份 JSON、狀態與 SHA-256 manifest 全部驗證後才使用。手動提交的更新資料若比 artifact 新，優先保留 repository 較新資料。
-
-找不到、過期、格式異常或 checksum 不符時停止，不自動退回未知舊狀態。首次啟動才在手動觸發勾 `initialize_state`，明確接受 repository 的已驗證快照當基線。若中斷超過七天造成 artifact 過期，應先從最後發布版本或可信備份恢復，人工檢查日期後才重新初始化。
-
-每輪只保存指定公開快照與安全狀態，不上傳 `.env.local`、整個工作區或原始日誌。candidate artifact 留 1 天，正式 checkpoint 留 7 天。只在更新、測試／建置，以及已啟用的部署成功後才推進正式 checkpoint；失敗保留之前發布版本及 checkpoint，後續可再試，不把失敗候選當成已發布基線。
-
-同內容且相同程式 commit 的排程只更新檢查狀態，不重建／部署。程式 commit 改變需要重建；首次啟用發布或恢復發布時，手動勾 `publish_current` 可重建相同內容。這是明確的一次性操作，不是每輪強制發布。
-
-## 取得授權後的啟用步驟（本階段未執行）
-
-1. 決定 repository 可見性與正式託管平台；審查目前 Git 變更及排程後，由使用者授權推送工作流程至預設分支。不要公開 `.env.local`。
-2. 在 GitHub repository 的 Actions Secrets 設定 `CWA_API_KEY`。使用者直接在 GitHub 輸入，不貼到聊天。只提供給 Node 更新及秘密檢查步驟；build/deploy 的環境不帶此 key。CI 直接使用 process environment，缺 key 時只停用當輪地震更新，絕不建立 `.env.local`。
-3. 確認免費額度、Artifact 儲存與**超額停止使用**設定；不要啟用付費 runner 或放寬預算。先設定 Variables `DATA_AUTOMATION_ENABLED=true`，其餘發布開關保持未設定／false。
-4. 手動執行 `DailyInfo data update`：source=all、首次勾 initialize_state。檢查安全 summary、五份資料日期、候選網站 artifact。若有來源失敗，先確認原因；不把成功建置誤當作所有來源皆成功。
-5. 若選 GitHub Pages：Settings → Pages 的 Source 設為 GitHub Actions，設定 `github-pages` environment 的預設分支限制，可加人工審查；確認所有資料授權與公開內容。
-6. 使用者授權發布後才設定 `DATA_DEPLOY_TARGET=pages`、`DATA_PUBLISH_ENABLED=true`，手動勾 publish_current 執行首次發布。準備好的 Pages job 才會取得 `pages:write`、`id-token:write`。更新 job 只有 `contents:read`／`actions:read`，不需要 PAT 或 contents:write；不提交自動資料到 Git、不執行 git push。
-7. 驗證正式網址、來源日期、導覽與下個排程。若選其他平台，保持 Pages 開關關閉，需另接最小權限發布 adapter 並驗收。
-
-停用：`DATA_AUTOMATION_ENABLED=false` 停止更新工作；`DATA_PUBLISH_ENABLED=false` 僅停止對外發布；也可直接停用 workflow。已發布的靜態網站會繼續提供最後有效資料。
-
-## GitHub 免費額度與限制（2026-10-20 查核）
-
-- [官方 Actions 計費](https://docs.github.com/en/billing/concepts/product-billing/github-actions)：公開 repository 的標準 GitHub-hosted runner 分鐘免費；私人 repository 依帳戶方案使用共享額度。GitHub Free 為每月 2,000 分鐘、Artifact 500 MB，與帳戶其他專案／Packages 共用，不是本專案獨享；大型 runner 不屬免費方案。
-- [方案額度](https://docs.github.com/en/billing/reference/product-usage-included)：超額可能計費，須設定超額停止使用；本階段沒有變更帳戶預算／付款設定，不能保證使用者現有帳戶的其他用量。
-- Phase 8D-3A 改為每天一輪，30 天約 30 輪；預設關閉。工作時間與 Artifact 用量需以實際 Usage 核對，失敗及手動工作也會占用資源，不假設免費儲存無限，不變更既有 US$0 預算保護。
-- [官方排程限制](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)：預設 UTC，最短五分鐘；只執行預設分支，繁忙時會延遲甚至丟棄，公開 repository 60 天無活動會停用排程。它不提供準時或即時更新保證。
-- [Pages 方案](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)、[部署權限](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)：本階段僅準備安全、預設不啟用的 Pages job，沒有改公開可見性、設定 Secrets、實際執行 Actions 或部署網站。
-
-## 已驗證與未驗證邊界
-
-已驗證本機統一入口的真實股票請求：交易日仍為 2026-10-19，內容相同回報 unchanged，原公開檔案不改寫。其他來源獨立成功／失敗、舊檔保護、日期、互斥、秘密攔截、checkpoint checksum／較新資料保留及工作流程安全條件透過自動化測試驗證。本階段未重複對其他外部來源發送實際請求，也未讀取本機真實 CWA Key。
-
-尚未在 GitHub runner 實測排程、跨輪 artifact REST 還原、environment 審查或 Pages 發布；需平台決定及授權後驗收。工作流程檔案通過本地結構／安全契約測試，不宣稱已在雲端成功執行。本候選版本已將六個官方 Actions 固定為實際查證的完整 commit SHA，詳見 [ACTIONS_PINS.md](ACTIONS_PINS.md)。
+網站重讀只讀已發布快照，不等於外部 API 更新；來源日期與擷取時間照實顯示。排程可能延遲或漏跑，不保證準時。Runner 與 Artifact 用量須依使用者現有費用保護核對，不假設儲存無限。

@@ -11,8 +11,6 @@ import { quoteNumber, signedQuote, quoteDirection } from '../components/quote-de
 import { loadStockCatalog } from '../services/stock-catalog.js';
 import { explorationEntries } from '../services/stock-exploration.js';
 import { renderAirQuality } from '../components/air-quality.js';
-import { exchangeStore } from '../services/exchange.js';
-import { mountExchangeSummary } from './exchange.js';
 import { mountHoroscope } from '../components/horoscope.js';
 
 const el = (tag, text = '', className = '') => { const node = document.createElement(tag); node.textContent = text; node.className = className; return node; };
@@ -25,7 +23,7 @@ function button(label, action) { const node = el('button', label, 'overview-refr
 
 // Snapshot services perform validation and share their request/cache with full pages.
 // This view never writes preferences, watchlists, regions or favorites.
-export function mountOverview(host, { weatherState, airState, onRefreshWeather, quotes = quoteStore, news = newsStore, earthquakes = earthquakeStore, exchange = exchangeStore, watchlists = loadWatchlists(), loadCatalog = loadStockCatalog, now = Date.now } = {}) {
+export function mountOverview(host, { weatherState, airState, onRefreshWeather, quotes = quoteStore, news = newsStore, earthquakes = earthquakeStore, watchlists = loadWatchlists(), loadCatalog = loadStockCatalog, now = Date.now } = {}) {
   let alive = true;
   const jobs = [];
   const grid = el('div', '', 'overview-grid');
@@ -120,8 +118,6 @@ export function mountOverview(host, { weatherState, airState, onRefreshWeather, 
   };
   const rerenderStocks = snapshotCard(stocks, quotes, renderStocks, snapshot => `最近交易日：${snapshot.tradeDate} · 盤後收盤行情，非即時股價。`, snapshot => `交易日 ${snapshot.tradeDate} · 擷取 ${formatTime(snapshot.fetchedAt)}`);
   selector.addEventListener('change', () => { groupId = selector.value; rerenderStocks(); });
-  const exchangeHost = el('div'); stocks.node.insertBefore(exchangeHost, stocks.metadata.parentElement);
-  jobs.push(mountExchangeSummary(exchangeHost, { store: exchange, now }));
 
   const articles = card('news', '最新新聞', 'NEWS / 中央社 RSS', '中央通訊社', NEWS_RSS_PAGE);
   snapshotCard(articles, news, snapshot => {

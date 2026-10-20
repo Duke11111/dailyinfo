@@ -37,7 +37,7 @@ it('requires both switches, manual/default branch policy and a supported event',
   values.github.event.repository.default_branch = 'feature'; expect(evaluate(updateCondition, values)).toBe(false);
   expect(evaluate(updateCondition, context('push', { DATA_SCHEDULE_ENABLED: 'true' }))).toBe(false);
 });
-it.each(['all', 'core', 'exchange', 'checkpoint'])('preserves manual %s with the schedule switch disabled', source => {
+it.each(['all', 'core', 'quotes', 'checkpoint'])('preserves manual %s with the schedule switch disabled', source => {
   for (const value of [undefined, 'false', 'true']) expect(evaluate(updateCondition, context('workflow_dispatch', { DATA_SCHEDULE_ENABLED: value }, { source }))).toBe(true);
 });
 it('makes initialization impossible for schedules while preserving explicit manual initialization', () => {

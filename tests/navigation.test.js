@@ -35,13 +35,12 @@ describe('actual application navigation', () => {
     await vi.waitFor(() => expect(fetch.mock.calls.length).toBe(calls + 1));
     await vi.waitFor(() => expect(document.querySelector('[role="alert"]')).not.toBeNull());
   });
-  it('switches stock and exchange finance views without touching user storage', async () => {
-    const before = { ...localStorage }; document.querySelector('[data-route="stocks"]').click();
+  it('keeps stock navigation working without a retired finance link or bank request', async () => {
+    document.querySelector('[data-route="stocks"]').click();
     await vi.waitFor(() => expect(document.querySelector('.stocks-page')).not.toBeNull());
-    document.querySelector('.finance-nav a[href="#/stocks?view=exchange"]').click();
-    await vi.waitFor(() => expect(document.querySelector('.exchange-page')).not.toBeNull());
-    expect(document.querySelector('[data-route="stocks"]').getAttribute('aria-current')).toBe('page');
-    document.querySelector('.finance-nav a[href="#/stocks"]').click();
-    await vi.waitFor(() => expect(document.querySelector('.stocks-page')).not.toBeNull()); expect({ ...localStorage }).toEqual(before);
+    expect(document.querySelector('.finance-nav')).toBeNull();
+    expect(document.body.textContent).not.toContain('匯率');
+    expect(fetch.mock.calls.some(([url]) => String(url).includes('rate.bot.com.tw'))).toBe(false);
   });
+
 });

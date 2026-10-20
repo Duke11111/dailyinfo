@@ -7,13 +7,10 @@ import { snapshotTarget } from '../scripts/lib/snapshot-target.mjs';
 import { quoteFixture } from './fixtures/quotes.js';
 import { newsFixture } from './fixtures/news.js';
 import { eqFixture } from './fixtures/earthquakes.js';
-import { exchangeFixture, fullExchangeHtml, closeHtml, closeTxt, closeCaptured } from './fixtures/exchange.js';
-import { parseBankHtml, parseBankDailyClose } from '../scripts/lib/exchange-import.mjs';
 import { SIGNS } from '../src/services/horoscope.js';
-import { ExchangeUpdateError, exchangeExitStatus } from '../scripts/lib/exchange-errors.mjs';
 
 const captured = '2026-10-20T01:00:00.000Z', now = () => Date.parse(captured);
-const fixture = source => ({ quotes: quoteFixture, news: newsFixture, earthquakes: eqFixture, exchange: exchangeFixture, horoscope: () => ({ version: 1, source: 'https://freehoroscopeapi.com', language: 'en', fetchedAt: captured, readings: SIGNS.map(sign => ({ sign: sign.code, date: '2026-10-20', text: 'Synthetic test only.' })) }) })[source]();
+const fixture = source => ({ quotes: quoteFixture, news: newsFixture, earthquakes: eqFixture, horoscope: () => ({ version: 1, source: 'https://freehoroscopeapi.com', language: 'en', fetchedAt: captured, readings: SIGNS.map(sign => ({ sign: sign.code, date: '2026-10-20', text: 'Synthetic test only.' })) }) })[source]();
 const base = resolve('.cache/automation-tests'); let root;
 const path = source => join(root, 'public/data', `${source}.json`);
 const read = source => readFile(path(source), 'utf8');
@@ -22,63 +19,6 @@ function runner(transform = data => data) { return vi.fn(async (source, { direct
 beforeEach(async () => { await mkdir(base, { recursive: true }); root = await mkdtemp(join(base, 'test-')); await mkdir(join(root, 'public/data'), { recursive: true }); await seed(); });
 afterEach(async () => { vi.unstubAllEnvs(); if (!resolve(root).startsWith(base + sep)) throw Error('Cleanup outside test workspace'); await rm(root, { recursive: true }); });
 
-it('selects core without changing all or individual manual source behavior', () => {
-  expect(selectUpdateSources('core')).toEqual(['quotes', 'news', 'earthquakes', 'horoscope']);
-  expect(selectUpdateSources()).toEqual(SOURCES); expect(selectUpdateSources('exchange')).toEqual(['exchange']);
-  expect(selectUpdateSources('quotes,news')).toEqual(['quotes', 'news']);
-  for (const value of ['core,exchange', 'quotes,quotes', '../bad', '', null]) expect(() => selectUpdateSources(value)).toThrow('unknown_source');
-});
-it('excludes exchange from scheduled selection without bypassing per-source due checks', async () => {
-  expect(selectUpdateSources('all', true)).toEqual(CORE_SOURCES);
-  expect(() => selectUpdateSources('exchange', true)).toThrow();
-  const perform = runner(), report = await updateData({ root, sources: selectUpdateSources('core', true), scheduled: true, runner: perform, now });
-  // Taiwan 09:00: news / earthquakes / horoscope due, quotes wait until 17:00.
-  expect(perform.mock.calls.map(([source]) => source)).toEqual(['news', 'earthquakes', 'horoscope']);
-  expect(report.results.find(item => item.source === 'quotes').code).toBe('not_due');
-});
-it.each(CORE_SOURCES)('isolates a failed core source %s and never runs exchange', async failedSource => {
-  const before = Object.fromEntries(await Promise.all(SOURCES.map(async source => [source, await read(source)]))), perform = runner();
-  const report = await updateData({ root, sources: selectUpdateSources('core'), now, runner: async (source, options) => {
-    if (source === failedSource) throw Error('synthetic failure only'); await perform(source, options);
-  } });
-  expect(report.failed).toBe(1); expect(report.results.map(item => item.source)).toEqual(CORE_SOURCES);
-  expect(perform.mock.calls.map(([source]) => source)).toEqual(CORE_SOURCES.filter(source => source !== failedSource));
-  for (const item of report.results) expect(item.status).toBe(item.source === failedSource ? 'failed' : 'unchanged');
-  for (const source of SOURCES) expect(await read(source)).toBe(before[source]);
-});
-it('keeps all five snapshots and prior exchange diagnostics in a core checkpoint', async () => {
-  const before = await read('exchange');
-  await mkdir(join(root, '.cache/data-updates'), { recursive: true });
-  await writeFile(join(root, '.cache/data-updates/status.json'), JSON.stringify({ version: 1, sources: { exchange: { attemptedAt: captured, status: 'failed', code: 'unexpected_content_type_csv_text_html' } } }));
-  const report = await updateData({ root, sources: selectUpdateSources('core'), now, runner: runner(data => { if (data.articles) data.articles[0].title = 'Updated core fixture'; return data; }) });
-  expect(report.failed).toBe(0); expect(report.changed).toBe(true);
-  const directory = join(root, 'core-checkpoint'); await exportState(root, directory); await restoreState(root, directory, now());
-  expect((await readdir(directory)).sort()).toEqual(['earthquakes.json', 'exchange.json', 'horoscope.json', 'manifest.json', 'news.json', 'quotes.json', 'status.json']);
-  expect(await read('exchange')).toBe(before);
-  expect(JSON.parse(await readFile(join(directory, 'status.json'), 'utf8')).sources.exchange.code).toBe('unexpected_content_type_csv_text_html');
-});
-it('validates and restores HTML-only exchange evidence without changing the other four sources', async () => {
-  const other = CORE_SOURCES;
-  const before = Object.fromEntries(await Promise.all(other.map(async source => [source, await read(source)])));
-  const snapshot = parseBankHtml(fullExchangeHtml(), captured);
-  await writeFile(path('exchange'), JSON.stringify(snapshot));
-  await mkdir(join(root, '.cache/data-updates'), { recursive: true });
-  await writeFile(join(root, '.cache/data-updates/status.json'), JSON.stringify({ version: 1, sources: {} }));
-  const directory = join(root, 'html-checkpoint'); await exportState(root, directory); await restoreState(root, directory, now());
-  const restored = validateData('exchange', JSON.parse(await read('exchange')), now());
-  expect(restored.rates).toHaveLength(19); expect(restored.evidence).toEqual(snapshot.evidence);
-  for (const source of other) expect(await read(source)).toBe(before[source]);
-});
-it('round-trips daily-close schema and dated evidence through the five-source checkpoint', async () => {
-  const before = Object.fromEntries(await Promise.all(CORE_SOURCES.map(async source => [source, await read(source)])));
-  const snapshot = parseBankDailyClose(closeHtml(), closeTxt(), 'https://rate.bot.com.tw/xrt/fltxt/0/2026-10-20', closeCaptured);
-  await writeFile(path('exchange'), JSON.stringify(snapshot));
-  await mkdir(join(root, '.cache/data-updates'), { recursive: true });
-  await writeFile(join(root, '.cache/data-updates/status.json'), JSON.stringify({ version: 1, sources: {} }));
-  const directory = join(root, 'close-checkpoint'); await exportState(root, directory); await restoreState(root, directory, Date.parse(closeCaptured));
-  expect(validateData('exchange', JSON.parse(await read('exchange')), Date.parse(closeCaptured))).toEqual(snapshot);
-  for (const source of CORE_SOURCES) expect(await read(source)).toBe(before[source]);
-});
 it('scheduled core isolates a failure, preserves all valid snapshots and throttles the next attempt', async () => {
   const before = Object.fromEntries(await Promise.all(SOURCES.map(async source => [source, await read(source)])));
   const clock = () => Date.parse('2026-10-20T10:17:00Z'), perform = runner();
@@ -120,62 +60,19 @@ it.each(['invalid', 'old', 'future', 'secret'])('preserves old bytes after %s ca
 });
 it('does not overwrite a corrupt baseline and removes only its own temporary directory', async () => { await writeFile(path('quotes'), 'corrupt'); const report = await updateData({ root, sources: ['quotes'], now, runner: runner() }); expect(report.failed).toBe(1); expect(await read('quotes')).toBe('corrupt'); expect(await readdir(join(root, '.cache/data-updates'))).toEqual(expect.arrayContaining(['status.json', 'report.json'])); expect((await readdir(join(root, '.cache/data-updates'))).some(name => name.startsWith('run-') || name === 'lock')).toBe(false); });
 it('holds a local single-run lock and rejects unknown or duplicate sources', async () => { await mkdir(join(root, '.cache/data-updates/lock'), { recursive: true }); await expect(updateData({ root, now, runner: runner() })).rejects.toThrow('update_locked'); await expect(updateData({ root, sources: ['news', 'news'] })).rejects.toThrow(); await expect(updateData({ root, sources: ['../bad'] })).rejects.toThrow(); });
-it('daily cutoffs use Taiwan date, avoid weekends and allow late scheduled runs', () => {
-  const empty = { version: 1, sources: {} }, monday1730 = Date.parse('2026-10-19T09:30:00Z');
-  expect(isDue('quotes', empty, monday1730)).toBe(true); expect(isDue('quotes', empty, Date.parse('2026-10-19T08:59:00Z'))).toBe(false); expect(isDue('quotes', empty, Date.parse('2026-10-18T10:00:00Z'))).toBe(false);
-  expect(isDue('exchange', empty, Date.parse('2026-10-19T07:17:00Z'))).toBe(true); expect(isDue('horoscope', empty, Date.parse('2026-10-19T00:59:00Z'))).toBe(false); expect(isDue('horoscope', empty, Date.parse('2026-10-19T01:17:00Z'))).toBe(true);
-  expect(isDue('quotes', { sources: { quotes: { attemptedAt: '2026-10-19T02:00:00Z' } } }, monday1730)).toBe(true);
-  expect(isDue('quotes', { sources: { quotes: { attemptedAt: '2026-10-19T09:17:00Z' } } }, monday1730)).toBe(false);
-});
 it('throttles recurring sources and skips duplicate daily attempts including failures', async () => {
   const perform = runner(); await updateData({ root, sources: ['horoscope', 'news'], now, runner: perform }); const result = await updateData({ root, sources: ['horoscope', 'news'], scheduled: true, now, runner: perform }); expect(result.results.every(item => item.status === 'skipped')).toBe(true); expect(perform).toHaveBeenCalledTimes(2);
   expect(isDue('news', { sources: { news: { attemptedAt: captured } } }, now() + 3 * 3600000)).toBe(true);
 });
 it('rejects corrupt/future scheduling state instead of silently disabling updates', () => { expect(() => validateState({ version: 1, sources: { news: { attemptedAt: '2099-01-01T00:00:00Z', status: 'failed', code: 'update_failed' } } }, now())).toThrow(); expect(() => validateState({ version: 1, sources: { unknown: {} } })).toThrow(); });
-it('ignores fetch/hash bookkeeping but preserves real source date/content in release digest', () => { const a = fixture('news'), b = structuredClone(a); b.fetchedAt = captured; b.feeds[0].sha256 = 'b'.repeat(64); expect(contentDigest(a)).toBe(contentDigest(b)); b.articles[0].title += 'new'; expect(contentDigest(a)).not.toBe(contentDigest(b)); const q = fixture('exchange'), q2 = structuredClone(q); q2.quotedAt = '2026-10-20T01:00:00+08:00'; expect(contentDigest(q)).not.toBe(contentDigest(q2)); });
 it('uses isolated output paths while preserving the ordinary local defaults', () => { vi.stubEnv('DAILYINFO_DATA_DIR', join(root, 'isolated')); expect(snapshotTarget('quotes')).toBe(join(root, 'isolated/quotes.json')); expect(() => snapshotTarget('../key')).toThrow(); });
 it('suppresses stdout/stderr from an actual failing Node updater process', async () => {
   await mkdir(join(root, 'scripts')); await writeFile(join(root, 'scripts/update-quotes.mjs'), "console.log('private-test-token'); console.error('private-test-token'); process.exit(1);");
   const before = await read('quotes'), report = await updateData({ root, sources: ['quotes'], now }); expect(report.failed).toBe(1); expect(JSON.stringify(report)).not.toContain('private-test-token'); expect(await read('quotes')).toBe(before);
 });
-it.each([[exchangeExitStatus(new ExchangeUpdateError('http_403')), 'http_403'], [1, 'update_failed'],
-  [exchangeExitStatus(new ExchangeUpdateError('unexpected_content_type_csv_text_plain')), 'unexpected_content_type_csv_text_plain'],
-  [exchangeExitStatus(new ExchangeUpdateError('unexpected_content_type_html_application_json')), 'unexpected_content_type_html_application_json'],
-])('uses only numeric child status %s for exchange diagnostics', async (exit, code) => {
-  await mkdir(join(root, 'scripts'));
-  await writeFile(join(root, 'scripts/update-exchange.mjs'), `console.log('private-test-token ::error::untrusted'); console.error('{"code":"http_429","secret":"private-test-token"}'); process.exit(${exit});`);
-  const before = await read('exchange'), report = await updateData({ root, sources: ['exchange'], now });
-  expect(report.results[0].code).toBe(code); expect(await read('exchange')).toBe(before); expect(JSON.stringify(report)).not.toMatch(/private-test-token|untrusted|http_429/);
-  const checkpoint = join(root, 'diagnostic-checkpoint'); await exportState(root, checkpoint); await restoreState(root, checkpoint, now());
-  expect(JSON.parse(await readFile(join(root, '.cache/data-updates/status.json'), 'utf8')).sources.exchange.code).toBe(code);
-});
-it('scopes diagnostics to exchange, preserves old checkpoints and continues other sources', async () => {
-  const before = await read('exchange'), perform = runner();
-  const report = await updateData({ root, sources: ['exchange', 'news'], now, runner: async (source, options) => {
-    if (source === 'exchange') throw Object.assign(Error('private-test-token'), { safeCode: 'csv_html_mismatch' });
-    await perform(source, options);
-  } });
-  expect(report.results[0].code).toBe('csv_html_mismatch'); expect(report.results[1].status).toBe('unchanged'); expect(await read('exchange')).toBe(before);
-  expect(() => validateState({ version: 1, sources: { quotes: { attemptedAt: captured, status: 'failed', code: 'http_403' } } }, now())).toThrow();
-  expect(validateState({ version: 1, sources: { exchange: { attemptedAt: captured, status: 'failed', code: 'update_failed' } } }, now()).sources.exchange.code).toBe('update_failed');
-});
-it('identifies corrupt exchange baseline before executing an updater', async () => {
-  await writeFile(path('exchange'), '{broken'); const perform = runner(), report = await updateData({ root, sources: ['exchange'], runner: perform, now });
-  expect(report.results[0].code).toBe('previous_snapshot_invalid'); expect(perform).not.toHaveBeenCalled(); expect(await read('exchange')).toBe('{broken');
-});
 it('rejects exact secret values, credential fields and forbidden public files', async () => { expect(() => assertPublicSafe('test-private-key', ['test-private-key'])).toThrow(); expect(() => assertPublicSafe({ Authorization: 'anything' })).toThrow(); await writeFile(join(root, 'public/data/unsafe.json'), 'test-private-key'); await expect(verifyPublicTree(join(root, 'public'), ['test-private-key'])).rejects.toThrow(); await rm(join(root, 'public/data/unsafe.json')); await writeFile(join(root, 'public/.env.local'), 'not-a-real-key'); await expect(verifyPublicTree(join(root, 'public'))).rejects.toThrow(); });
 it('exports and validates a persistent checkpoint before restoring any files', async () => {
   await updateData({ root, sources: ['news'], now, runner: runner() }); const dir = join(root, 'checkpoint'); await exportState(root, dir, 'a'.repeat(40)); const restored = await restoreState(root, dir, now()); expect(restored.commit).toBe('a'.repeat(40)); const before = await read('quotes'); await writeFile(join(dir, 'news.json'), '{}'); await expect(restoreState(root, dir, now())).rejects.toThrow('checksum'); expect(await read('quotes')).toBe(before);
-});
-it('keeps manually committed fresher data when restoring a previous checkpoint', async () => {
-  await updateData({ root, sources: ['news'], now, runner: runner() }); const dir = join(root, 'checkpoint'); await exportState(root, dir);
-  const value = fixture('exchange'); value.fetchedAt = captured; value.quotedAt = '2026-10-20T08:00:00+08:00'; await writeFile(path('exchange'), JSON.stringify(value)); await restoreState(root, dir, now()); expect(JSON.parse(await read('exchange')).quotedAt).toBe(value.quotedAt);
-});
-it('checkpoint-only restores approved bytes exactly instead of mixing newer main data', async () => {
-  await updateData({ root, sources: ['news'], now, runner: runner() }); const dir = join(root, 'exact-checkpoint'), commit = 'a'.repeat(40); await exportState(root, dir, commit);
-  const approved = await read('exchange'), newer = fixture('exchange'); newer.quotedAt = '2026-10-20T08:00:00+08:00'; newer.fetchedAt = captured;
-  await writeFile(path('exchange'), JSON.stringify(newer));
-  await restoreState(root, dir, now(), { exact: true, expectedCommit: commit }); expect(await read('exchange')).toBe(approved);
 });
 it('checkpoint-only rejects bad checksum or provenance before writing any snapshot', async () => {
   await updateData({ root, sources: ['news'], now, runner: runner() }); const dir = join(root, 'exact-checkpoint'), commit = 'a'.repeat(40); await exportState(root, dir, commit);
@@ -183,10 +80,19 @@ it('checkpoint-only rejects bad checksum or provenance before writing any snapsh
   await expect(restoreState(root, dir, now(), { exact: true, expectedCommit: 'b'.repeat(40) })).rejects.toThrow('approval');
   await writeFile(join(dir, 'news.json'), '{}'); await expect(restoreState(root, dir, now(), { exact: true, expectedCommit: commit })).rejects.toThrow('checksum'); expect(await read('quotes')).toBe(before);
 });
-it('workflow is opt-in, default-branch only and scopes secrets away from build/deploy', async () => {
-  const workflow = await readFile(resolve('.github/workflows/data-update.yml'), 'utf8'); expect(workflow).toContain("vars.DATA_AUTOMATION_ENABLED == 'true'"); expect(workflow).toContain('github.event.repository.default_branch'); expect(workflow).toContain('cancel-in-progress: false'); expect(workflow).toContain('workflow_dispatch:'); expect(workflow).not.toMatch(/^\s+(?:push|pull_request|workflow_run):/m); expect(workflow).not.toContain('git push'); expect(workflow).not.toContain('contents: write'); expect(workflow).toContain("needs.deploy.result == 'success' || needs.deploy.result == 'skipped'");
-  const build = workflow.slice(workflow.indexOf('- name: Test and build'), workflow.indexOf('- name: Verify built')); expect(build).not.toContain('CWA_API_KEY:'); expect(workflow).toContain("vars.DATA_PUBLISH_ENABLED == 'true'");
-  expect(workflow).toContain('options: [all, core, quotes, news, earthquakes, exchange, horoscope, checkpoint]');
+
+it('all and core select the same four active sources and reject retired sources', () => {
+  expect(selectUpdateSources('all')).toEqual(['quotes', 'news', 'earthquakes', 'horoscope']);
+  expect(selectUpdateSources('core')).toEqual(SOURCES);
+  expect(() => selectUpdateSources('exchange')).toThrow('unknown_source');
+});
+it('workflow preserves all opt-in and publishing guards with four sources', async () => {
+  const workflow = await readFile(resolve('.github/workflows/data-update.yml'), 'utf8');
+  expect(workflow).toContain('options: [all, core, quotes, news, earthquakes, horoscope, checkpoint]');
+  expect(workflow).toContain("vars.DATA_SCHEDULE_ENABLED == 'true'");
+  expect(workflow).toContain("vars.DATA_AUTOMATION_ENABLED == 'true'");
+  expect(workflow).toContain("vars.DATA_PUBLISH_ENABLED == 'true'");
+  expect(workflow).toContain("vars.DATA_DEPLOY_TARGET == 'pages'");
   expect(workflow).toContain('npm run update:data -- --sources=core --scheduled');
-  expect(workflow).toContain('npm run update:data -- "--sources=$SOURCE"');
+  expect(workflow).not.toMatch(/exchange|push:|contents: write/);
 });

@@ -4,7 +4,7 @@
 
 ## 子路徑與離線驗收
 
-Vite 預設 base `/dailyinfo/`。JSON 服務使用 `import.meta.env.BASE_URL`，Vite 重寫 HTML 的 favicon／JS／CSS，Leaflet CSS 圖片由 Vite 打包。行政區 JSON 直接編入模組；沒有外部字型。Hash Router 的 `#/overview`、`#/weather`、`#/stocks`、`#/stocks?view=exchange`、`#/news`、`#/earthquakes`、`#/settings` 都在同一 index.html 後切換，不需 Pages rewrite。
+Vite 預設 base `/dailyinfo/`。JSON 服務使用 `import.meta.env.BASE_URL`，Vite 重寫 HTML 的 favicon／JS／CSS，Leaflet CSS 圖片由 Vite 打包。行政區 JSON 直接編入模組；沒有外部字型。Hash Router 的 `#/overview`、`#/weather`、`#/stocks`、`#/news`、`#/earthquakes`、`#/settings` 都在同一 index.html 後切換，不需 Pages rewrite。
 
 Open-Meteo 天氣／AQI 與 OSM 圖磚維持既有 HTTPS 外部網址；本機驗收不呼叫這些 API。正式來源的 CORS／可用性仍受提供者影響，包括原有 TWSE 歷史查詢限制。localStorage 結構完全保留；公開網站與本機是不同 origin，瀏覽器不會自動搬移既有偏好／自選股／收藏。
 
@@ -15,7 +15,7 @@ npm.cmd run verify -- --dist
 npm.cmd run preview -- --port 4173 --strictPort
 ```
 
-本機網址 http://127.0.0.1:4173/dailyinfo/ 。verify 只讀快照、驗證 schema／日期、公開檔案及 dist 的秘密／私人路徑／個人 webmail 格式、HTML／CSS 資源與六份 JSON 的子路徑及原檔一致性，不讀 .env.local、不更新來源。未知秘密的精確值無法在不讀取秘密的情況下逐一比對；不宣稱能辨識所有私人資料。截圖沿用既有隱私稽核成果。
+本機網址 http://127.0.0.1:4173/dailyinfo/ 。verify 只讀快照、驗證 schema／日期、公開檔案及 dist 的秘密／私人路徑／個人 webmail 格式、HTML／CSS 資源與五份 JSON 的子路徑及原檔一致性，不讀 .env.local、不更新來源。未知秘密的精確值無法在不讀取秘密的情況下逐一比對；不宣稱能辨識所有私人資料。截圖沿用既有隱私稽核成果。
 
 ## 獨立手動部署
 

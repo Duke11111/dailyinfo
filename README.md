@@ -1,8 +1,12 @@
 # DailyInfo 每日資訊整合平台
 
+## Phase 8H-1：最終繳交範圍
+
+保留天氣／AQI、股票自選與盤後行情、新聞收藏、地震地圖、每日星座及全站設定。已停止開發的匯率功能不包含於目前 UI、更新入口或公開資料。資料自動化改為四來源，舊五來源 Checkpoint 先完整驗證再遷移；詳見 [自動化說明](docs/AUTOMATION.md) 與 [驗收紀錄](VALIDATION.md)。本機備份分支 backup/pre-remove-exchange-20261020 可還原移除前版本；本階段未提交、推送或部署。
+
 > Repository 已公開：[Duke11111/dailyinfo](https://github.com/Duke11111/dailyinfo)，首次提交 `399edd1`，不含原始 Git 歷史。**GitHub Pages 尚未部署、Repository Actions 仍停用、資料自動更新未啟用。** Phase 8B 部署準備僅存在本機未提交變更。[Pages 安全部署說明](docs/PAGES.md) · [公開準備與身分狀態](docs/PUBLIC_CANDIDATE.md) · [Actions SHA 查證](docs/ACTIONS_PINS.md)。
 
-期中專案，截止日期 **2026/10/30**。目前版本 **v0.10.0 / Phase 6C**，加入每日星座運勢與個人化首頁，保留天氣／AQI、股票、外幣、新聞、地震及個人資料，等待驗收。
+期中專案，截止日期 **2026/10/30**。目前版本 **v0.10.0 / Phase 6C**，加入每日星座運勢與個人化首頁，保留天氣／AQI、股票、新聞、地震及個人資料，等待驗收。
 
 使用 Vite、Vanilla JavaScript ES Modules、HTML5、CSS3 與 Vitest。繁體中文介面，無資料庫及登入功能。
 
@@ -31,18 +35,6 @@ node scripts/check-weather.mjs
 ```
 
 Vite 預設 base 為 `/dailyinfo/`；`preview` 網址為 <http://127.0.0.1:4173/dailyinfo/>。建置輸出為 `dist/`，不可直接以 `file://` 開啟 ES Modules。離線部署驗收：`npm.cmd run build -- --base=/dailyinfo/`，再執行 `npm.cmd run verify -- --dist`；不呼叫外部更新 API。
-
-## Phase 6B：外幣匯率與換算
-
-入口為股票頁上方「外幣匯率與換算」，可直接開啟 `#/stocks?view=exchange`；股票與匯率採獨立區塊及表格，保留股票搜尋、自選股與歷史走勢。
-
-- 正常更新採臺灣銀行官方「每日收盤」HTML＋同日期 TXT，完整核對 19 幣別四類報價，保存官方收盤日期、最後掛牌與擷取時間；保留舊 CSV／HTML 相容路徑。既有盤中快照不會自動標成每日收盤，本機新路徑尚待雲端驗收。依資料開放與引用規範署名、不收查詢費、不做銀行營利行銷；詳見 [data-sources/exchange.md](data-sources/exchange.md)。
-- 本批提供 19 種幣別，包含優先八幣；可按中文名稱／ISO 代碼搜尋、快速選常用幣別、切換現金／即期／全部欄位。每 1 單位外幣報價以 TWD 表示，缺值為「未提供」。
-- 換算器支援雙向、現金／即期、方向交換與即時計算。外幣→TWD 用銀行買入價相乘，TWD→外幣用銀行賣出價相除；不平均、不替代缺值。BigInt 定點處理小數，最多六位小數與一兆金額，結果為估算，不含未知費用或成交保證。
-- 首頁原股票卡片加入 USD／JPY／EUR 的**即期銀行賣出**三幣精簡摘要及牌告時間；匯率失敗不影響股票及其他卡片，不新增第五張首頁卡片。
-- 正式網站只讀 `public/data/exchange.json`，共用短期快取與重讀間隔；「重新讀取匯率快照」不向銀行取得新牌告。超過 24 小時提示可能過期，不清除任何使用者 localStorage。
-
-本機更新：`npm.cmd run update:exchange`。目前牌告 **2026/10/20 00:42**、擷取 **00:57:45（臺灣）**；更新失敗保留原有效快照，更新成功後仍須重新建置／發布。教師查看快照不需金鑰；沒有新增依賴、匯款／交易／登入或公開部署。
 
 ## Phase 6A：空氣品質與 US AQI
 

@@ -23,13 +23,16 @@ export function builtAssetPath(url, root) {
   return file;
 }
 export async function verifyBuiltPaths(root) {
+  const publicFiles = await readdir(join(root, 'data'));
+  if (publicFiles.includes('exchange.json')) throw Error('retired_snapshot');
   const html = await readFile(join(root, 'index.html'), 'utf8');
   const urls = [...html.matchAll(/(?:src|href)="([^"]+)"/g)].map(x => x[1]).filter(x => !x.startsWith('#'));
   if (urls.length < 3) throw Error('missing_built_assets');
   for (const url of urls) if (!(await stat(builtAssetPath(url, root))).isFile()) throw Error('missing_built_asset');
   const assets = await readdir(join(root, 'assets'));
   const js = (await Promise.all(assets.filter(x => x.endsWith('.js')).map(x => readFile(join(root, 'assets', x), 'utf8')))).join('\n');
-  for (const name of ['stocks', 'quotes', 'news', 'earthquakes', 'exchange', 'horoscope']) {
+  if (/rate\.bot\.com\.tw|view=exchange|mountExchange/.test(js)) throw Error('retired_browser_feature');
+  for (const name of ['stocks', 'quotes', 'news', 'earthquakes', 'horoscope']) {
     if (!js.includes(`${DEPLOY_BASE}data/${name}.json`)) throw Error('invalid_snapshot_base');
     if (await readFile(join(root, 'data', `${name}.json`), 'utf8') !== await readFile(resolve(root, '../public/data', `${name}.json`), 'utf8')) throw Error('snapshot_differs');
   }
@@ -41,5 +44,5 @@ export async function verifyBuiltPaths(root) {
       if (!(await stat(builtAssetPath(url, root))).isFile()) throw Error('missing_css_asset');
     }
   }
-  return { base: DEPLOY_BASE, htmlAssets: urls.length, snapshots: 6 };
+  return { base: DEPLOY_BASE, htmlAssets: urls.length, snapshots: 5 };
 }

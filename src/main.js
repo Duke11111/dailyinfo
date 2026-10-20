@@ -6,9 +6,7 @@ import './news.css';
 import './earthquakes.css';
 import './overview.css';
 import './air-quality.css';
-import './exchange.css';
 import './horoscope.css';
-import { mountExchange } from './pages/exchange.js';
 import { createAirQualitySession } from './services/air-quality.js';
 import { renderAirQuality } from './components/air-quality.js';
 import { mountOverview } from './pages/overview.js';
@@ -73,13 +71,7 @@ function render() {
     loadWeather(true);
     airQuality.load(region);
   });
-  if (currentRoute === 'stocks') {
-    const isExchange = new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('view') === 'exchange';
-    const navigation = document.createElement('nav'); navigation.className = 'finance-nav'; navigation.setAttribute('aria-label', '財經資訊');
-    navigation.innerHTML = `<a href="#/stocks" ${isExchange ? '' : 'aria-current="page"'}>股票行情與自選股</a><a href="#/stocks?view=exchange" ${isExchange ? 'aria-current="page"' : ''}>外幣匯率與換算</a>`;
-    const host = main.querySelector('#stocks-host'); host.before(navigation);
-    disposeStocks = isExchange ? mountExchange(host) : mountStocks(host);
-  }
+  if (currentRoute === 'stocks') disposeStocks = mountStocks(main.querySelector('#stocks-host'));
   if (currentRoute === 'news') disposeNews = mountNews(main.querySelector('#news-host'));
   if (currentRoute === 'earthquakes') disposeEarthquakes = mountEarthquakes(main.querySelector('#earthquakes-host'), { initialEventId: new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('event') });
   if (isWeather || currentRoute === 'overview') airQuality.load(state.region);
