@@ -1,0 +1,10 @@
+import { it, expect, vi } from 'vitest';
+import { mkdir, mkdtemp, readFile, writeFile, unlink, rmdir } from 'node:fs/promises';
+import { resolve, join } from 'node:path';
+import { updateHoroscope } from '../scripts/lib/horoscope-import.mjs';
+const now = () => Date.parse('2026-10-20T01:00:00Z');
+const responder = (date = '2026-10-20') => vi.fn(async url => ({ ok: true, headers: new Headers({ 'content-type': 'application/json' }), text: async () => JSON.stringify({ data: { sign: new URL(url).searchParams.get('sign'), period: 'daily', date, horoscope: 'Synthetic test fixture only.' } }) }));
+async function runTest(fn) { await mkdir(resolve('node_modules/.cache'), { recursive: true }); const dir = await mkdtemp(resolve('node_modules/.cache/horoscope-')); const target = join(dir, 'data.json'); try { await fn(target); } finally { await unlink(target).catch(() => {}); await rmdir(dir); } }
+it('updates all twelve signs with an atomic validated snapshot', async () => runTest(async target => { const fetchImpl = responder(); const value = await updateHoroscope({ target, fetchImpl, now }); expect(value.readings).toHaveLength(12); expect(fetchImpl).toHaveBeenCalledTimes(12); expect(JSON.parse(await readFile(target, 'utf8'))).toEqual(value); }));
+it.each(['http', 'old', 'invalid'])('preserves valid bytes on %s source failure', async mode => runTest(async target => { await updateHoroscope({ target, fetchImpl: responder(), now }); const before = await readFile(target, 'utf8'); const fetchImpl = mode === 'old' ? responder('2026-10-19') : mode === 'http' ? vi.fn(async () => ({ ok: false, status: 503 })) : vi.fn(async () => ({ ok: true, headers: new Headers({ 'content-type': 'text/html' }) })); await expect(updateHoroscope({ target, fetchImpl, now })).rejects.toThrow(); expect(await readFile(target, 'utf8')).toBe(before); }));
+it('preserves corrupt old file for inspection instead of overwriting', async () => runTest(async target => { await writeFile(target, 'corrupt'); await expect(updateHoroscope({ target, fetchImpl: responder(), now })).rejects.toThrow(); expect(await readFile(target, 'utf8')).toBe('corrupt'); }));

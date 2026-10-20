@@ -1,0 +1,30 @@
+.air-quality{padding:1.6rem;margin-top:1.5rem;min-width:0;overflow-wrap:anywhere}
+.air-heading{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.air-heading h2,.air-heading h3{margin:0;font-size:1.3rem}
+.air-note{font-size:.82rem;color:var(--muted);line-height:1.7;margin:.7rem 0}
+.air-error{font-size:.9rem;color:var(--error)}
+.air-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin:1.3rem 0;align-items:start}
+.air-metrics>div{padding:1rem;border:1px solid var(--border);border-radius:.65rem;background:var(--subtle);min-width:0}
+.air-metrics span,.air-metrics b{display:block;font-size:.85rem}
+.air-metrics strong{display:block;font-size:1.9rem;line-height:1.5;font-variant-numeric:tabular-nums}
+.air-metrics small{font-size:.8rem;color:var(--text-secondary)}
+.air-index{border-inline-start:.4rem solid var(--aqi-color,var(--muted))!important}
+.air-good{--aqi-color:#2c9452}.air-moderate{--aqi-color:#c7a215}.air-sensitive{--aqi-color:#db8025}.air-unhealthy{--aqi-color:#cd4559}.air-very-unhealthy{--aqi-color:#9655b4}.air-hazardous{--aqi-color:#933b59}
+.air-index strong,.air-index b{color:var(--text)}
+.air-chart{width:100%;height:auto;display:block;min-width:22rem}
+.air-chart-wrap{max-width:100%;overflow-x:auto}
+.air-chart polyline{fill:none;stroke:var(--focus);stroke-width:2.5;vector-effect:non-scaling-stroke}
+.air-chart circle{fill:var(--focus)}
+.air-axis{stroke:var(--border)}
+.air-chart text{fill:var(--text-secondary);font-family:inherit;font-size:.8rem}
+.air-values{font-size:.85rem;color:var(--text-secondary);margin:.7rem 0}
+.air-values ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.5rem 1.5rem;padding-left:1.5rem}
+.air-footer{border-top:1px solid var(--border);padding-top:.5rem}
+.air-footer a{text-decoration:underline;text-underline-offset:.2em}
+.air-compact{padding:1rem 0 0;border-top:1px solid var(--border);margin-top:1rem}
+.air-compact .air-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem;margin:.7rem 0}
+.air-compact .air-metrics>div{padding:.6rem}
+.air-compact .air-metrics strong{font-size:1.5rem}
+.air-compact .air-note{font-size:.75rem;margin:.5rem 0}
+.air-compact .air-heading h3{font-size:1.05rem}
+@media(max-width:760px){.air-metrics{grid-template-columns:minmax(0,1fr)}.air-quality{padding:1rem}.air-compact{padding:1rem 0 0}}

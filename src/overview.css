@@ -1,0 +1,37 @@
+.overview-notice{color:var(--muted);margin:0 0 1.5rem;max-width:75rem;font-size:.9rem}
+.overview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.4rem;align-items:stretch}
+.overview-card{padding:1.5rem;min-width:0;display:flex;flex-direction:column;overflow-wrap:anywhere}
+.overview-card-heading{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:.8rem;flex-wrap:wrap}
+.overview-card-heading h2{margin:.25rem 0;font-size:1.4rem;color:var(--text)}
+.overview-card a{color:var(--accent);text-decoration:underline;text-underline-offset:.2em}
+:root[data-theme="dark"] .overview-card a{color:var(--accent-light)}
+.overview-card-heading>a{font-size:.85rem;white-space:nowrap}
+.overview-status,.overview-caption,.overview-source{font-size:.82rem;color:var(--muted)}
+.overview-status{min-height:2.5em;margin:.4rem 0 1rem}
+.overview-error{color:var(--error);font-size:.9rem}
+.overview-content{flex:1;min-width:0}
+.overview-source{border-top:1px solid var(--border);padding-top:1rem;margin-top:1rem}
+.overview-source p{margin:.4rem 0 .8rem}
+.overview-actions{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.overview-refresh{border:1px solid var(--border);border-radius:.45rem;padding:.45rem .7rem;color:var(--text-secondary);background:var(--surface);font-size:.82rem}
+.overview-weather-current{display:flex;gap:.8rem;flex-wrap:wrap;align-items:center;margin-bottom:1.2rem}
+.overview-weather-current>strong{font-size:2.3rem;color:var(--accent)}
+.overview-weather-symbol .icon{width:2.7rem;height:2.7rem;color:var(--accent)}
+.overview-days{display:grid;grid-template-columns:repeat(auto-fit,minmax(3.1rem,1fr));gap:.3rem}
+.overview-day{display:flex;align-items:center;flex-direction:column;padding:.6rem .15rem;gap:.25rem;font-size:.75rem;border-radius:.5rem;background:var(--subtle);white-space:nowrap}
+.overview-day time,.overview-day small{color:var(--muted);font-size:.72rem}
+.overview-today{background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent);color:var(--accent)}
+.overview-day .icon{width:1.6rem;height:1.6rem;margin:.25rem 0}
+.overview-list{padding:0;margin:0;list-style:none}
+.overview-list li{padding:.85rem 0;border-bottom:1px solid var(--border)}
+.overview-list li:first-child{padding-top:0}
+.overview-list li:last-child{border-bottom:0}
+.overview-list a{font-weight:600;text-decoration:none;line-height:1.6}
+.overview-list a:hover{text-decoration:underline}
+.overview-list p{margin:.4rem 0 0}
+.overview-card select{max-width:100%;width:100%;font:inherit;padding:.5rem;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:.45rem;margin-bottom:.5rem}
+.overview-table-scroll{overflow-x:auto;max-width:100%}
+.overview-stock-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.overview-stock-table th,.overview-stock-table td{padding:.8rem .35rem;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.overview-stock-table th:first-child,.overview-stock-table td:first-child{text-align:left;white-space:normal;min-width:6rem}
+@media(max-width:1100px){.overview-grid{grid-template-columns:minmax(0,1fr)}}

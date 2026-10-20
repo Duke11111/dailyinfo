@@ -1,0 +1,25 @@
+node_modules/
+.cache/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.local
+*.log
+public/data/*.tmp
+.DS_Store
+
+# Private credentials and local authentication files. Keep .env.example tracked.
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+id_rsa
+id_ed25519
+id_ecdsa
+.netrc
+.npmrc
+credentials.json
+service-account*.json

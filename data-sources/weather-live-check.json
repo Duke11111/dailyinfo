@@ -1,0 +1,59 @@
+[
+  {
+    "label": "臺北市大安區",
+    "region": {
+      "id": "63000030",
+      "county": "臺北市",
+      "district": "大安區",
+      "latitude": 25.030179,
+      "longitude": 121.53977
+    },
+    "success": true,
+    "source": "Open-Meteo",
+    "url": "https://api.open-meteo.com/v1/forecast?latitude=25.030179&longitude=121.53977&timezone=Asia%2FTaipei&current=temperature_2m%2Crelative_humidity_2m%2Cweather_code&daily=weather_code%2Ctemperature_2m_max%2Ctemperature_2m_min%2Cprecipitation_probability_max&forecast_days=7",
+    "temperature": 27.1,
+    "humidity": 78,
+    "effectiveTime": "2026-10-19T18:30+08:00",
+    "fetchedAt": "2026-10-19T10:37:22.500Z",
+    "todayMaxRainProbability": 0,
+    "forecastDays": 7
+  },
+  {
+    "label": "苗栗縣竹南鎮",
+    "region": {
+      "id": "10005040",
+      "county": "苗栗縣",
+      "district": "竹南鎮",
+      "latitude": 24.711839,
+      "longitude": 120.895427
+    },
+    "success": true,
+    "source": "Open-Meteo",
+    "url": "https://api.open-meteo.com/v1/forecast?latitude=24.711839&longitude=120.895427&timezone=Asia%2FTaipei&current=temperature_2m%2Crelative_humidity_2m%2Cweather_code&daily=weather_code%2Ctemperature_2m_max%2Ctemperature_2m_min%2Cprecipitation_probability_max&forecast_days=7",
+    "temperature": 27.7,
+    "humidity": 82,
+    "effectiveTime": "2026-10-19T18:30+08:00",
+    "fetchedAt": "2026-10-19T10:37:22.759Z",
+    "todayMaxRainProbability": 0,
+    "forecastDays": 7
+  },
+  {
+    "label": "高雄市左營區",
+    "region": {
+      "id": "64000030",
+      "county": "高雄市",
+      "district": "左營區",
+      "latitude": 22.690688,
+      "longitude": 120.288767
+    },
+    "success": true,
+    "source": "Open-Meteo",
+    "url": "https://api.open-meteo.com/v1/forecast?latitude=22.690688&longitude=120.288767&timezone=Asia%2FTaipei&current=temperature_2m%2Crelative_humidity_2m%2Cweather_code&daily=weather_code%2Ctemperature_2m_max%2Ctemperature_2m_min%2Cprecipitation_probability_max&forecast_days=7",
+    "temperature": 27.9,
+    "humidity": 76,
+    "effectiveTime": "2026-10-19T18:30+08:00",
+    "fetchedAt": "2026-10-19T10:37:23.012Z",
+    "todayMaxRainProbability": 0,
+    "forecastDays": 7
+  }
+]

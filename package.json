@@ -1,0 +1,28 @@
+{
+  "name": "dailyinfo",
+  "version": "0.10.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
+    "import:stocks": "node scripts/import-stocks.mjs",
+    "update:quotes": "node scripts/update-quotes.mjs",
+    "update:news": "node scripts/update-news.mjs",
+    "update:earthquakes": "node scripts/update-earthquakes.mjs",
+    "update:exchange": "node scripts/update-exchange.mjs",
+    "update:horoscope": "node scripts/update-horoscope.mjs",
+    "update:data": "node scripts/update-data.mjs",
+    "verify:data": "node scripts/verify-data.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^27.0.0",
+    "vite": "^8.3.4",
+    "vitest": "^4.0.0"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4"
+  }
+}

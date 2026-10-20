@@ -1,0 +1,10 @@
+.horoscope-card { padding: 1.35rem; margin-bottom: 1.5rem; min-width: 0; }
+.horoscope-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.horoscope-controls h2 { margin: .4rem 0; font-size: 1.25rem; }
+.horoscope-controls label { margin-left: auto; display: grid; gap: .3rem; font-size: .85rem; }
+.horoscope-controls select { padding: .55rem .7rem; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--text); font: inherit; }
+.horoscope-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.horoscope-reading { line-height: 1.8; overflow-wrap: anywhere; max-width: 110ch; }
+.horoscope-meta { color: var(--muted); font-size: .8rem; line-height: 1.6; overflow-wrap: anywhere; }
+.horoscope-meta a { color: var(--accent); }
+@media (max-width: 700px) { .horoscope-controls label { margin-left: 0; } }

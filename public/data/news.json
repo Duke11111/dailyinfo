@@ -1,0 +1,1190 @@
+{
+  "version": 1,
+  "source": "中央通訊社",
+  "sourceUrl": "https://www.cna.com.tw/about/rss.aspx",
+  "fetchedAt": "2026-10-19T13:04:33.674Z",
+  "feeds": [
+    {
+      "category": "technology",
+      "url": "https://feeds.feedburner.com/rsscna/technology",
+      "fetchedAt": "2026-10-19T13:04:30.821Z",
+      "count": 20,
+      "sha256": "f4f518d68e3744e2db05f7ece54a45c05f1898eb6e8b276fedea0ee9a9c879dc"
+    },
+    {
+      "category": "finance",
+      "url": "https://feeds.feedburner.com/rsscna/finance",
+      "fetchedAt": "2026-10-19T13:04:31.180Z",
+      "count": 20,
+      "sha256": "40caeefffc895f3dd3d6e43e24ebcbf3c692df6cc60f11667ae6e43c19781410"
+    },
+    {
+      "category": "intworld",
+      "url": "https://feeds.feedburner.com/rsscna/intworld",
+      "fetchedAt": "2026-10-19T13:04:32.162Z",
+      "count": 20,
+      "sha256": "80673e2e28ccf2c1b8ee55c561a774764c2246d0b341eeeb8783cac06e5a990a"
+    },
+    {
+      "category": "lifehealth",
+      "url": "https://feeds.feedburner.com/rsscna/lifehealth",
+      "fetchedAt": "2026-10-19T13:04:32.480Z",
+      "count": 20,
+      "sha256": "7d6870f6d306547e3a9a7e31f7bdf7f5748f0f21d7158c88f6e88f2ee1c75c69"
+    },
+    {
+      "category": "social",
+      "url": "https://feeds.feedburner.com/rsscna/social",
+      "fetchedAt": "2026-10-19T13:04:33.640Z",
+      "count": 20,
+      "sha256": "a96578e1b539ec0ff3deac7b91b5f6c9a4cab023f29f8040f70e095808f4c3d9"
+    }
+  ],
+  "articles": [
+    {
+      "id": "https://www.cna.com.tw/news/ait/202610190250.aspx",
+      "url": "https://www.cna.com.tw/news/ait/202610190250.aspx",
+      "title": "南非稀土專家：各國願意投資 分散全球關鍵原料來源",
+      "summary": "（中央社記者李依璇約翰尼斯堡19日專電）南非今年在稀土領域出現重大突破，第一階段精煉技術研發成功並順利進入商業化生產。南非國家礦物研究機構執行經理表示，世界各國希望降低對中國原料的依賴，因此更願意投資在稀土產業，以分散供應來源。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T12:41:01.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190245.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190245.aspx",
+      "title": "日本愛媛祭典山車翻倒 副市長難波江明廣遭重壓不治",
+      "summary": "（中央社愛媛縣19日綜合外電報導）日本愛媛縣西條市傳統秋祭17日進入最後一天，西條市副市長難波江明廣以抬夫身分參加活動，不料山車突然失去平衡，難波江明廣被壓住，送醫後不治。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T11:47:49.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190242.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190242.aspx",
+      "title": "加拿大亞伯達省公投登場 分離主張恐敗但難落幕",
+      "summary": "（中央社加拿大卡加立19日綜合外電報導）加拿大西部亞伯達省今天舉行不具法律約束力的公投，詢問是否啟動具法律約束力的脫加公投法律程序。外界普遍預期，分離主張將遭遇挫敗，但許多人認為，這場爭論不會因此畫下句點。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T11:44:43.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/acul/202610190235.aspx",
+      "url": "https://www.cna.com.tw/news/acul/202610190235.aspx",
+      "title": "台北時裝週SS27閉幕 吸引逾2.9萬人次參觀",
+      "summary": "（中央社記者趙靜瑜台北19日電）台北時裝週SS27昨天閉幕，這季首度移師空總國家文化基地，吸引逾2.9萬人次參觀，相較去年同期2萬人，成長42.8%，並預估創造約新台幣3億元產值，無論看展人潮或商務實績都創歷年新高。",
+      "categories": [
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T11:18:27.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190233.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190233.aspx",
+      "title": "俄羅斯夜襲基輔釀1死8傷 澤倫斯基稱未獲盟國預警",
+      "summary": "（中央社基輔19日綜合外電報導）烏克蘭總統澤倫斯基今天表示，俄羅斯以彈道飛彈攻擊基輔及周邊地區的能源設施，烏方事前並未收到盟國預警。俄軍今天凌晨發射多波飛彈襲擊基輔，至少造成1人死亡、8人受傷。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T11:11:23.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190230.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190230.aspx",
+      "title": "川普緊縮移民政策 美核發簽證數量銳減台灣也受影響",
+      "summary": "（中央社紐約19日綜合外電報導）美國總統川普（Donald Trump）政府今年初以來大幅緊縮移民政策，包括對部分國家人民減少核發或停發簽證，使得合法移民簽證數量銳減，台灣也受到影響。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T11:01:16.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190228.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190228.aspx",
+      "title": "泰國嚴打外國人違規買地 擬強制出售非法持有地",
+      "summary": "（中央社記者李宗憲曼谷19日專電）泰國總理阿努廷今天啟動外國人非法持有泰國土地的調查行動，下令全國各府及土地官員於12月前，完成相關調查，並研議強制出售違法土地、驅逐出境等措施，以打擊外國人透過泰國公民充當人頭，以規避土地持有規定的行為。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T10:51:12.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190227.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190227.aspx",
+      "title": "台灣科技藝術捷克訊號節亮相 登大報封面備受矚目",
+      "summary": "（中央社記者劉郁葶布拉格19日專電）台灣藝術家張方禹雷射光影作品、黃心健沉浸式互動裝置，捷克訊號節展出；張方禹作品更登上捷克大報封面，備受矚目與國際肯定。訊號節節目經理伯達表示，有幸邀請兩位藝術家參與，台灣的新媒體藝術創作環境發展蓬勃。",
+      "categories": [
+        "intworld",
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T10:50:10.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190226.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190226.aspx",
+      "title": "菲律賓召見中國大使井泉 抗議「動武威脅」言論",
+      "summary": "（中央社馬尼拉19日綜合外電報導）菲律賓外交部今天召見中國駐菲律賓大使井泉，就其近日發表的言論表達「嚴重關切和強烈反對」。菲方認為相關言論傳達了使用武力的威脅。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T10:48:08.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610190225.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610190225.aspx",
+      "title": "退伍憲兵空軍涉共諜案起訴移審 高院裁定羈押不禁見",
+      "summary": "（中央社記者劉世怡台北19日電）前憲兵李姓男子、前空軍森姓女子涉收中共報酬，洩漏交付軍事機密，今天遭台灣高檢署起訴並移審高院。高院認為2人涉犯重罪，曾刪除手機資料，有逃亡之虞，裁定羈押不禁見。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T10:47:05.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ahel/202610190223.aspx",
+      "url": "https://www.cna.com.tw/news/ahel/202610190223.aspx",
+      "title": "法國暴力示威 外交部籲避免前往抗議地點、提高警覺",
+      "summary": "（中央社記者楊堯茹台北19日電）外電報導，法國17日起爆發大規模抗議示威活動。外交部今天表示，駐法代表處迄今未接獲旅外民眾急難救助請求，民眾應隨時注意相關抗議活動訊息，避免前往抗議地點，並提高警覺、加強注意安全。",
+      "categories": [
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T10:41:01.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/afe/202610190222.aspx",
+      "url": "https://www.cna.com.tw/news/afe/202610190222.aspx",
+      "title": "外資賣超767億元連9賣 調節力積電4.64萬張居首",
+      "summary": "（中央社記者吳家豪台北19日電）台股今天走勢震盪，盤中一度重挫逾940點，尾盤跌勢收斂，終場下跌289.18點，收在46822.08點。外資及陸資今天持續站在賣方，賣超新台幣767.42億元，連續9個交易日賣超，今天減碼晶圓代工廠力積電4.64萬張最多。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T10:40:59.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ahel/202610190221.aspx",
+      "url": "https://www.cna.com.tw/news/ahel/202610190221.aspx",
+      "title": "彭啓明盼減少選舉看板 將與中選會跨單位討論",
+      "summary": "（中央社記者張雄風台北19日電）環境部長彭啓明今天表示，會與中選會等跨單位討論，希望減少選舉期間的一次性競選看板；鼓勵參選人思考更環保，「宣傳物不是愈多愈好」。",
+      "categories": [
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T10:30:57.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/afe/202610190219.aspx",
+      "url": "https://www.cna.com.tw/news/afe/202610190219.aspx",
+      "title": "外界關注公公併 國票金：樂天銀與實體銀並存並非不可能",
+      "summary": "（中央社記者蘇思云台北19日電）外界關注國票金「公公併」進度，以及未來金控能否同時有實體銀行與純網銀，國票金表示，樂天銀行與實體銀行並存不是不可能，未來若有併購案也會充分討論可行方案；至於高層薪酬改革方案，金控部分已在10月1日生效，子公司預計11月生效。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T10:28:52.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190217.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190217.aspx",
+      "title": "美股財報季進入火熱期 聚焦Meta、特斯拉、Netflix",
+      "summary": "（中央社紐約19日綜合外電報導）美國股市本週進入財報高峰，除了科技業「7巨頭」中的Meta和特斯拉將公布結果，投資人還將關注串流媒體巨擘Netflix、信用卡公司美國運通及多家航空公司財報透露的消費趨勢。",
+      "categories": [
+        "finance",
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T10:28:48.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ahel/202610190216.aspx",
+      "url": "https://www.cna.com.tw/news/ahel/202610190216.aspx",
+      "title": "深耕地方農業、陪伴青農 新北等10農會獲表揚",
+      "summary": "（中央社記者汪淑芬台北19日電）農業部今天舉行「第4屆金推獎」頒獎典禮，新北、桃園等10家農會在深耕地方農業、陪伴青農、食農教育、品牌行銷、多元服務等整體表現卓越，獲得表揚。",
+      "categories": [
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T10:26:46.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/acul/202610190215.aspx",
+      "url": "https://www.cna.com.tw/news/acul/202610190215.aspx",
+      "title": "「獅頭製作」保存者陳銘鴻辭世 文化部將頒贈旌揚狀",
+      "summary": "（中央社記者趙靜瑜台北19日電）台中市傳統工藝「獅頭製作」保存者陳銘鴻於10月16日辭世，享壽76歲。文化部長李遠聞訊表達哀悼與不捨，文化部將頒贈旌揚狀予以表彰。",
+      "categories": [
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T10:24:44.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610190214.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610190214.aspx",
+      "title": "柯文哲二審不認罪 李文宗背信案部分認罪",
+      "summary": "（中央社記者劉世怡台北19日電）前民眾黨主席柯文哲涉政治獻金等案，二審否認犯罪；同案被告李文宗今天則就眾望基金會支付黃心緗等4人薪資、約新台幣210萬元的背信部分認罪；李文娟出庭前表達改認罪。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T10:19:42.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190212.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190212.aspx",
+      "title": "俄羅斯外長訪伊朗 尋求斡旋中東戰爭",
+      "summary": "（中央社德黑蘭19日綜合外電報導）中東戰事未歇，俄羅斯試圖扮演調解角色，俄國外交部長拉夫羅夫（Sergey Lavrov）預定今天抵達伊朗進行訪問，這是中東戰爭爆發以來他首度訪伊。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T10:13:37.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ahel/202610190210.aspx",
+      "url": "https://www.cna.com.tw/news/ahel/202610190210.aspx",
+      "title": "阿Ken因皮蛇半夜痛倒在地 化身投手籲糖友守健康",
+      "summary": "（中央社記者陳婕翎台北19日電）螢光幕前熱情有活力的藝人阿Ken，不說很難想像，他曾為俗稱皮蛇的帶狀疱疹所苦，甚至半夜痛倒在地，除了實踐預防，他今天化身投手，號召糖友守住健康，喊話別痛了才後悔。",
+      "categories": [
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T10:08:33.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190209.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190209.aspx",
+      "title": "日本擬調降消費稅 日相高市不否認發行國債",
+      "summary": "（中央社東京19日綜合外電報導）日本政府力拚在2027年4月起調降食品消費稅率，而這項政策的財源也備受關注。日相高市早苗今天在參議院預算委員會接受質詢時就此表示，「並未否認發行國債的可能性」。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T10:00:31.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190208.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190208.aspx",
+      "title": "聯合國COP17登場 全球生物多樣性目標多數進度落後",
+      "summary": "（中央社倫敦19日綜合外電報導）聯合國生物多樣性公約第17次締約方會議（COP17）今天起在亞美尼亞召開，以檢視遏止生物多樣性流失的工作進展。然而，多數全球目標仍落後進度，各方對資金籌措問題也尚未達成共識。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T09:59:29.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190206.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190206.aspx",
+      "title": "印度蟑螂人民黨示威不斷 反對陣營組新團籲和平抗議",
+      "summary": "（中央社記者李晉緯新德里19日專電）「蟑螂人民黨」不斷組織示威活動，對此感到厭倦者組成「紅剋蟑人民黨」（Lal Hit Janata Party）與之抗衡，並呼籲年輕人以和平、合法的溝通方式，參與印度的民主進程。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T09:54:24.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/afe/202610190203.aspx",
+      "url": "https://www.cna.com.tw/news/afe/202610190203.aspx",
+      "title": "MSCI擬降級再掀賣壓 印尼股市一度暴跌逾5%創6年新低",
+      "summary": "（中央社雅加達19日綜合外電報導）市場對MSCI可能調降印尼市場評級的疑慮升高，加深外資恐將進一步撤出的擔憂。印尼基準股價指數雅加達綜合指數今天一度重挫逾5%，跌至6年來新低，終場以下跌3.64%作收。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T09:50:18.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610190201.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610190201.aspx",
+      "title": "疑失控撞對向車輛 基隆女騎士受困車底送醫不治",
+      "summary": "（中央社記者王朝鈺基隆19日電）潘姓女子今天下午騎機車行經基隆市港西街時，疑失控撞上對向廂型車後飛起，受困廂型車底，消防人員吊升車體救出潘女，經送醫急救後宣告不治。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T09:47:14.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/afe/202610190200.aspx",
+      "url": "https://www.cna.com.tw/news/afe/202610190200.aspx",
+      "title": "安成新藥解盲未達標股價重挫熔斷 擬明年下半年申請藥證",
+      "summary": "（中央社記者何秀玲台北19日電）安成生技治療遺傳性表皮分解性水泡症（俗稱泡泡龍症）的新藥AC-203解盲失敗，18日公布第二、三期臨床試驗主要療效指標未達統計學顯著差異；安成生技今天股價重挫逾6成，觸發熔斷機制暫停交易至收市，暫停交易前最後成交價為17.2元。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T09:46:11.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/afe/202610190196.aspx",
+      "url": "https://www.cna.com.tw/news/afe/202610190196.aspx",
+      "title": "TLC-KY止痛新藥三期達標 擬申請美國上市",
+      "summary": "（中央社記者何秀玲台北19日電）新藥研發公司TLC-KY宣布，旗下術後長效止痛新藥TLC590用於拇趾外翻手術，三期臨床試驗初步分析結果出爐，達成主要療效指標；TLC規劃完成全部試驗數據分析及臨床試驗報告後，向美國FDA提出新藥上市申請（NDA）。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T09:29:03.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190194.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190194.aspx",
+      "title": "澳洲國會議員海恩斯遭休旅車蓄意衝撞 情況危急",
+      "summary": "（中央社雪梨19日綜合外電報導）澳洲警方與總理艾班尼斯表示，無黨籍國會議員海恩斯（Helen Haines）今天在墨爾本東北方旺加拉塔（Wangaratta）她的辦公室外，遭一輛休旅車蓄意衝撞，目前情況危急。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T09:26:59.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610190193.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610190193.aspx",
+      "title": "歌手謝震廷涉恐嚇出庭 聲請指定辯護人",
+      "summary": "（中央社記者李念庭台北19日電）歌手謝震廷113年與前女友發生口角，涉嫌持刀恐嚇、公開個資等，遭北檢起訴。北院審理期間多次未現身，謝震廷今天開庭表示，因病無法自行答辯，請求法院指定辯護人。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T09:26:56.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ahel/202610190190.aspx",
+      "url": "https://www.cna.com.tw/news/ahel/202610190190.aspx",
+      "title": "颱風薔琵提早北轉 北部、宜蘭23、24日防豪雨",
+      "summary": "（中央社記者張雄風台北19日電）氣象署今天表示，最新預測颱風薔琵北轉時間較預期快，但仍不排除最快21日晚間發布海警、22日發布陸警；23、24日受颱風影響最顯著，北部、宜蘭防大雨或豪雨。",
+      "categories": [
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T09:24:50.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/afe/202610190189.aspx",
+      "url": "https://www.cna.com.tw/news/afe/202610190189.aspx",
+      "title": "台灣璞玉指數成分股5個月日均成交值增49.1%",
+      "summary": "（中央社記者潘智義台北19日電）台灣指數公司今天公布「台灣璞玉指數」10月定期審核結果，計納入129檔、刪除66檔成分股，調整後成分股由331檔增至394檔，包含7檔創新板股票，於10月19日收盤後生效。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T09:23:48.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/afe/202610190188.aspx",
+      "url": "https://www.cna.com.tw/news/afe/202610190188.aspx",
+      "title": "宸鴻：先進封裝TGV擬2028年量產 TPCA先亮相",
+      "summary": "（中央社記者潘智義台北19日電）觸控面板廠宸鴻今天宣布，中壢廠已完成先進封裝的玻璃基板玻璃鑽孔（TGV）技術試產線建置，正與先進封裝業者展開前期樣品共同開發及驗證工作，目標於2027年底完成核心技術驗證，預計2028年導入量產。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T09:18:46.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ahel/202610190187.aspx",
+      "url": "https://www.cna.com.tw/news/ahel/202610190187.aspx",
+      "title": "健保世代公平引討論 年輕病友協會籲檢討保費計算",
+      "summary": "（中央社記者陳婕翎台北19日電）未來逾8成65歲以上長者符合免繳健保費資格，引發對世代公平的討論。台灣年輕病友協會籲檢視現行以薪資所得為核心的保費計算，建立符合人口及所得結構變遷的健保財務機制。",
+      "categories": [
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T09:18:44.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/afe/202610190172.aspx",
+      "url": "https://www.cna.com.tw/news/afe/202610190172.aspx",
+      "title": "研調：光纖供給緊縮 成品現貨價年增2.8至5倍以上",
+      "summary": "（中央社記者潘智義台北19日電）研調機構集邦科技最新通訊產業研究指出，隨著AI資料中心、跨資料中心互連及高容量骨幹網路建設推升光纖需求，預估2026年全球光纖供需缺口將達1.8億芯公里，供給緊縮將帶動光纖成品現貨價格年增2.8至5倍以上。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T09:07:12.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/afe/202610190170.aspx",
+      "url": "https://www.cna.com.tw/news/afe/202610190170.aspx",
+      "title": "三圓建設盼加速回收資金 台北之星降價約15%",
+      "summary": "（中央社記者何秀玲台北19日電）台北市豪宅「台北之星」銷售有新動向，三圓建設持有戶原由海悅代銷，近期改由大師房屋接手。大師房屋董事長陳建慶透露，三圓有資金及財務需求，接案後成交價較先前實價登錄下修約15%；目前受託銷售27戶，近一個多月來已賣出2戶，買主均為40歲以下金融投資業者。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T09:00:06.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aipl/202610190168.aspx",
+      "url": "https://www.cna.com.tw/news/aipl/202610190168.aspx",
+      "title": "NCC副主委被提名人蕭蘋：假新聞為故意危害 應善盡查證",
+      "summary": "（中央社記者趙敏雅台北19日電）立法院交通、教育及文化委員會聯席會議今天審查行政院函送NCC委員提名名單，立委關切媒體報導亂象、假新聞審查，NCC是否會有雙重標準。NCC副主委被提名人蕭蘋表示，在專業定義上，假新聞是「故意且會造成危害」的內容。她認為，監理焦點應是媒體內部是否有事實查證程序，以及發生錯誤後是否有更正程序。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T08:56:02.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190167.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190167.aspx",
+      "title": "日本擬對雲端服務等設安全認證制度 實質上排除受中俄影響業者",
+      "summary": "（中央社東京19日綜合外電報導）日本政府將針對資料中心及雲端服務建立安全認證制度，並鼓勵金融、醫療等處理個人重要資訊的企業，使用經政府認證的服務。這項制度實質上將排除受到中、俄等國影響的企業。",
+      "categories": [
+        "technology",
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T08:48:59.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/afe/202610190166.aspx",
+      "url": "https://www.cna.com.tw/news/afe/202610190166.aspx",
+      "title": "美股財報季前逢賣壓 亞股收盤互有漲跌",
+      "summary": "（中央社香港19日綜合外電報導）市場對AI投資熱潮的疑慮日益加深，引發美股賣壓，但隨著企業財報即將公布，投資人逢低買進，為市場提供部分支撐，亞股今天收盤互有漲跌，首爾股市揚升1.8%。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T08:47:57.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ahel/202610190162.aspx",
+      "url": "https://www.cna.com.tw/news/ahel/202610190162.aspx",
+      "title": "「類器官之父」任北醫大講座教授 諾貝爾獎熱門人選助攻新藥",
+      "summary": "（中央社記者陳婕翎台北19日電）類器官研究為許多難解疾病帶來曙光，「類器官之父」漢斯．克利弗斯（Hans Clevers）首度訪台，他被公認為諾貝爾獎熱門候選人，出任北醫大講座教授，助攻新藥研發。",
+      "categories": [
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T08:26:48.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610190160.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610190160.aspx",
+      "title": "苗栗通霄廂型車自撞號誌桿 7旬夫妻1死1重傷",
+      "summary": "（中央社記者管瑞平苗栗縣19日電）一輛廂型車今天行經苗栗縣通霄鎮福德路與自強路口，不明原因自撞號誌桿，駕駛72歲古姓男子及張姓妻子受困，經消防隊搶救送醫，古男傷重不治、張女重傷，事故原因待警方調查。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T08:17:44.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190157.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190157.aspx",
+      "title": "肯亞伊波拉群聚增至8例 醫院清潔人員染疫",
+      "summary": "（中央社奈洛比18日綜合外電報導）肯亞衛生部官員今天表示，境內伊波拉病例再增1例，累計確診達8例；新確診個案是49歲在醫院負責清潔工作的男性，研判在首例患者病房內遭到感染。",
+      "categories": [
+        "intworld",
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T08:10:37.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ahel/202610190156.aspx",
+      "url": "https://www.cna.com.tw/news/ahel/202610190156.aspx",
+      "title": "勞團訴求提高勞退金雇主提繳率 勞動部：滾動檢討",
+      "summary": "（中央社記者張雄風台北19日電）勞團今天上街訴求全面調薪、提高勞工退休金雇主提繳率等。勞動部表示，涉及勞退制度變革，將持續與各界溝通、滾動檢討；呼籲雇主應隨著最低工資調升，考量對既有員工加薪。",
+      "categories": [
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T08:07:35.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/afe/202610190155.aspx",
+      "url": "https://www.cna.com.tw/news/afe/202610190155.aspx",
+      "title": "第一傳動10/21每股168元登興櫃 擴展工業機器人應用",
+      "summary": "（中央社記者鍾榮峰台北19日電）智慧電動傳動系統廠第一傳動將於21日以每股168元登錄興櫃，董事長曾冠樹表示，規劃2027年上市，持續深化醫療、工作環境、家用家具、工業等4大應用場域，預計明年在工業機器人應用領域可見實質效益。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T08:04:33.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/afe/202610190154.aspx",
+      "url": "https://www.cna.com.tw/news/afe/202610190154.aspx",
+      "title": "新台幣重貶1.07角 收32.445元",
+      "summary": "（中央社台北19日電）台北外匯市場新台幣兌美元今天收盤收32.445元，重貶1.07角，成交金額28.31億美元。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T08:03:31.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aipl/202610190152.aspx",
+      "url": "https://www.cna.com.tw/news/aipl/202610190152.aspx",
+      "title": "日本國家資格證照開放填「台灣」 旅日牙醫感慨萬千",
+      "summary": "（中央社記者戴雅真東京19日專電）日本10月起開放台灣人申請將國家資格證照上的國籍標示由「中國」更改為「台灣」。日本台灣友好議員聯盟今天召開專案小組會議，旅日數十年的台灣牙醫師感慨，自己的身分認同終於能夠被承認，過去只能用貼紙遮住證照上的「中國」，如今終於能夠堂堂正正寫上「台灣」。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T07:56:27.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190151.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190151.aspx",
+      "title": "日本少子化加速 至少145間高中面臨關門",
+      "summary": "（中央社東京19日綜合外電報導）日媒今天報導，由於少子化加速，在2040年度之前，日本各地至少有145間高中將關閉；另一項調查顯示，日本希望生育第二胎的人，比例較6年前減少一半。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T07:50:24.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/afe/202610190149.aspx",
+      "url": "https://www.cna.com.tw/news/afe/202610190149.aspx",
+      "title": "美股延長交易吸走台股資金？金管會：關注後續影響",
+      "summary": "（中央社記者蘇思云台北19日電）外界關注美國那斯達克交易所將延長交易時間到23小時，是否可能吸走台股資金。金管會主委彭金隆今天表示，金管會已成立專案小組針對資本市場議題做多方研議，後續密切關注美國新制上路後的影響與成效，台灣若要調整交易時間，必須取得社會共識才會做。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T07:47:20.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190147.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190147.aspx",
+      "title": "盧比歐否認美暫停與烏克蘭共享情報 籲基輔聚焦俄烏終戰",
+      "summary": "（中央社撒馬罕19日綜合外電報導）美國國務卿盧比歐（Marco Rubio）今天否認美國暫停與烏克蘭共享情報一說，呼籲烏克蘭總統澤倫斯基「聚焦」在終結俄烏戰爭上。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T07:36:16.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ahel/202610190146.aspx",
+      "url": "https://www.cna.com.tw/news/ahel/202610190146.aspx",
+      "title": "科普環島列車啟程 半導體、太空與智慧醫療導入體驗",
+      "summary": "（中央社記者趙敏雅台北19日電）2026台灣科普環島列車今天從台北車站出發，展開為期6天的全台科學之旅。國科會主委吳誠文表示，前瞻科研與人才培育是台灣邁向科技強國的雙引擎，今年活動將半導體、太空、智慧醫療等前瞻領域導入車廂體驗，盼激發年輕世代的好奇心與創造力。",
+      "categories": [
+        "finance",
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T07:36:14.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/afe/202610190145.aspx",
+      "url": "https://www.cna.com.tw/news/afe/202610190145.aspx",
+      "title": "受科技股下跌拖累 日經指數收黑",
+      "summary": "（中央社東京19日綜合外電報導）受到科技投資巨擘軟銀（SoftBank）以及愛德萬測試（Advantest）和東京威力科創（Tokyo Electron Ltd.）股價下跌拖累，日經225指數今天收黑。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T07:30:12.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610190143.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610190143.aspx",
+      "title": "台中自小客駕駛肇事逃逸遭警查獲 自稱過於疲累",
+      "summary": "（中央社記者郝雪卿台中19日電）台中市北區中清路一段今天發生交通事故，肇事駕駛棄車逃逸，警方表示，肇事駕駛事後被查獲，到案後指稱睡眠不足，事發時不慎睡著，一時緊張及過於疲累才棄車返家休息。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T07:24:07.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/afe/202610190142.aspx",
+      "url": "https://www.cna.com.tw/news/afe/202610190142.aspx",
+      "title": "金管會：ATM導入遮臉示警未設目標 盼兼顧各族群權益",
+      "summary": "（中央社記者高華謙台北19日電）為防範車手透過ATM提領贓款，金管會鼓勵銀行逐步推動ATM臉部遮蔽示警功能。金管會主委彭金隆今天指出，已有18家金融機構、2797台ATM導入，但考量顏面傷殘者、輪椅族權益，以及民眾在醫院等場所是否適合摘下口罩等問題，現在採取鼓勵措施，還沒明確設定推動目標，盼照顧各族群需要。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T07:21:05.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190141.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190141.aspx",
+      "title": "溫哥華市長換人做 友台政治人物費必得當選",
+      "summary": "（中央社記者程愛芬溫哥華18日專電）加拿大卑詩省昨天舉行4年一度市級選舉（municipal election），最受矚目的溫哥華市長換人做，代表綠黨的費必得（Pete Fry）擊敗現任華裔市長沈觀健（Ken Sim），當選新任市長，他長期對台灣展現友好與支持態度。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T07:20:03.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ahel/202610190140.aspx",
+      "url": "https://www.cna.com.tw/news/ahel/202610190140.aspx",
+      "title": "北市抽驗美食餐廳產品百件 2蔬菜1香干違規下架",
+      "summary": "（中央社記者楊淑閔台北19日電）台北市衛生局今天發布抽驗知名美食餐廳產品100件，1件白蘿蔔、1件青江菜的農藥殘留及1件香干的防腐劑等3件不合規定，都已下架。另生鮮禽畜肉品含蛋的抽驗，有1件蛋品不合格。",
+      "categories": [
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T07:17:01.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ahel/202610190139.aspx",
+      "url": "https://www.cna.com.tw/news/ahel/202610190139.aspx",
+      "title": "頭頸癌5年存活率優於全國平均 病友回聖馬醫院分享",
+      "summary": "（中央社記者黃國芳嘉義市19日電）依南區健保署數據，嘉義市聖馬爾定醫院自108年起收案治療的頭頸癌患者，5年存活率達59.1%，優於全國區域醫院平均值，3名病友今天回院分享並感謝醫護協助回歸正常生活。",
+      "categories": [
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T07:16:59.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/afe/202610190137.aspx",
+      "url": "https://www.cna.com.tw/news/afe/202610190137.aspx",
+      "title": "三大法人賣超台股899.54億元",
+      "summary": "（中央社台北19日電）台股今天跌289.18點，收在46822.08點，成交值新台幣8251億元。三大法人外資及陸資賣超、投信買超、自營商賣超，合計賣超899.54億元。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T07:09:52.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/acul/202610190135.aspx",
+      "url": "https://www.cna.com.tw/news/acul/202610190135.aspx",
+      "title": "提勒曼領軍 百年名團柏林國家歌劇院管弦樂團11月首訪台",
+      "summary": "（中央社記者趙靜瑜台北19日電）由重量級指揮提勒曼（Christian Thielemann）領軍，超過450年歷史的柏林國家歌劇院管弦樂團（Staatskapelle Berlin）將首度訪台，11月帶來莫札特、布魯克納等代表性樂作。",
+      "categories": [
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T06:55:48.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ahel/202610190133.aspx",
+      "url": "https://www.cna.com.tw/news/ahel/202610190133.aspx",
+      "title": "台鐵：116年起終止車站選舉政治廣告出租",
+      "summary": "（中央社記者余曉涵台北19日電）台鐵今天宣布，為了維持公司行政中立形象，明年起，終止車站場域有關選舉、政治性及政治人物形象廣告等出租業務。",
+      "categories": [
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T06:51:43.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610190129.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610190129.aspx",
+      "title": "澳洲鬼鯊潛艦長獠牙 配備無人機與水雷強化戰力",
+      "summary": "（中央社雪梨19日綜合外電報導）澳洲國防部今天表示，澳洲將為「鬼鯊」（Ghost Shark）自主潛艦配備「蜂群式」空中無人機與水雷，以強化水下作戰能力。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T06:36:35.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.162Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/afe/202610190128.aspx",
+      "url": "https://www.cna.com.tw/news/afe/202610190128.aspx",
+      "title": "台股跌勢收歛終揚挫289點 法人：後市觀察費半動向",
+      "summary": "（中央社記者吳家豪台北19日電）上週五美國科技股走弱拖累，台股今天開低走低，盤中大跌逾940點下探46170點，電子權值股及櫃買指數走勢疲軟，隨低接買盤進場，加權指數跌勢收斂，終場收在46822.08點，下跌289.18點，跌幅0.61%，成交值新台幣8251億元。",
+      "categories": [
+        "finance"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T06:36:32.000Z",
+      "fetchedAt": "2026-10-19T13:04:31.180Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/acul/202610190125.aspx",
+      "url": "https://www.cna.com.tw/news/acul/202610190125.aspx",
+      "title": "擊樂家賴奇霞「共振計畫：感．響」 打造沉浸聲響",
+      "summary": "（中央社記者趙靜瑜台北19日電）台中國家歌劇院駐館藝術家賴奇霞攜手一公聲藝術團隊，推出「共振計畫：感．響」，以台灣傳統工藝樂器為核心，結合現場演奏、聲音裝置、即時聲響處理與環繞音場設計，打造沉浸式聲響空間。",
+      "categories": [
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T06:16:26.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ahel/202610190120.aspx",
+      "url": "https://www.cna.com.tw/news/ahel/202610190120.aspx",
+      "title": "勞團上凱道 訴求全面加薪、勞退雇提提高",
+      "summary": "（中央社記者張雄風台北19日電）今天約2000名勞工走上凱道，高喊全面增加薪資、勞退雇提提高等訴求。工鬥表示，政府現在喊話「AI紅利共享」，勞動制度不足的部分，就應該在台灣經濟狀況好的時候制定。",
+      "categories": [
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T06:10:15.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610190110.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610190110.aspx",
+      "title": "花3萬網購假學歷 屏東偽教師遭判2年",
+      "summary": "（中央社記者李卉婷屏東縣19日電）姜姓男子為取得教職，花3萬元網購假學歷等，在多所學校任教超過6年，直至今年遭到告發送辦，屏東地院審理認姜男行使偽造文書等罪，判有期徒刑2年。可上訴。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T05:48:54.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610190109.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610190109.aspx",
+      "title": "家族墓赫見虎頭蜂巢 籌備先人晉塔6人遭蜂螫",
+      "summary": "（中央社記者管瑞平苗栗縣19日電）苗栗縣頭屋鄉曲洞村上午發生蜂螫事件，有民眾為籌備先人晉塔事宜勘查家族墓，突遭虎頭蜂攻擊，消防局派遣多輛救護車載送5人分送兩家醫院救治，另有1人自行開車就醫。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T05:46:52.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ahel/202610190105.aspx",
+      "url": "https://www.cna.com.tw/news/ahel/202610190105.aspx",
+      "title": "老人福利法修法衝擊13萬人 影響假牙、人工水晶體、心臟支架補助",
+      "summary": "（中央社記者陳婕翎台北19日電）在野黨提案「老人福利法」第22條修正案三讀，非健保給付醫療補助項目遭刪，假牙、白內障人工水晶體、心臟血管支架等補助恐難編預算，衛福部初估至少衝擊13萬名中低收入長者。",
+      "categories": [
+        "lifehealth"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T05:31:43.000Z",
+      "fetchedAt": "2026-10-19T13:04:32.480Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610190100.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610190100.aspx",
+      "title": "洗錢集團幹部土地公廟求財落網 高雄警逮20人",
+      "summary": "（中央社記者洪學廣高雄19日電）高雄市警局刑大偵辦大型公司帳戶洗錢集團，歷經蒐證陸續逮捕劉姓主嫌等20人。其中林姓幹部前往左營知名土地公廟參拜求財時，當場遭專案小組掌握行蹤逮捕。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T05:18:32.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610190098.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610190098.aspx",
+      "title": "防敵斬首及維護治安 淡水分局遷建並納八里勤區",
+      "summary": "（中央社記者王鴻國新北19日電）新北市長侯友宜今天到淡水分局視察並宣布，因應淡江大橋等治安及防敵斬首的戰略行動，淡水分局將遷建淡江大橋橋頭附近，並將蘆洲分局八里分駐所納編，統一維安及交安事權。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T05:12:28.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610190079.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610190079.aspx",
+      "title": "台中自小客駕駛肇事後棄車離去 警方將追查釐清",
+      "summary": "（中央社記者郝雪卿台中19日電）台中市北區中清路一段今天發生交通事故，警方表示，肇事駕駛棄車離去，現場波及臨停路邊的汽車，又波及同向行駛的機車及自小客車等，將追查肇事駕駛身分以釐清過程及責任。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T04:22:44.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610190062.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610190062.aspx",
+      "title": "北市士林區海砂屋磁磚剝落 北市府派員勘檢評定",
+      "summary": "（中央社記者黃麗芸台北19日電）台北市士林區某處海砂屋昨天外牆磁磚剝落且巷內防護網塌陷，警方獲報到場設置封鎖線；台北市建管處表示，社區管委會今天將派工勘查、修繕，另委派專業建築師到場勘檢評定。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T03:35:08.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610190061.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610190061.aspx",
+      "title": "涉性騷5名院生及教保員 屏東某慈善機構院長遭收押",
+      "summary": "（中央社記者李卉婷屏東縣19日電）屏東某慈善機構院長涉性騷5名院生及教保員，屏東地檢署指揮偵辦，依妨害性自主加重猥褻罪嫌，昨晚向法院聲請羈押禁見獲准，全案持續擴大偵辦。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T03:33:06.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610190060.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610190060.aspx",
+      "title": "憲兵、空軍等人涉洩漏軍事機密 高檢署起訴4人",
+      "summary": "（中央社記者李念庭台北19日電）時任憲兵李姓男子、時任空軍森姓女子等4人，涉收受中共報酬，洩漏、交付軍事機密。台灣高檢署今天偵結，依違反國安法等罪起訴4人。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T03:32:04.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610190044.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610190044.aspx",
+      "title": "王維皓涉偽造證明妨害兵役 北檢起訴求刑2年2月以上",
+      "summary": "（中央社記者劉世怡台北19日電）主唱「大剛」出道 的王維皓涉以10餘萬元，找槍手偽造高血壓診斷資料取得免役資格。台北地檢署今天依妨害兵役等罪起訴，求刑2年2月以上。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T03:00:30.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610190036.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610190036.aspx",
+      "title": "假好友傳早安圖搏感情詐50萬 台中警銀聯手阻詐",
+      "summary": "（中央社記者蘇木春台中19日電）台中吳姓女子日前在手機接到久未見友人訊息，對方常以「早安圖」噓寒問暖後，告知因股票下錯單急需周轉商借新台幣50萬元，她到銀行要轉帳時行員發現有異報案，與警方成功阻詐。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-19T02:44:12.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610180193.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610180193.aspx",
+      "title": "高雄楠梓區車行命案 2嫌潛逃韓國遭押解返台聲押",
+      "summary": "（中央社記者張已亷高雄18日電）高雄楠梓區車行殺人案，已有4名被告遭收押、1名少年收容、1名嫌疑人以新台幣20萬元交保；林姓車行負責人及劉姓員工涉逃亡韓國，已遭押解返台，檢察官訊後於今天晚間聲押。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-18T14:43:29.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610180164.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610180164.aspx",
+      "title": "中國海警、科研船多點齊發侵擾 海巡署有效反制",
+      "summary": "（中央社記者黃麗芸台北18日電）海巡署表示，中國今天於花蓮東方、屏東南方、高雄西南外海及東沙周邊海域，實施多點齊發的灰色地帶侵擾，海巡署除全程掌握海面動態，也即時調派海巡艦艇強勢監控與廣播驅離。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-18T11:32:20.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610180138.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610180138.aspx",
+      "title": "台南多家太陽能電廠銅製品遭竊 警利用大數據逮1嫌",
+      "summary": "（中央社記者楊思瑞台南18日電）台南市麻豆警分局近期接獲多家太陽能電廠業者報案，指稱廠內變電箱內銅製零件及電線等品物遭竊，藉由大數據科技分析鎖定嫌疑人身分，昨天逮捕郭姓男子，並查扣相關銷贓證物。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-18T09:47:23.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/asoc/202610180107.aspx",
+      "url": "https://www.cna.com.tw/news/asoc/202610180107.aspx",
+      "title": "九合一選戰升溫 刑事局籲提防4選舉詐術",
+      "summary": "（中央社記者黃麗芸台北18日電）九合一選舉擂戰鼓，刑事局今天表示，有詐騙集團搶搭選舉熱潮行騙，分別有「假贈送競選小物、投資參選人看板廣告、冒用參選人帳號、假借政治獻金騙商家」等詐術，提醒民眾留意。",
+      "categories": [
+        "social"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-18T07:46:14.000Z",
+      "fetchedAt": "2026-10-19T13:04:33.640Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ait/202610180039.aspx",
+      "url": "https://www.cna.com.tw/news/ait/202610180039.aspx",
+      "title": "日本將啟動火星衛星探測計畫 盼有助揭開太陽系起源之謎",
+      "summary": "（中央社東京18日綜合外電報導）日本科學家正準備展開火星衛星探測任務，計劃採集樣本帶回地球，盼藉此解開太陽系與地球生命起源之謎。這項任務若成功，將首度實現往返火星系統的探測之旅。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-18T03:02:44.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610170169.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610170169.aspx",
+      "title": "AI熱潮當頭 Anthropic創辦人：美國GDP可能大增",
+      "summary": "（中央社曼谷17日綜合外電報導）美國人工智慧公司Anthropic共同創辦人克拉克今天說，AI能力快速提升將為所有領域帶來遠比以往更快變化，公司內部經濟模型推估，AI可能在2030年前讓美國GDP增至44兆美元。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-17T12:35:05.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ait/202610170083.aspx",
+      "url": "https://www.cna.com.tw/news/ait/202610170083.aspx",
+      "title": "星鏈進軍印度衛星通訊市場 電信巨頭：歡迎競爭",
+      "summary": "（中央社記者李晉緯新德里17日專電）印度信實集團（Reliance）近日表示，歡迎任何能遵守印度法律、政策的公司，加入印度衛星通訊市場的競爭行列。SpaceX執行長馬斯克（Elon Musk）旗下的星鏈（Starlink）強調，該公司和印度監管機關密切合作並獲得核准，已準備好為印度提供高速網路。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-17T06:26:54.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/acn/202610170034.aspx",
+      "url": "https://www.cna.com.tw/news/acn/202610170034.aspx",
+      "title": "中國人工智慧加入「失控」大軍 騰訊AI被指越界操作",
+      "summary": "（中央社台北17日電）香港明報報導，一批在騰訊雲運行的人工智慧代理（AI Agent）近日被揭「失控」，這是首宗涉及中國科技巨頭的AI失控事件。騰訊16日證實，事件源於對第三方模型的評估，部分人工智慧代理「出現非預期網頁瀏覽行為」，正加強監控。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-17T02:48:06.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ait/202610170029.aspx",
+      "url": "https://www.cna.com.tw/news/ait/202610170029.aspx",
+      "title": "3C喊漲蘋果逆勢降價 達人實測AirPods 5：分工奏效",
+      "summary": "（中央社記者吳家豪台北17日電）面對通膨壓力推升零組件成本、消費性電子產品普遍調漲價格之際，蘋果公司（Apple）新一代無線耳機AirPods 5在大幅升級主動降噪與人工智慧（AI）功能下，售價不漲反降，打破市場調價常態。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-17T02:10:55.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ait/202610170028.aspx",
+      "url": "https://www.cna.com.tw/news/ait/202610170028.aspx",
+      "title": "Anthropic遊說推動AI安全法案 擬設政府干預門檻",
+      "summary": "（中央社華盛頓16日綜合外電報導）政治新聞網站Politico今天引述3名消息人士報導，人工智慧（AI）新創公司Anthropic代表近日私下向美國國會議員推介1項法案草案，旨在規範前沿AI模型的安全防護措施。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-17T02:02:53.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ait/202610160331.aspx",
+      "url": "https://www.cna.com.tw/news/ait/202610160331.aspx",
+      "title": "拿破崙密碼信件逾200年未解 AI僅花6小時破譯",
+      "summary": "（中央社東京16日綜合外電報導）19世紀法國皇帝拿破崙曾下令用密碼撰寫一封戰時信件，這封信的內容200多年來始終未能破解，然而人工智慧（AI）近期僅花6小時便成功解密。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-16T12:39:26.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ait/202610160214.aspx",
+      "url": "https://www.cna.com.tw/news/ait/202610160214.aspx",
+      "title": "特斯拉發表飛天跑車Roadster 預計2028年量產",
+      "summary": "（中央社德州馬格里戈15日綜合外電報導）電動車廠特斯拉（Tesla）今天發表一款重新設計過、採用火箭推進器的跑車Roadster，預計2028年開始量產。這距離特斯拉上次發表首款次世代跑車已超過10年。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-16T08:21:13.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ait/202610160005.aspx",
+      "url": "https://www.cna.com.tw/news/ait/202610160005.aspx",
+      "title": "德國擬與輝達簽合作協議 砸數億歐元加速AI導入工業領域",
+      "summary": "（中央社柏林15日綜合外電報導）德國財經媒體「商務日報」（Handelsblatt）今天引述知情人士報導，德國計劃與美國晶片巨擘輝達簽署一項範圍廣泛的合作協議，推動人工智慧（AI）在德國工業的應用。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-15T19:30:36.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/acn/202610150357.aspx",
+      "url": "https://www.cna.com.tw/news/acn/202610150357.aspx",
+      "title": "中國工博會 上海新創廠商展出研製EUV樣機",
+      "summary": "（中央社記者馮昭上海15日電）正在中國上海舉行的中國國際工業博覽會上，一家上海新創廠商低調展出7奈米以下最先進製程晶片所需極紫外光（EUV）微影設備樣機。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-15T14:12:03.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ait/202610150352.aspx",
+      "url": "https://www.cna.com.tw/news/ait/202610150352.aspx",
+      "title": "太空中心秀齊柏林衛星取像 捕捉細節可辨識玉山主峰石碑",
+      "summary": "（中央社記者趙敏雅台北15日電）台灣第一個自製衛星星系「福衛八號」首顆齊柏林衛星去年11月升空入軌，今年1月展開正式取像任務。國家太空中心今天公開13張拍攝的影像，捕捉地景細節，如玉山取像可辨識出主峰上的石碑，台北市區影像可見台北101的建物細節及大巨蛋的棚頂紋理。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-15T13:56:50.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ait/202610150339.aspx",
+      "url": "https://www.cna.com.tw/news/ait/202610150339.aspx",
+      "title": "福衛八號第2顆衛星拚今年底起運 明年第1季升空",
+      "summary": "（中央社記者趙敏雅台北15日電）福衛八號第1顆衛星「齊柏林衛星」去年升空入軌，今年初正式展開取像任務。國家太空中心今天發表紀錄片「守望之眼」，揭開衛星製造、測試的幕後故事。太空中心也宣布，福衛八號第2顆衛星（FS-8B）預計11月底完成運送前審查，今年底起運赴美，明年第1季發射升空。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-15T12:52:19.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ait/202610150136.aspx",
+      "url": "https://www.cna.com.tw/news/ait/202610150136.aspx",
+      "title": "輝達擬投入逾80億元運算資源 推動英國代理型AI研究",
+      "summary": "（中央社記者吳家豪台北15日電）人工智慧（AI）晶片大廠輝達（NVIDIA）宣布將在未來5年內捐贈價值2.5億美元（約新台幣80.8億元）的運算資源，用於支持英國各地的代理型AI安全與資安研究。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-15T06:07:02.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/acn/202610150133.aspx",
+      "url": "https://www.cna.com.tw/news/acn/202610150133.aspx",
+      "title": "DeepSeek在3天內兩度故障 持續一上午未修復",
+      "summary": "（中央社記者馮昭上海15日電）大量中國網友今天上午開始上班就陸續反映深度求索（DeepSeek）網頁與App運作異常，且持續一上午仍未修復。據中國媒體報導，DeepSeek今年內已多次發生故障，前一次是12日，距今僅3天。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-15T06:03:55.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ait/202610150099.aspx",
+      "url": "https://www.cna.com.tw/news/ait/202610150099.aspx",
+      "title": "Character.AI聲請破產 美國40州促保護兒童資料",
+      "summary": "（中央社德拉瓦州威明頓市14日綜合外電報導）美國40州的州檢察長今天共同呼籲德拉瓦州破產法官，在陪伴式AI聊天機器人公司Character.AI破產期間，保護年輕用戶並維護他們的資料安全。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-15T04:45:40.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ait/202610150080.aspx",
+      "url": "https://www.cna.com.tw/news/ait/202610150080.aspx",
+      "title": "中國浙大清華發現石墨烯膜新結構並發表 標榜高強度輕量化",
+      "summary": "（中央社記者馮昭上海15日電）中國媒體今天報導，中國浙江大學與北京清華大學研究團隊發現石墨烯膜新結構，昨天深夜艸並在國際學術期刊「自然」（Nature）線上發表研究成果，號稱高強度、高韌性與高彈性，可望為航空航太結構輕量化、增強衝擊防護裝備提供材料基礎。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-15T04:04:59.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ait/202610150053.aspx",
+      "url": "https://www.cna.com.tw/news/ait/202610150053.aspx",
+      "title": "TechCrunch新創盛會 台灣展示產業優勢拓展國際合作",
+      "summary": "（中央社記者張欣瑜舊金山14日專電）TechCrunch Disrupt新創投資大會一連3天在舊金山舉行，台灣受邀舉辦專場論壇，工研院、群聯電子、台灣新創攜手，展示先進製造與供應鏈優勢，並介紹台灣如何推動人工智慧（AI）在實際場景中的應用。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-15T03:06:01.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/ait/202610150048.aspx",
+      "url": "https://www.cna.com.tw/news/ait/202610150048.aspx",
+      "title": "Anthropic Q3營收高速成長 傳尋求2兆美元上市估值",
+      "summary": "（中央社舊金山14日綜合外電報導）美國媒體報導，人工智慧（AI）新創公司Anthropic今天向投資人表示，第3季（截至9月）營收躍升約50%，達到168億美元，且在過去6個月期間，經調整後已實現獲利。",
+      "categories": [
+        "technology"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-15T02:56:51.000Z",
+      "fetchedAt": "2026-10-19T13:04:30.821Z"
+    }
+  ]
+}

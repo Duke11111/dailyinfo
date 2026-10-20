@@ -1,0 +1,2578 @@
+[
+  {
+    "id": "09007010",
+    "county": "連江縣",
+    "district": "南竿鄉",
+    "latitude": 26.15412,
+    "longitude": 119.936248
+  },
+  {
+    "id": "09007020",
+    "county": "連江縣",
+    "district": "北竿鄉",
+    "latitude": 26.219556,
+    "longitude": 119.982383
+  },
+  {
+    "id": "09007030",
+    "county": "連江縣",
+    "district": "莒光鄉",
+    "latitude": 25.965935,
+    "longitude": 119.979102
+  },
+  {
+    "id": "09007040",
+    "county": "連江縣",
+    "district": "東引鄉",
+    "latitude": 26.368989,
+    "longitude": 120.497299
+  },
+  {
+    "id": "09020010",
+    "county": "金門縣",
+    "district": "金城鎮",
+    "latitude": 24.413356,
+    "longitude": 118.310039
+  },
+  {
+    "id": "09020020",
+    "county": "金門縣",
+    "district": "金沙鎮",
+    "latitude": 24.479479,
+    "longitude": 118.419617
+  },
+  {
+    "id": "09020030",
+    "county": "金門縣",
+    "district": "金湖鎮",
+    "latitude": 24.445185,
+    "longitude": 118.417344
+  },
+  {
+    "id": "09020040",
+    "county": "金門縣",
+    "district": "金寧鄉",
+    "latitude": 24.469529,
+    "longitude": 118.32755
+  },
+  {
+    "id": "09020050",
+    "county": "金門縣",
+    "district": "烈嶼鄉",
+    "latitude": 24.427496,
+    "longitude": 118.241443
+  },
+  {
+    "id": "09020060",
+    "county": "金門縣",
+    "district": "烏坵鄉",
+    "latitude": 24.992428,
+    "longitude": 119.451838
+  },
+  {
+    "id": "10002010",
+    "county": "宜蘭縣",
+    "district": "宜蘭市",
+    "latitude": 24.757765,
+    "longitude": 121.758414
+  },
+  {
+    "id": "10002020",
+    "county": "宜蘭縣",
+    "district": "羅東鎮",
+    "latitude": 24.675593,
+    "longitude": 121.774622
+  },
+  {
+    "id": "10002030",
+    "county": "宜蘭縣",
+    "district": "蘇澳鎮",
+    "latitude": 24.599555,
+    "longitude": 121.841712
+  },
+  {
+    "id": "10002040",
+    "county": "宜蘭縣",
+    "district": "頭城鎮",
+    "latitude": 24.954381,
+    "longitude": 121.88047
+  },
+  {
+    "id": "10002050",
+    "county": "宜蘭縣",
+    "district": "礁溪鄉",
+    "latitude": 24.807014,
+    "longitude": 121.718283
+  },
+  {
+    "id": "10002060",
+    "county": "宜蘭縣",
+    "district": "壯圍鄉",
+    "latitude": 24.717932,
+    "longitude": 121.806001
+  },
+  {
+    "id": "10002070",
+    "county": "宜蘭縣",
+    "district": "員山鄉",
+    "latitude": 24.720057,
+    "longitude": 121.673793
+  },
+  {
+    "id": "10002080",
+    "county": "宜蘭縣",
+    "district": "冬山鄉",
+    "latitude": 24.637605,
+    "longitude": 121.752773
+  },
+  {
+    "id": "10002090",
+    "county": "宜蘭縣",
+    "district": "五結鄉",
+    "latitude": 24.711267,
+    "longitude": 121.793172
+  },
+  {
+    "id": "10002100",
+    "county": "宜蘭縣",
+    "district": "三星鄉",
+    "latitude": 24.660566,
+    "longitude": 121.657743
+  },
+  {
+    "id": "10002110",
+    "county": "宜蘭縣",
+    "district": "大同鄉",
+    "latitude": 24.589106,
+    "longitude": 121.572644
+  },
+  {
+    "id": "10002120",
+    "county": "宜蘭縣",
+    "district": "南澳鄉",
+    "latitude": 24.387418,
+    "longitude": 121.61334
+  },
+  {
+    "id": "10004010",
+    "county": "新竹縣",
+    "district": "竹北市",
+    "latitude": 24.854057,
+    "longitude": 120.969457
+  },
+  {
+    "id": "10004020",
+    "county": "新竹縣",
+    "district": "竹東鎮",
+    "latitude": 24.756468,
+    "longitude": 121.055715
+  },
+  {
+    "id": "10004030",
+    "county": "新竹縣",
+    "district": "新埔鎮",
+    "latitude": 24.848268,
+    "longitude": 121.087736
+  },
+  {
+    "id": "10004040",
+    "county": "新竹縣",
+    "district": "關西鎮",
+    "latitude": 24.769963,
+    "longitude": 121.201786
+  },
+  {
+    "id": "10004050",
+    "county": "新竹縣",
+    "district": "湖口鄉",
+    "latitude": 24.879077,
+    "longitude": 121.063998
+  },
+  {
+    "id": "10004060",
+    "county": "新竹縣",
+    "district": "新豐鄉",
+    "latitude": 24.888021,
+    "longitude": 120.983897
+  },
+  {
+    "id": "10004070",
+    "county": "新竹縣",
+    "district": "芎林鄉",
+    "latitude": 24.757297,
+    "longitude": 121.118686
+  },
+  {
+    "id": "10004080",
+    "county": "新竹縣",
+    "district": "橫山鄉",
+    "latitude": 24.722097,
+    "longitude": 121.153666
+  },
+  {
+    "id": "10004090",
+    "county": "新竹縣",
+    "district": "北埔鄉",
+    "latitude": 24.687302,
+    "longitude": 121.064125
+  },
+  {
+    "id": "10004100",
+    "county": "新竹縣",
+    "district": "寶山鄉",
+    "latitude": 24.732765,
+    "longitude": 121.004701
+  },
+  {
+    "id": "10004110",
+    "county": "新竹縣",
+    "district": "峨眉鄉",
+    "latitude": 24.692332,
+    "longitude": 121.003527
+  },
+  {
+    "id": "10004120",
+    "county": "新竹縣",
+    "district": "尖石鄉",
+    "latitude": 24.575253,
+    "longitude": 121.304624
+  },
+  {
+    "id": "10004130",
+    "county": "新竹縣",
+    "district": "五峰鄉",
+    "latitude": 24.606127,
+    "longitude": 121.144638
+  },
+  {
+    "id": "10005010",
+    "county": "苗栗縣",
+    "district": "苗栗市",
+    "latitude": 24.571381,
+    "longitude": 120.811226
+  },
+  {
+    "id": "10005020",
+    "county": "苗栗縣",
+    "district": "苑裡鎮",
+    "latitude": 24.405776,
+    "longitude": 120.702421
+  },
+  {
+    "id": "10005030",
+    "county": "苗栗縣",
+    "district": "通霄鎮",
+    "latitude": 24.46799,
+    "longitude": 120.700832
+  },
+  {
+    "id": "10005040",
+    "county": "苗栗縣",
+    "district": "竹南鎮",
+    "latitude": 24.711839,
+    "longitude": 120.895427
+  },
+  {
+    "id": "10005050",
+    "county": "苗栗縣",
+    "district": "頭份市",
+    "latitude": 24.680244,
+    "longitude": 120.92877
+  },
+  {
+    "id": "10005060",
+    "county": "苗栗縣",
+    "district": "後龍鎮",
+    "latitude": 24.602624,
+    "longitude": 120.779046
+  },
+  {
+    "id": "10005070",
+    "county": "苗栗縣",
+    "district": "卓蘭鎮",
+    "latitude": 24.329156,
+    "longitude": 120.840045
+  },
+  {
+    "id": "10005080",
+    "county": "苗栗縣",
+    "district": "大湖鄉",
+    "latitude": 24.365053,
+    "longitude": 120.858738
+  },
+  {
+    "id": "10005090",
+    "county": "苗栗縣",
+    "district": "公館鄉",
+    "latitude": 24.529257,
+    "longitude": 120.860022
+  },
+  {
+    "id": "10005100",
+    "county": "苗栗縣",
+    "district": "銅鑼鄉",
+    "latitude": 24.447163,
+    "longitude": 120.799215
+  },
+  {
+    "id": "10005110",
+    "county": "苗栗縣",
+    "district": "南庄鄉",
+    "latitude": 24.530469,
+    "longitude": 121.014904
+  },
+  {
+    "id": "10005120",
+    "county": "苗栗縣",
+    "district": "頭屋鄉",
+    "latitude": 24.587993,
+    "longitude": 120.89036
+  },
+  {
+    "id": "10005130",
+    "county": "苗栗縣",
+    "district": "三義鄉",
+    "latitude": 24.382975,
+    "longitude": 120.777851
+  },
+  {
+    "id": "10005140",
+    "county": "苗栗縣",
+    "district": "西湖鄉",
+    "latitude": 24.554902,
+    "longitude": 120.757634
+  },
+  {
+    "id": "10005150",
+    "county": "苗栗縣",
+    "district": "造橋鄉",
+    "latitude": 24.606333,
+    "longitude": 120.875652
+  },
+  {
+    "id": "10005160",
+    "county": "苗栗縣",
+    "district": "三灣鄉",
+    "latitude": 24.65234,
+    "longitude": 120.961147
+  },
+  {
+    "id": "10005170",
+    "county": "苗栗縣",
+    "district": "獅潭鄉",
+    "latitude": 24.508207,
+    "longitude": 120.923118
+  },
+  {
+    "id": "10005180",
+    "county": "苗栗縣",
+    "district": "泰安鄉",
+    "latitude": 24.446263,
+    "longitude": 121.083002
+  },
+  {
+    "id": "10007010",
+    "county": "彰化縣",
+    "district": "彰化市",
+    "latitude": 24.059204,
+    "longitude": 120.564807
+  },
+  {
+    "id": "10007020",
+    "county": "彰化縣",
+    "district": "鹿港鎮",
+    "latitude": 24.061821,
+    "longitude": 120.412315
+  },
+  {
+    "id": "10007030",
+    "county": "彰化縣",
+    "district": "和美鎮",
+    "latitude": 24.110905,
+    "longitude": 120.514149
+  },
+  {
+    "id": "10007040",
+    "county": "彰化縣",
+    "district": "線西鄉",
+    "latitude": 24.132893,
+    "longitude": 120.440998
+  },
+  {
+    "id": "10007050",
+    "county": "彰化縣",
+    "district": "伸港鄉",
+    "latitude": 24.176687,
+    "longitude": 120.469101
+  },
+  {
+    "id": "10007060",
+    "county": "彰化縣",
+    "district": "福興鄉",
+    "latitude": 24.039218,
+    "longitude": 120.42636
+  },
+  {
+    "id": "10007070",
+    "county": "彰化縣",
+    "district": "秀水鄉",
+    "latitude": 24.026141,
+    "longitude": 120.503145
+  },
+  {
+    "id": "10007080",
+    "county": "彰化縣",
+    "district": "花壇鄉",
+    "latitude": 24.032537,
+    "longitude": 120.558719
+  },
+  {
+    "id": "10007090",
+    "county": "彰化縣",
+    "district": "芬園鄉",
+    "latitude": 24.014244,
+    "longitude": 120.640005
+  },
+  {
+    "id": "10007100",
+    "county": "彰化縣",
+    "district": "員林市",
+    "latitude": 23.962974,
+    "longitude": 120.587766
+  },
+  {
+    "id": "10007110",
+    "county": "彰化縣",
+    "district": "溪湖鎮",
+    "latitude": 23.957581,
+    "longitude": 120.481086
+  },
+  {
+    "id": "10007120",
+    "county": "彰化縣",
+    "district": "田中鎮",
+    "latitude": 23.873915,
+    "longitude": 120.588714
+  },
+  {
+    "id": "10007130",
+    "county": "彰化縣",
+    "district": "大村鄉",
+    "latitude": 23.990911,
+    "longitude": 120.558443
+  },
+  {
+    "id": "10007140",
+    "county": "彰化縣",
+    "district": "埔鹽鄉",
+    "latitude": 23.988473,
+    "longitude": 120.462239
+  },
+  {
+    "id": "10007150",
+    "county": "彰化縣",
+    "district": "埔心鄉",
+    "latitude": 23.951003,
+    "longitude": 120.538689
+  },
+  {
+    "id": "10007160",
+    "county": "彰化縣",
+    "district": "永靖鄉",
+    "latitude": 23.925915,
+    "longitude": 120.533524
+  },
+  {
+    "id": "10007170",
+    "county": "彰化縣",
+    "district": "社頭鄉",
+    "latitude": 23.898278,
+    "longitude": 120.600045
+  },
+  {
+    "id": "10007180",
+    "county": "彰化縣",
+    "district": "二水鄉",
+    "latitude": 23.803205,
+    "longitude": 120.632891
+  },
+  {
+    "id": "10007190",
+    "county": "彰化縣",
+    "district": "北斗鎮",
+    "latitude": 23.852769,
+    "longitude": 120.546786
+  },
+  {
+    "id": "10007200",
+    "county": "彰化縣",
+    "district": "二林鎮",
+    "latitude": 23.894136,
+    "longitude": 120.396406
+  },
+  {
+    "id": "10007210",
+    "county": "彰化縣",
+    "district": "田尾鄉",
+    "latitude": 23.897475,
+    "longitude": 120.530227
+  },
+  {
+    "id": "10007220",
+    "county": "彰化縣",
+    "district": "埤頭鄉",
+    "latitude": 23.87186,
+    "longitude": 120.474928
+  },
+  {
+    "id": "10007230",
+    "county": "彰化縣",
+    "district": "芳苑鄉",
+    "latitude": 23.925542,
+    "longitude": 120.323606
+  },
+  {
+    "id": "10007240",
+    "county": "彰化縣",
+    "district": "大城鄉",
+    "latitude": 23.853846,
+    "longitude": 120.297635
+  },
+  {
+    "id": "10007250",
+    "county": "彰化縣",
+    "district": "竹塘鄉",
+    "latitude": 23.837706,
+    "longitude": 120.414797
+  },
+  {
+    "id": "10007260",
+    "county": "彰化縣",
+    "district": "溪州鄉",
+    "latitude": 23.817585,
+    "longitude": 120.528015
+  },
+  {
+    "id": "10008010",
+    "county": "南投縣",
+    "district": "南投市",
+    "latitude": 23.932887,
+    "longitude": 120.683295
+  },
+  {
+    "id": "10008020",
+    "county": "南投縣",
+    "district": "埔里鎮",
+    "latitude": 23.989016,
+    "longitude": 120.985309
+  },
+  {
+    "id": "10008030",
+    "county": "南投縣",
+    "district": "草屯鎮",
+    "latitude": 23.991851,
+    "longitude": 120.736153
+  },
+  {
+    "id": "10008040",
+    "county": "南投縣",
+    "district": "竹山鎮",
+    "latitude": 23.633736,
+    "longitude": 120.721998
+  },
+  {
+    "id": "10008050",
+    "county": "南投縣",
+    "district": "集集鎮",
+    "latitude": 23.841714,
+    "longitude": 120.788994
+  },
+  {
+    "id": "10008060",
+    "county": "南投縣",
+    "district": "名間鄉",
+    "latitude": 23.865195,
+    "longitude": 120.677053
+  },
+  {
+    "id": "10008070",
+    "county": "南投縣",
+    "district": "鹿谷鄉",
+    "latitude": 23.770405,
+    "longitude": 120.767742
+  },
+  {
+    "id": "10008080",
+    "county": "南投縣",
+    "district": "中寮鄉",
+    "latitude": 23.896616,
+    "longitude": 120.77981
+  },
+  {
+    "id": "10008090",
+    "county": "南投縣",
+    "district": "魚池鄉",
+    "latitude": 23.859964,
+    "longitude": 120.932339
+  },
+  {
+    "id": "10008100",
+    "county": "南投縣",
+    "district": "國姓鄉",
+    "latitude": 24.054383,
+    "longitude": 120.873592
+  },
+  {
+    "id": "10008110",
+    "county": "南投縣",
+    "district": "水里鄉",
+    "latitude": 23.796854,
+    "longitude": 120.874878
+  },
+  {
+    "id": "10008120",
+    "county": "南投縣",
+    "district": "信義鄉",
+    "latitude": 23.663443,
+    "longitude": 121.022226
+  },
+  {
+    "id": "10008130",
+    "county": "南投縣",
+    "district": "仁愛鄉",
+    "latitude": 24.095612,
+    "longitude": 121.131414
+  },
+  {
+    "id": "10009010",
+    "county": "雲林縣",
+    "district": "斗六市",
+    "latitude": 23.701859,
+    "longitude": 120.570519
+  },
+  {
+    "id": "10009020",
+    "county": "雲林縣",
+    "district": "斗南鎮",
+    "latitude": 23.677255,
+    "longitude": 120.462284
+  },
+  {
+    "id": "10009030",
+    "county": "雲林縣",
+    "district": "虎尾鎮",
+    "latitude": 23.729834,
+    "longitude": 120.436822
+  },
+  {
+    "id": "10009040",
+    "county": "雲林縣",
+    "district": "西螺鎮",
+    "latitude": 23.797509,
+    "longitude": 120.470021
+  },
+  {
+    "id": "10009050",
+    "county": "雲林縣",
+    "district": "土庫鎮",
+    "latitude": 23.673217,
+    "longitude": 120.373458
+  },
+  {
+    "id": "10009060",
+    "county": "雲林縣",
+    "district": "北港鎮",
+    "latitude": 23.583479,
+    "longitude": 120.297959
+  },
+  {
+    "id": "10009070",
+    "county": "雲林縣",
+    "district": "古坑鄉",
+    "latitude": 23.609097,
+    "longitude": 120.62415
+  },
+  {
+    "id": "10009080",
+    "county": "雲林縣",
+    "district": "大埤鄉",
+    "latitude": 23.6345,
+    "longitude": 120.425122
+  },
+  {
+    "id": "10009090",
+    "county": "雲林縣",
+    "district": "莿桐鄉",
+    "latitude": 23.778848,
+    "longitude": 120.531258
+  },
+  {
+    "id": "10009100",
+    "county": "雲林縣",
+    "district": "林內鄉",
+    "latitude": 23.75955,
+    "longitude": 120.612407
+  },
+  {
+    "id": "10009110",
+    "county": "雲林縣",
+    "district": "二崙鄉",
+    "latitude": 23.819515,
+    "longitude": 120.397791
+  },
+  {
+    "id": "10009120",
+    "county": "雲林縣",
+    "district": "崙背鄉",
+    "latitude": 23.761267,
+    "longitude": 120.341501
+  },
+  {
+    "id": "10009130",
+    "county": "雲林縣",
+    "district": "麥寮鄉",
+    "latitude": 23.775081,
+    "longitude": 120.234399
+  },
+  {
+    "id": "10009140",
+    "county": "雲林縣",
+    "district": "東勢鄉",
+    "latitude": 23.684831,
+    "longitude": 120.267696
+  },
+  {
+    "id": "10009150",
+    "county": "雲林縣",
+    "district": "褒忠鄉",
+    "latitude": 23.697546,
+    "longitude": 120.30183
+  },
+  {
+    "id": "10009160",
+    "county": "雲林縣",
+    "district": "臺西鄉",
+    "latitude": 23.723677,
+    "longitude": 120.200132
+  },
+  {
+    "id": "10009170",
+    "county": "雲林縣",
+    "district": "元長鄉",
+    "latitude": 23.640665,
+    "longitude": 120.332033
+  },
+  {
+    "id": "10009180",
+    "county": "雲林縣",
+    "district": "四湖鄉",
+    "latitude": 23.637226,
+    "longitude": 120.19909
+  },
+  {
+    "id": "10009190",
+    "county": "雲林縣",
+    "district": "口湖鄉",
+    "latitude": 23.58523,
+    "longitude": 120.17781
+  },
+  {
+    "id": "10009200",
+    "county": "雲林縣",
+    "district": "水林鄉",
+    "latitude": 23.56898,
+    "longitude": 120.23959
+  },
+  {
+    "id": "10010010",
+    "county": "嘉義縣",
+    "district": "太保市",
+    "latitude": 23.472754,
+    "longitude": 120.344531
+  },
+  {
+    "id": "10010020",
+    "county": "嘉義縣",
+    "district": "朴子市",
+    "latitude": 23.452126,
+    "longitude": 120.248415
+  },
+  {
+    "id": "10010030",
+    "county": "嘉義縣",
+    "district": "布袋鎮",
+    "latitude": 23.376958,
+    "longitude": 120.168795
+  },
+  {
+    "id": "10010040",
+    "county": "嘉義縣",
+    "district": "大林鎮",
+    "latitude": 23.606408,
+    "longitude": 120.465533
+  },
+  {
+    "id": "10010050",
+    "county": "嘉義縣",
+    "district": "民雄鄉",
+    "latitude": 23.549835,
+    "longitude": 120.449229
+  },
+  {
+    "id": "10010060",
+    "county": "嘉義縣",
+    "district": "溪口鄉",
+    "latitude": 23.585581,
+    "longitude": 120.412635
+  },
+  {
+    "id": "10010070",
+    "county": "嘉義縣",
+    "district": "新港鄉",
+    "latitude": 23.51671,
+    "longitude": 120.352535
+  },
+  {
+    "id": "10010080",
+    "county": "嘉義縣",
+    "district": "六腳鄉",
+    "latitude": 23.50383,
+    "longitude": 120.266855
+  },
+  {
+    "id": "10010090",
+    "county": "嘉義縣",
+    "district": "東石鄉",
+    "latitude": 23.497892,
+    "longitude": 120.168086
+  },
+  {
+    "id": "10010100",
+    "county": "嘉義縣",
+    "district": "義竹鄉",
+    "latitude": 23.356245,
+    "longitude": 120.235856
+  },
+  {
+    "id": "10010110",
+    "county": "嘉義縣",
+    "district": "鹿草鄉",
+    "latitude": 23.404136,
+    "longitude": 120.308259
+  },
+  {
+    "id": "10010120",
+    "county": "嘉義縣",
+    "district": "水上鄉",
+    "latitude": 23.426181,
+    "longitude": 120.422522
+  },
+  {
+    "id": "10010130",
+    "county": "嘉義縣",
+    "district": "中埔鄉",
+    "latitude": 23.442304,
+    "longitude": 120.514605
+  },
+  {
+    "id": "10010140",
+    "county": "嘉義縣",
+    "district": "竹崎鄉",
+    "latitude": 23.501421,
+    "longitude": 120.598674
+  },
+  {
+    "id": "10010150",
+    "county": "嘉義縣",
+    "district": "梅山鄉",
+    "latitude": 23.553685,
+    "longitude": 120.631503
+  },
+  {
+    "id": "10010160",
+    "county": "嘉義縣",
+    "district": "番路鄉",
+    "latitude": 23.453624,
+    "longitude": 120.574508
+  },
+  {
+    "id": "10010170",
+    "county": "嘉義縣",
+    "district": "大埔鄉",
+    "latitude": 23.309965,
+    "longitude": 120.589345
+  },
+  {
+    "id": "10010180",
+    "county": "嘉義縣",
+    "district": "阿里山鄉",
+    "latitude": 23.459962,
+    "longitude": 120.811391
+  },
+  {
+    "id": "10013010",
+    "county": "屏東縣",
+    "district": "屏東市",
+    "latitude": 22.660598,
+    "longitude": 120.478944
+  },
+  {
+    "id": "10013020",
+    "county": "屏東縣",
+    "district": "潮州鎮",
+    "latitude": 22.538604,
+    "longitude": 120.562071
+  },
+  {
+    "id": "10013030",
+    "county": "屏東縣",
+    "district": "東港鎮",
+    "latitude": 22.46366,
+    "longitude": 120.468287
+  },
+  {
+    "id": "10013040",
+    "county": "屏東縣",
+    "district": "恆春鎮",
+    "latitude": 21.963502,
+    "longitude": 120.777271
+  },
+  {
+    "id": "10013050",
+    "county": "屏東縣",
+    "district": "萬丹鄉",
+    "latitude": 22.597362,
+    "longitude": 120.484123
+  },
+  {
+    "id": "10013060",
+    "county": "屏東縣",
+    "district": "長治鄉",
+    "latitude": 22.706811,
+    "longitude": 120.569005
+  },
+  {
+    "id": "10013070",
+    "county": "屏東縣",
+    "district": "麟洛鄉",
+    "latitude": 22.658302,
+    "longitude": 120.536308
+  },
+  {
+    "id": "10013080",
+    "county": "屏東縣",
+    "district": "九如鄉",
+    "latitude": 22.722634,
+    "longitude": 120.498129
+  },
+  {
+    "id": "10013090",
+    "county": "屏東縣",
+    "district": "里港鄉",
+    "latitude": 22.78152,
+    "longitude": 120.504347
+  },
+  {
+    "id": "10013100",
+    "county": "屏東縣",
+    "district": "鹽埔鄉",
+    "latitude": 22.735649,
+    "longitude": 120.565709
+  },
+  {
+    "id": "10013110",
+    "county": "屏東縣",
+    "district": "高樹鄉",
+    "latitude": 22.797319,
+    "longitude": 120.587831
+  },
+  {
+    "id": "10013120",
+    "county": "屏東縣",
+    "district": "萬巒鄉",
+    "latitude": 22.567734,
+    "longitude": 120.585066
+  },
+  {
+    "id": "10013130",
+    "county": "屏東縣",
+    "district": "內埔鄉",
+    "latitude": 22.642156,
+    "longitude": 120.579309
+  },
+  {
+    "id": "10013140",
+    "county": "屏東縣",
+    "district": "竹田鄉",
+    "latitude": 22.570597,
+    "longitude": 120.521464
+  },
+  {
+    "id": "10013150",
+    "county": "屏東縣",
+    "district": "新埤鄉",
+    "latitude": 22.501076,
+    "longitude": 120.5759
+  },
+  {
+    "id": "10013160",
+    "county": "屏東縣",
+    "district": "枋寮鄉",
+    "latitude": 22.395492,
+    "longitude": 120.58943
+  },
+  {
+    "id": "10013170",
+    "county": "屏東縣",
+    "district": "新園鄉",
+    "latitude": 22.525541,
+    "longitude": 120.453575
+  },
+  {
+    "id": "10013180",
+    "county": "屏東縣",
+    "district": "崁頂鄉",
+    "latitude": 22.505754,
+    "longitude": 120.497623
+  },
+  {
+    "id": "10013190",
+    "county": "屏東縣",
+    "district": "林邊鄉",
+    "latitude": 22.429583,
+    "longitude": 120.503367
+  },
+  {
+    "id": "10013200",
+    "county": "屏東縣",
+    "district": "南州鄉",
+    "latitude": 22.488066,
+    "longitude": 120.51789
+  },
+  {
+    "id": "10013210",
+    "county": "屏東縣",
+    "district": "佳冬鄉",
+    "latitude": 22.415044,
+    "longitude": 120.543796
+  },
+  {
+    "id": "10013220",
+    "county": "屏東縣",
+    "district": "琉球鄉",
+    "latitude": 22.346481,
+    "longitude": 120.374914
+  },
+  {
+    "id": "10013230",
+    "county": "屏東縣",
+    "district": "車城鄉",
+    "latitude": 22.08019,
+    "longitude": 120.747591
+  },
+  {
+    "id": "10013240",
+    "county": "屏東縣",
+    "district": "滿州鄉",
+    "latitude": 22.019659,
+    "longitude": 120.830653
+  },
+  {
+    "id": "10013250",
+    "county": "屏東縣",
+    "district": "枋山鄉",
+    "latitude": 22.209097,
+    "longitude": 120.705428
+  },
+  {
+    "id": "10013260",
+    "county": "屏東縣",
+    "district": "三地門鄉",
+    "latitude": 22.840262,
+    "longitude": 120.702183
+  },
+  {
+    "id": "10013270",
+    "county": "屏東縣",
+    "district": "霧臺鄉",
+    "latitude": 22.74068,
+    "longitude": 120.799074
+  },
+  {
+    "id": "10013280",
+    "county": "屏東縣",
+    "district": "瑪家鄉",
+    "latitude": 22.658302,
+    "longitude": 120.689552
+  },
+  {
+    "id": "10013290",
+    "county": "屏東縣",
+    "district": "泰武鄉",
+    "latitude": 22.628197,
+    "longitude": 120.697813
+  },
+  {
+    "id": "10013300",
+    "county": "屏東縣",
+    "district": "來義鄉",
+    "latitude": 22.489124,
+    "longitude": 120.68924
+  },
+  {
+    "id": "10013310",
+    "county": "屏東縣",
+    "district": "春日鄉",
+    "latitude": 22.418168,
+    "longitude": 120.708717
+  },
+  {
+    "id": "10013320",
+    "county": "屏東縣",
+    "district": "獅子鄉",
+    "latitude": 22.223296,
+    "longitude": 120.772455
+  },
+  {
+    "id": "10013330",
+    "county": "屏東縣",
+    "district": "牡丹鄉",
+    "latitude": 22.170402,
+    "longitude": 120.813784
+  },
+  {
+    "id": "10014010",
+    "county": "臺東縣",
+    "district": "臺東市",
+    "latitude": 22.764249,
+    "longitude": 121.114082
+  },
+  {
+    "id": "10014020",
+    "county": "臺東縣",
+    "district": "成功鎮",
+    "latitude": 23.122228,
+    "longitude": 121.367539
+  },
+  {
+    "id": "10014030",
+    "county": "臺東縣",
+    "district": "關山鎮",
+    "latitude": 23.02388,
+    "longitude": 121.18098
+  },
+  {
+    "id": "10014040",
+    "county": "臺東縣",
+    "district": "卑南鄉",
+    "latitude": 22.820583,
+    "longitude": 121.087181
+  },
+  {
+    "id": "10014050",
+    "county": "臺東縣",
+    "district": "鹿野鄉",
+    "latitude": 22.982931,
+    "longitude": 121.171411
+  },
+  {
+    "id": "10014060",
+    "county": "臺東縣",
+    "district": "池上鄉",
+    "latitude": 23.121863,
+    "longitude": 121.217737
+  },
+  {
+    "id": "10014070",
+    "county": "臺東縣",
+    "district": "東河鄉",
+    "latitude": 22.972583,
+    "longitude": 121.262111
+  },
+  {
+    "id": "10014080",
+    "county": "臺東縣",
+    "district": "長濱鄉",
+    "latitude": 23.38607,
+    "longitude": 121.437415
+  },
+  {
+    "id": "10014090",
+    "county": "臺東縣",
+    "district": "太麻里鄉",
+    "latitude": 22.686515,
+    "longitude": 121.029862
+  },
+  {
+    "id": "10014100",
+    "county": "臺東縣",
+    "district": "大武鄉",
+    "latitude": 22.420081,
+    "longitude": 120.905469
+  },
+  {
+    "id": "10014110",
+    "county": "臺東縣",
+    "district": "綠島鄉",
+    "latitude": 22.673049,
+    "longitude": 121.486933
+  },
+  {
+    "id": "10014120",
+    "county": "臺東縣",
+    "district": "海端鄉",
+    "latitude": 23.167903,
+    "longitude": 121.05022
+  },
+  {
+    "id": "10014130",
+    "county": "臺東縣",
+    "district": "延平鄉",
+    "latitude": 22.941358,
+    "longitude": 120.971402
+  },
+  {
+    "id": "10014140",
+    "county": "臺東縣",
+    "district": "金峰鄉",
+    "latitude": 22.631755,
+    "longitude": 120.884265
+  },
+  {
+    "id": "10014150",
+    "county": "臺東縣",
+    "district": "達仁鄉",
+    "latitude": 22.473738,
+    "longitude": 120.845093
+  },
+  {
+    "id": "10014160",
+    "county": "臺東縣",
+    "district": "蘭嶼鄉",
+    "latitude": 22.079438,
+    "longitude": 121.534827
+  },
+  {
+    "id": "10015010",
+    "county": "花蓮縣",
+    "district": "花蓮市",
+    "latitude": 24.001002,
+    "longitude": 121.600871
+  },
+  {
+    "id": "10015020",
+    "county": "花蓮縣",
+    "district": "鳳林鎮",
+    "latitude": 23.719476,
+    "longitude": 121.461424
+  },
+  {
+    "id": "10015030",
+    "county": "花蓮縣",
+    "district": "玉里鎮",
+    "latitude": 23.327094,
+    "longitude": 121.334071
+  },
+  {
+    "id": "10015040",
+    "county": "花蓮縣",
+    "district": "新城鄉",
+    "latitude": 24.027892,
+    "longitude": 121.609543
+  },
+  {
+    "id": "10015050",
+    "county": "花蓮縣",
+    "district": "吉安鄉",
+    "latitude": 23.949137,
+    "longitude": 121.56216
+  },
+  {
+    "id": "10015060",
+    "county": "花蓮縣",
+    "district": "壽豐鄉",
+    "latitude": 23.846411,
+    "longitude": 121.521839
+  },
+  {
+    "id": "10015070",
+    "county": "花蓮縣",
+    "district": "光復鄉",
+    "latitude": 23.672768,
+    "longitude": 121.44606
+  },
+  {
+    "id": "10015080",
+    "county": "花蓮縣",
+    "district": "豐濱鄉",
+    "latitude": 23.579543,
+    "longitude": 121.474978
+  },
+  {
+    "id": "10015090",
+    "county": "花蓮縣",
+    "district": "瑞穗鄉",
+    "latitude": 23.504243,
+    "longitude": 121.417975
+  },
+  {
+    "id": "10015100",
+    "county": "花蓮縣",
+    "district": "富里鄉",
+    "latitude": 23.148271,
+    "longitude": 121.269342
+  },
+  {
+    "id": "10015110",
+    "county": "花蓮縣",
+    "district": "秀林鄉",
+    "latitude": 24.146204,
+    "longitude": 121.474518
+  },
+  {
+    "id": "10015120",
+    "county": "花蓮縣",
+    "district": "萬榮鄉",
+    "latitude": 23.768242,
+    "longitude": 121.318152
+  },
+  {
+    "id": "10015130",
+    "county": "花蓮縣",
+    "district": "卓溪鄉",
+    "latitude": 23.438622,
+    "longitude": 121.185003
+  },
+  {
+    "id": "10016010",
+    "county": "澎湖縣",
+    "district": "馬公市",
+    "latitude": 23.553494,
+    "longitude": 119.601671
+  },
+  {
+    "id": "10016020",
+    "county": "澎湖縣",
+    "district": "湖西鄉",
+    "latitude": 23.562082,
+    "longitude": 119.648227
+  },
+  {
+    "id": "10016030",
+    "county": "澎湖縣",
+    "district": "白沙鄉",
+    "latitude": 23.664109,
+    "longitude": 119.578345
+  },
+  {
+    "id": "10016040",
+    "county": "澎湖縣",
+    "district": "西嶼鄉",
+    "latitude": 23.568324,
+    "longitude": 119.495786
+  },
+  {
+    "id": "10016050",
+    "county": "澎湖縣",
+    "district": "望安鄉",
+    "latitude": 23.356649,
+    "longitude": 119.498216
+  },
+  {
+    "id": "10016060",
+    "county": "澎湖縣",
+    "district": "七美鄉",
+    "latitude": 23.213759,
+    "longitude": 119.426781
+  },
+  {
+    "id": "10017010",
+    "county": "基隆市",
+    "district": "中正區",
+    "latitude": 25.146531,
+    "longitude": 121.781738
+  },
+  {
+    "id": "10017020",
+    "county": "基隆市",
+    "district": "七堵區",
+    "latitude": 25.111644,
+    "longitude": 121.688994
+  },
+  {
+    "id": "10017030",
+    "county": "基隆市",
+    "district": "暖暖區",
+    "latitude": 25.06958,
+    "longitude": 121.751031
+  },
+  {
+    "id": "10017040",
+    "county": "基隆市",
+    "district": "仁愛區",
+    "latitude": 25.125477,
+    "longitude": 121.744322
+  },
+  {
+    "id": "10017050",
+    "county": "基隆市",
+    "district": "中山區",
+    "latitude": 25.152871,
+    "longitude": 121.733499
+  },
+  {
+    "id": "10017060",
+    "county": "基隆市",
+    "district": "安樂區",
+    "latitude": 25.138183,
+    "longitude": 121.711611
+  },
+  {
+    "id": "10017070",
+    "county": "基隆市",
+    "district": "信義區",
+    "latitude": 25.12962,
+    "longitude": 121.768903
+  },
+  {
+    "id": "10018010",
+    "county": "新竹市",
+    "district": "東區",
+    "latitude": 24.783001,
+    "longitude": 120.992626
+  },
+  {
+    "id": "10018020",
+    "county": "新竹市",
+    "district": "北區",
+    "latitude": 24.828498,
+    "longitude": 120.945895
+  },
+  {
+    "id": "10018030",
+    "county": "新竹市",
+    "district": "香山區",
+    "latitude": 24.748819,
+    "longitude": 120.920795
+  },
+  {
+    "id": "10020010",
+    "county": "嘉義市",
+    "district": "東區",
+    "latitude": 23.476178,
+    "longitude": 120.478962
+  },
+  {
+    "id": "10020020",
+    "county": "嘉義市",
+    "district": "西區",
+    "latitude": 23.492266,
+    "longitude": 120.41986
+  },
+  {
+    "id": "63000010",
+    "county": "臺北市",
+    "district": "松山區",
+    "latitude": 25.050403,
+    "longitude": 121.562002
+  },
+  {
+    "id": "63000020",
+    "county": "臺北市",
+    "district": "信義區",
+    "latitude": 25.031399,
+    "longitude": 121.574635
+  },
+  {
+    "id": "63000030",
+    "county": "臺北市",
+    "district": "大安區",
+    "latitude": 25.030179,
+    "longitude": 121.53977
+  },
+  {
+    "id": "63000040",
+    "county": "臺北市",
+    "district": "中山區",
+    "latitude": 25.076352,
+    "longitude": 121.548182
+  },
+  {
+    "id": "63000050",
+    "county": "臺北市",
+    "district": "中正區",
+    "latitude": 25.035696,
+    "longitude": 121.519351
+  },
+  {
+    "id": "63000060",
+    "county": "臺北市",
+    "district": "大同區",
+    "latitude": 25.076729,
+    "longitude": 121.513698
+  },
+  {
+    "id": "63000070",
+    "county": "臺北市",
+    "district": "萬華區",
+    "latitude": 25.021892,
+    "longitude": 121.500597
+  },
+  {
+    "id": "63000080",
+    "county": "臺北市",
+    "district": "文山區",
+    "latitude": 24.998309,
+    "longitude": 121.565521
+  },
+  {
+    "id": "63000090",
+    "county": "臺北市",
+    "district": "南港區",
+    "latitude": 25.026935,
+    "longitude": 121.625941
+  },
+  {
+    "id": "63000100",
+    "county": "臺北市",
+    "district": "內湖區",
+    "latitude": 25.091431,
+    "longitude": 121.589487
+  },
+  {
+    "id": "63000110",
+    "county": "臺北市",
+    "district": "士林區",
+    "latitude": 25.123412,
+    "longitude": 121.563798
+  },
+  {
+    "id": "63000120",
+    "county": "臺北市",
+    "district": "北投區",
+    "latitude": 25.145824,
+    "longitude": 121.514147
+  },
+  {
+    "id": "64000010",
+    "county": "高雄市",
+    "district": "鹽埕區",
+    "latitude": 22.623071,
+    "longitude": 120.283521
+  },
+  {
+    "id": "64000020",
+    "county": "高雄市",
+    "district": "鼓山區",
+    "latitude": 22.654368,
+    "longitude": 120.279218
+  },
+  {
+    "id": "64000030",
+    "county": "高雄市",
+    "district": "左營區",
+    "latitude": 22.690688,
+    "longitude": 120.288767
+  },
+  {
+    "id": "64000040",
+    "county": "高雄市",
+    "district": "楠梓區",
+    "latitude": 22.722845,
+    "longitude": 120.297511
+  },
+  {
+    "id": "64000050",
+    "county": "高雄市",
+    "district": "三民區",
+    "latitude": 22.645246,
+    "longitude": 120.315041
+  },
+  {
+    "id": "64000060",
+    "county": "高雄市",
+    "district": "新興區",
+    "latitude": 22.63425,
+    "longitude": 120.307282
+  },
+  {
+    "id": "64000070",
+    "county": "高雄市",
+    "district": "前金區",
+    "latitude": 22.63154,
+    "longitude": 120.292455
+  },
+  {
+    "id": "64000080",
+    "county": "高雄市",
+    "district": "苓雅區",
+    "latitude": 22.619252,
+    "longitude": 120.320191
+  },
+  {
+    "id": "64000090",
+    "county": "高雄市",
+    "district": "前鎮區",
+    "latitude": 22.607191,
+    "longitude": 120.309618
+  },
+  {
+    "id": "64000100",
+    "county": "高雄市",
+    "district": "旗津區",
+    "latitude": 22.603268,
+    "longitude": 120.273612
+  },
+  {
+    "id": "64000110",
+    "county": "高雄市",
+    "district": "小港區",
+    "latitude": 22.547025,
+    "longitude": 120.352015
+  },
+  {
+    "id": "64000120",
+    "county": "高雄市",
+    "district": "鳳山區",
+    "latitude": 22.616091,
+    "longitude": 120.353052
+  },
+  {
+    "id": "64000130",
+    "county": "高雄市",
+    "district": "林園區",
+    "latitude": 22.503176,
+    "longitude": 120.391948
+  },
+  {
+    "id": "64000140",
+    "county": "高雄市",
+    "district": "大寮區",
+    "latitude": 22.588374,
+    "longitude": 120.40811
+  },
+  {
+    "id": "64000150",
+    "county": "高雄市",
+    "district": "大樹區",
+    "latitude": 22.735665,
+    "longitude": 120.426532
+  },
+  {
+    "id": "64000160",
+    "county": "高雄市",
+    "district": "大社區",
+    "latitude": 22.746791,
+    "longitude": 120.373588
+  },
+  {
+    "id": "64000170",
+    "county": "高雄市",
+    "district": "仁武區",
+    "latitude": 22.698658,
+    "longitude": 120.356734
+  },
+  {
+    "id": "64000180",
+    "county": "高雄市",
+    "district": "鳥松區",
+    "latitude": 22.657959,
+    "longitude": 120.366956
+  },
+  {
+    "id": "64000190",
+    "county": "高雄市",
+    "district": "岡山區",
+    "latitude": 22.815895,
+    "longitude": 120.3029
+  },
+  {
+    "id": "64000200",
+    "county": "高雄市",
+    "district": "橋頭區",
+    "latitude": 22.75766,
+    "longitude": 120.306763
+  },
+  {
+    "id": "64000210",
+    "county": "高雄市",
+    "district": "燕巢區",
+    "latitude": 22.784092,
+    "longitude": 120.373749
+  },
+  {
+    "id": "64000220",
+    "county": "高雄市",
+    "district": "田寮區",
+    "latitude": 22.847751,
+    "longitude": 120.396827
+  },
+  {
+    "id": "64000230",
+    "county": "高雄市",
+    "district": "阿蓮區",
+    "latitude": 22.887296,
+    "longitude": 120.319712
+  },
+  {
+    "id": "64000240",
+    "county": "高雄市",
+    "district": "路竹區",
+    "latitude": 22.853901,
+    "longitude": 120.260858
+  },
+  {
+    "id": "64000250",
+    "county": "高雄市",
+    "district": "湖內區",
+    "latitude": 22.894716,
+    "longitude": 120.225401
+  },
+  {
+    "id": "64000260",
+    "county": "高雄市",
+    "district": "茄萣區",
+    "latitude": 22.880833,
+    "longitude": 120.202529
+  },
+  {
+    "id": "64000270",
+    "county": "高雄市",
+    "district": "永安區",
+    "latitude": 22.81394,
+    "longitude": 120.223322
+  },
+  {
+    "id": "64000280",
+    "county": "高雄市",
+    "district": "彌陀區",
+    "latitude": 22.795054,
+    "longitude": 120.237653
+  },
+  {
+    "id": "64000290",
+    "county": "高雄市",
+    "district": "梓官區",
+    "latitude": 22.749541,
+    "longitude": 120.258143
+  },
+  {
+    "id": "64000300",
+    "county": "高雄市",
+    "district": "旗山區",
+    "latitude": 22.856409,
+    "longitude": 120.482146
+  },
+  {
+    "id": "64000310",
+    "county": "高雄市",
+    "district": "美濃區",
+    "latitude": 22.867146,
+    "longitude": 120.545691
+  },
+  {
+    "id": "64000320",
+    "county": "高雄市",
+    "district": "六龜區",
+    "latitude": 23.054128,
+    "longitude": 120.671794
+  },
+  {
+    "id": "64000330",
+    "county": "高雄市",
+    "district": "甲仙區",
+    "latitude": 23.063216,
+    "longitude": 120.584098
+  },
+  {
+    "id": "64000340",
+    "county": "高雄市",
+    "district": "杉林區",
+    "latitude": 23.029053,
+    "longitude": 120.558314
+  },
+  {
+    "id": "64000350",
+    "county": "高雄市",
+    "district": "內門區",
+    "latitude": 22.956836,
+    "longitude": 120.471564
+  },
+  {
+    "id": "64000360",
+    "county": "高雄市",
+    "district": "茂林區",
+    "latitude": 22.882218,
+    "longitude": 120.744918
+  },
+  {
+    "id": "64000370",
+    "county": "高雄市",
+    "district": "桃源區",
+    "latitude": 23.316579,
+    "longitude": 120.922647
+  },
+  {
+    "id": "64000380",
+    "county": "高雄市",
+    "district": "那瑪夏區",
+    "latitude": 23.282654,
+    "longitude": 120.709776
+  },
+  {
+    "id": "65000010",
+    "county": "新北市",
+    "district": "板橋區",
+    "latitude": 25.016163,
+    "longitude": 121.465013
+  },
+  {
+    "id": "65000020",
+    "county": "新北市",
+    "district": "三重區",
+    "latitude": 25.064886,
+    "longitude": 121.486222
+  },
+  {
+    "id": "65000030",
+    "county": "新北市",
+    "district": "中和區",
+    "latitude": 24.99282,
+    "longitude": 121.503018
+  },
+  {
+    "id": "65000040",
+    "county": "新北市",
+    "district": "永和區",
+    "latitude": 25.009435,
+    "longitude": 121.512607
+  },
+  {
+    "id": "65000050",
+    "county": "新北市",
+    "district": "新莊區",
+    "latitude": 25.027416,
+    "longitude": 121.424989
+  },
+  {
+    "id": "65000060",
+    "county": "新北市",
+    "district": "新店區",
+    "latitude": 24.949284,
+    "longitude": 121.535318
+  },
+  {
+    "id": "65000070",
+    "county": "新北市",
+    "district": "樹林區",
+    "latitude": 24.976559,
+    "longitude": 121.397541
+  },
+  {
+    "id": "65000080",
+    "county": "新北市",
+    "district": "鶯歌區",
+    "latitude": 24.965356,
+    "longitude": 121.354727
+  },
+  {
+    "id": "65000090",
+    "county": "新北市",
+    "district": "三峽區",
+    "latitude": 24.916685,
+    "longitude": 121.404921
+  },
+  {
+    "id": "65000100",
+    "county": "新北市",
+    "district": "淡水區",
+    "latitude": 25.183592,
+    "longitude": 121.459794
+  },
+  {
+    "id": "65000110",
+    "county": "新北市",
+    "district": "汐止區",
+    "latitude": 25.051995,
+    "longitude": 121.673801
+  },
+  {
+    "id": "65000120",
+    "county": "新北市",
+    "district": "瑞芳區",
+    "latitude": 25.109714,
+    "longitude": 121.82275
+  },
+  {
+    "id": "65000130",
+    "county": "新北市",
+    "district": "土城區",
+    "latitude": 24.964063,
+    "longitude": 121.445055
+  },
+  {
+    "id": "65000140",
+    "county": "新北市",
+    "district": "蘆洲區",
+    "latitude": 25.094628,
+    "longitude": 121.474411
+  },
+  {
+    "id": "65000150",
+    "county": "新北市",
+    "district": "五股區",
+    "latitude": 25.076442,
+    "longitude": 121.438082
+  },
+  {
+    "id": "65000160",
+    "county": "新北市",
+    "district": "泰山區",
+    "latitude": 25.061611,
+    "longitude": 121.417979
+  },
+  {
+    "id": "65000170",
+    "county": "新北市",
+    "district": "林口區",
+    "latitude": 25.111064,
+    "longitude": 121.334765
+  },
+  {
+    "id": "65000180",
+    "county": "新北市",
+    "district": "深坑區",
+    "latitude": 25.00802,
+    "longitude": 121.618683
+  },
+  {
+    "id": "65000190",
+    "county": "新北市",
+    "district": "石碇區",
+    "latitude": 24.903469,
+    "longitude": 121.614469
+  },
+  {
+    "id": "65000200",
+    "county": "新北市",
+    "district": "坪林區",
+    "latitude": 24.893796,
+    "longitude": 121.719973
+  },
+  {
+    "id": "65000210",
+    "county": "新北市",
+    "district": "三芝區",
+    "latitude": 25.246912,
+    "longitude": 121.497243
+  },
+  {
+    "id": "65000220",
+    "county": "新北市",
+    "district": "石門區",
+    "latitude": 25.278774,
+    "longitude": 121.562406
+  },
+  {
+    "id": "65000230",
+    "county": "新北市",
+    "district": "八里區",
+    "latitude": 25.136674,
+    "longitude": 121.410615
+  },
+  {
+    "id": "65000240",
+    "county": "新北市",
+    "district": "平溪區",
+    "latitude": 25.032108,
+    "longitude": 121.755246
+  },
+  {
+    "id": "65000250",
+    "county": "新北市",
+    "district": "雙溪區",
+    "latitude": 24.998503,
+    "longitude": 121.821118
+  },
+  {
+    "id": "65000260",
+    "county": "新北市",
+    "district": "貢寮區",
+    "latitude": 25.006168,
+    "longitude": 121.94157
+  },
+  {
+    "id": "65000270",
+    "county": "新北市",
+    "district": "金山區",
+    "latitude": 25.219356,
+    "longitude": 121.606779
+  },
+  {
+    "id": "65000280",
+    "county": "新北市",
+    "district": "萬里區",
+    "latitude": 25.176465,
+    "longitude": 121.65572
+  },
+  {
+    "id": "65000290",
+    "county": "新北市",
+    "district": "烏來區",
+    "latitude": 24.838653,
+    "longitude": 121.601113
+  },
+  {
+    "id": "66000010",
+    "county": "臺中市",
+    "district": "中區",
+    "latitude": 24.142257,
+    "longitude": 120.680322
+  },
+  {
+    "id": "66000020",
+    "county": "臺中市",
+    "district": "東區",
+    "latitude": 24.135187,
+    "longitude": 120.695878
+  },
+  {
+    "id": "66000030",
+    "county": "臺中市",
+    "district": "南區",
+    "latitude": 24.119995,
+    "longitude": 120.664544
+  },
+  {
+    "id": "66000040",
+    "county": "臺中市",
+    "district": "西區",
+    "latitude": 24.135323,
+    "longitude": 120.668415
+  },
+  {
+    "id": "66000050",
+    "county": "臺中市",
+    "district": "北區",
+    "latitude": 24.158137,
+    "longitude": 120.684113
+  },
+  {
+    "id": "66000060",
+    "county": "臺中市",
+    "district": "西屯區",
+    "latitude": 24.174441,
+    "longitude": 120.625905
+  },
+  {
+    "id": "66000070",
+    "county": "臺中市",
+    "district": "南屯區",
+    "latitude": 24.153146,
+    "longitude": 120.613775
+  },
+  {
+    "id": "66000080",
+    "county": "臺中市",
+    "district": "北屯區",
+    "latitude": 24.18412,
+    "longitude": 120.727935
+  },
+  {
+    "id": "66000090",
+    "county": "臺中市",
+    "district": "豐原區",
+    "latitude": 24.243928,
+    "longitude": 120.736253
+  },
+  {
+    "id": "66000100",
+    "county": "臺中市",
+    "district": "東勢區",
+    "latitude": 24.283821,
+    "longitude": 120.838516
+  },
+  {
+    "id": "66000110",
+    "county": "臺中市",
+    "district": "大甲區",
+    "latitude": 24.366022,
+    "longitude": 120.653624
+  },
+  {
+    "id": "66000120",
+    "county": "臺中市",
+    "district": "清水區",
+    "latitude": 24.291538,
+    "longitude": 120.574803
+  },
+  {
+    "id": "66000130",
+    "county": "臺中市",
+    "district": "沙鹿區",
+    "latitude": 24.245148,
+    "longitude": 120.589595
+  },
+  {
+    "id": "66000140",
+    "county": "臺中市",
+    "district": "梧棲區",
+    "latitude": 24.257323,
+    "longitude": 120.526004
+  },
+  {
+    "id": "66000150",
+    "county": "臺中市",
+    "district": "后里區",
+    "latitude": 24.299444,
+    "longitude": 120.705935
+  },
+  {
+    "id": "66000160",
+    "county": "臺中市",
+    "district": "神岡區",
+    "latitude": 24.25981,
+    "longitude": 120.672246
+  },
+  {
+    "id": "66000170",
+    "county": "臺中市",
+    "district": "潭子區",
+    "latitude": 24.206557,
+    "longitude": 120.710554
+  },
+  {
+    "id": "66000180",
+    "county": "臺中市",
+    "district": "大雅區",
+    "latitude": 24.215997,
+    "longitude": 120.637697
+  },
+  {
+    "id": "66000190",
+    "county": "臺中市",
+    "district": "新社區",
+    "latitude": 24.154537,
+    "longitude": 120.844167
+  },
+  {
+    "id": "66000200",
+    "county": "臺中市",
+    "district": "石岡區",
+    "latitude": 24.270819,
+    "longitude": 120.788256
+  },
+  {
+    "id": "66000210",
+    "county": "臺中市",
+    "district": "外埔區",
+    "latitude": 24.332791,
+    "longitude": 120.66511
+  },
+  {
+    "id": "66000220",
+    "county": "臺中市",
+    "district": "大安區",
+    "latitude": 24.380441,
+    "longitude": 120.606049
+  },
+  {
+    "id": "66000230",
+    "county": "臺中市",
+    "district": "烏日區",
+    "latitude": 24.106882,
+    "longitude": 120.622283
+  },
+  {
+    "id": "66000240",
+    "county": "臺中市",
+    "district": "大肚區",
+    "latitude": 24.168375,
+    "longitude": 120.550088
+  },
+  {
+    "id": "66000250",
+    "county": "臺中市",
+    "district": "龍井區",
+    "latitude": 24.208958,
+    "longitude": 120.506959
+  },
+  {
+    "id": "66000260",
+    "county": "臺中市",
+    "district": "霧峰區",
+    "latitude": 24.036648,
+    "longitude": 120.721891
+  },
+  {
+    "id": "66000270",
+    "county": "臺中市",
+    "district": "太平區",
+    "latitude": 24.116995,
+    "longitude": 120.768858
+  },
+  {
+    "id": "66000280",
+    "county": "臺中市",
+    "district": "大里區",
+    "latitude": 24.089019,
+    "longitude": 120.696871
+  },
+  {
+    "id": "66000290",
+    "county": "臺中市",
+    "district": "和平區",
+    "latitude": 24.264026,
+    "longitude": 121.132059
+  },
+  {
+    "id": "67000010",
+    "county": "臺南市",
+    "district": "新營區",
+    "latitude": 23.319596,
+    "longitude": 120.318099
+  },
+  {
+    "id": "67000020",
+    "county": "臺南市",
+    "district": "鹽水區",
+    "latitude": 23.322516,
+    "longitude": 120.26318
+  },
+  {
+    "id": "67000030",
+    "county": "臺南市",
+    "district": "白河區",
+    "latitude": 23.358414,
+    "longitude": 120.446347
+  },
+  {
+    "id": "67000040",
+    "county": "臺南市",
+    "district": "柳營區",
+    "latitude": 23.265998,
+    "longitude": 120.337981
+  },
+  {
+    "id": "67000050",
+    "county": "臺南市",
+    "district": "後壁區",
+    "latitude": 23.370743,
+    "longitude": 120.347744
+  },
+  {
+    "id": "67000060",
+    "county": "臺南市",
+    "district": "東山區",
+    "latitude": 23.269523,
+    "longitude": 120.456714
+  },
+  {
+    "id": "67000070",
+    "county": "臺南市",
+    "district": "麻豆區",
+    "latitude": 23.19679,
+    "longitude": 120.24117
+  },
+  {
+    "id": "67000080",
+    "county": "臺南市",
+    "district": "下營區",
+    "latitude": 23.233175,
+    "longitude": 120.253815
+  },
+  {
+    "id": "67000090",
+    "county": "臺南市",
+    "district": "六甲區",
+    "latitude": 23.230341,
+    "longitude": 120.363827
+  },
+  {
+    "id": "67000100",
+    "county": "臺南市",
+    "district": "官田區",
+    "latitude": 23.194631,
+    "longitude": 120.355981
+  },
+  {
+    "id": "67000110",
+    "county": "臺南市",
+    "district": "大內區",
+    "latitude": 23.131594,
+    "longitude": 120.38807
+  },
+  {
+    "id": "67000120",
+    "county": "臺南市",
+    "district": "佳里區",
+    "latitude": 23.167823,
+    "longitude": 120.180478
+  },
+  {
+    "id": "67000130",
+    "county": "臺南市",
+    "district": "學甲區",
+    "latitude": 23.25402,
+    "longitude": 120.179939
+  },
+  {
+    "id": "67000140",
+    "county": "臺南市",
+    "district": "西港區",
+    "latitude": 23.133984,
+    "longitude": 120.207828
+  },
+  {
+    "id": "67000150",
+    "county": "臺南市",
+    "district": "七股區",
+    "latitude": 23.09561,
+    "longitude": 120.104617
+  },
+  {
+    "id": "67000160",
+    "county": "臺南市",
+    "district": "將軍區",
+    "latitude": 23.19648,
+    "longitude": 120.124705
+  },
+  {
+    "id": "67000170",
+    "county": "臺南市",
+    "district": "北門區",
+    "latitude": 23.293393,
+    "longitude": 120.135523
+  },
+  {
+    "id": "67000180",
+    "county": "臺南市",
+    "district": "新化區",
+    "latitude": 23.018319,
+    "longitude": 120.3378
+  },
+  {
+    "id": "67000190",
+    "county": "臺南市",
+    "district": "善化區",
+    "latitude": 23.149557,
+    "longitude": 120.30342
+  },
+  {
+    "id": "67000200",
+    "county": "臺南市",
+    "district": "新市區",
+    "latitude": 23.074879,
+    "longitude": 120.290784
+  },
+  {
+    "id": "67000210",
+    "county": "臺南市",
+    "district": "安定區",
+    "latitude": 23.083673,
+    "longitude": 120.218029
+  },
+  {
+    "id": "67000220",
+    "county": "臺南市",
+    "district": "山上區",
+    "latitude": 23.098385,
+    "longitude": 120.375268
+  },
+  {
+    "id": "67000230",
+    "county": "臺南市",
+    "district": "玉井區",
+    "latitude": 23.098578,
+    "longitude": 120.46559
+  },
+  {
+    "id": "67000240",
+    "county": "臺南市",
+    "district": "楠西區",
+    "latitude": 23.192863,
+    "longitude": 120.516112
+  },
+  {
+    "id": "67000250",
+    "county": "臺南市",
+    "district": "南化區",
+    "latitude": 23.069137,
+    "longitude": 120.49917
+  },
+  {
+    "id": "67000260",
+    "county": "臺南市",
+    "district": "左鎮區",
+    "latitude": 23.059006,
+    "longitude": 120.399014
+  },
+  {
+    "id": "67000270",
+    "county": "臺南市",
+    "district": "仁德區",
+    "latitude": 22.926047,
+    "longitude": 120.230374
+  },
+  {
+    "id": "67000280",
+    "county": "臺南市",
+    "district": "歸仁區",
+    "latitude": 22.936718,
+    "longitude": 120.296805
+  },
+  {
+    "id": "67000290",
+    "county": "臺南市",
+    "district": "關廟區",
+    "latitude": 22.986178,
+    "longitude": 120.329937
+  },
+  {
+    "id": "67000300",
+    "county": "臺南市",
+    "district": "龍崎區",
+    "latitude": 22.953711,
+    "longitude": 120.390091
+  },
+  {
+    "id": "67000310",
+    "county": "臺南市",
+    "district": "永康區",
+    "latitude": 23.021747,
+    "longitude": 120.247235
+  },
+  {
+    "id": "67000320",
+    "county": "臺南市",
+    "district": "東區",
+    "latitude": 22.98449,
+    "longitude": 120.230275
+  },
+  {
+    "id": "67000330",
+    "county": "臺南市",
+    "district": "南區",
+    "latitude": 22.967051,
+    "longitude": 120.186857
+  },
+  {
+    "id": "67000340",
+    "county": "臺南市",
+    "district": "北區",
+    "latitude": 23.00771,
+    "longitude": 120.201983
+  },
+  {
+    "id": "67000350",
+    "county": "臺南市",
+    "district": "安南區",
+    "latitude": 23.052964,
+    "longitude": 120.155572
+  },
+  {
+    "id": "67000360",
+    "county": "臺南市",
+    "district": "安平區",
+    "latitude": 22.996865,
+    "longitude": 120.163293
+  },
+  {
+    "id": "67000370",
+    "county": "臺南市",
+    "district": "中西區",
+    "latitude": 23.004254,
+    "longitude": 120.177681
+  },
+  {
+    "id": "68000010",
+    "county": "桃園市",
+    "district": "桃園區",
+    "latitude": 24.988162,
+    "longitude": 121.292013
+  },
+  {
+    "id": "68000020",
+    "county": "桃園市",
+    "district": "中壢區",
+    "latitude": 24.973547,
+    "longitude": 121.211733
+  },
+  {
+    "id": "68000030",
+    "county": "桃園市",
+    "district": "大溪區",
+    "latitude": 24.87518,
+    "longitude": 121.301117
+  },
+  {
+    "id": "68000040",
+    "county": "桃園市",
+    "district": "楊梅區",
+    "latitude": 24.912892,
+    "longitude": 121.123509
+  },
+  {
+    "id": "68000050",
+    "county": "桃園市",
+    "district": "蘆竹區",
+    "latitude": 25.068139,
+    "longitude": 121.3071
+  },
+  {
+    "id": "68000060",
+    "county": "桃園市",
+    "district": "大園區",
+    "latitude": 25.077347,
+    "longitude": 121.213967
+  },
+  {
+    "id": "68000070",
+    "county": "桃園市",
+    "district": "龜山區",
+    "latitude": 25.046578,
+    "longitude": 121.34723
+  },
+  {
+    "id": "68000080",
+    "county": "桃園市",
+    "district": "八德區",
+    "latitude": 24.945537,
+    "longitude": 121.298643
+  },
+  {
+    "id": "68000090",
+    "county": "桃園市",
+    "district": "龍潭區",
+    "latitude": 24.846748,
+    "longitude": 121.20951
+  },
+  {
+    "id": "68000100",
+    "county": "桃園市",
+    "district": "平鎮區",
+    "latitude": 24.924984,
+    "longitude": 121.221685
+  },
+  {
+    "id": "68000110",
+    "county": "桃園市",
+    "district": "新屋區",
+    "latitude": 24.958217,
+    "longitude": 121.081588
+  },
+  {
+    "id": "68000120",
+    "county": "桃園市",
+    "district": "觀音區",
+    "latitude": 25.020272,
+    "longitude": 121.095228
+  },
+  {
+    "id": "68000130",
+    "county": "桃園市",
+    "district": "復興區",
+    "latitude": 24.796953,
+    "longitude": 121.342561
+  }
+]

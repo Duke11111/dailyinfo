@@ -1,0 +1,90 @@
+/* Layout additions for Phase 1.5. Typography uses rem so all text scales together. */
+input, select { font: inherit; color: var(--text); background: var(--surface); }
+input:focus-visible, select:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.region-picker, .settings-card { padding: 24px 26px; margin-bottom: 20px; }
+.region-picker .section-heading { margin-bottom: 16px; }
+.region-search label, .region-form label { display: flex; flex-direction: column; gap: 6px; font-size: .8rem; color: var(--text-secondary); }
+.region-search input, .region-form select { width: 100%; min-width: 0; border: 1px solid var(--border); border-radius: 7px; padding: 10px 12px; font-size: .85rem; }
+.region-search p, .region-source, .region-feedback, .storage-status { font-size: .75rem; color: var(--muted); margin: 8px 0; }
+.region-source { margin-bottom: 0; line-height: 1.9; }
+.region-source a, .source-note a { text-decoration: underline; text-underline-offset: 3px; }
+.region-form { display: grid; grid-template-columns: 1fr 1fr auto; align-items: end; gap: 16px; margin-top: 18px; }
+.region-form button { min-height: 41px; }
+.region-field { display: grid; gap: 6px; min-width: 0; }
+.region-search { max-width: 700px; }
+.search-results { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,180px),1fr)); gap: 7px; list-style: none; margin: 0; padding: 0; }
+.search-results button { padding: 9px 12px; text-align: left; font-size: .8rem; width: 100%; background: var(--accent-soft); color: var(--text); border: 1px solid var(--border); border-radius: 6px; }
+.search-results button:hover { border-color: var(--accent); }
+.settings-card { max-width: 950px; }
+.settings-group { border: 0; border-top: 1px solid var(--border); margin: 28px 0; padding: 20px 0 0; min-width: 0; }
+.settings-group legend { padding-right: 15px; font-size: 1rem; font-weight: 600; }
+.settings-group p, .settings-status { color: var(--muted); font-size: .85rem; margin: 0 0 17px; }
+.setting-options { display: flex; flex-wrap: wrap; gap: 10px; }
+.setting-option { display: inline-flex; align-items: center; gap: 9px; padding: 12px 17px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: .9rem; }
+.setting-option:has(input:checked) { background: var(--accent-soft); border-color: var(--accent); }
+.setting-option:focus-within { outline: 3px solid var(--focus); outline-offset: 3px; }
+.setting-option input { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; }
+.color-swatch { width: 15px; height: 15px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+[data-swatch="teal"] { background: var(--palette-teal); }
+[data-swatch="blue"] { background: var(--palette-blue); }
+[data-swatch="violet"] { background: var(--palette-violet); }
+[data-swatch="rose"] { background: var(--palette-rose); }
+[data-swatch="amber"] { background: var(--palette-amber); }
+.settings-status { line-height: 1.8; }
+.sidebar { overflow-y: auto; }
+.topbar, .page-heading, .section-heading, .hero-top, .hero-bottom, .overview-intro, footer { flex-wrap: wrap; gap: 12px; }
+.topbar { min-height: 76px; height: auto; padding-top: 14px; padding-bottom: 14px; }
+.weather-layout > *, .module-grid > *, .page-heading > div { min-width: 0; }
+/* Keep seven days compact on wide screens; wrap equal tracks instead of hiding later dates. */
+.forecast-grid { grid-template-columns: repeat(auto-fit,minmax(min(100%,6rem),1fr)); gap: .5rem; max-width: 56rem; margin-inline: auto; overflow: visible; }
+.hero-top > span:first-child { flex-wrap: wrap; }
+.hero-top, .source-note, .region-source, .placeholder-note { overflow-wrap: anywhere; }
+.current-weather { flex-wrap: wrap; }
+.source-note { font-size: .75rem; }
+.sidebar .brand, .hero-top, .primary { color: var(--on-accent); }
+.brand-mark { background: var(--accent); }
+.heading-dot, .forecast-day > .icon, .module-link .icon { color: var(--accent); }
+.nav-item.active { background: var(--sidebar-active); color: var(--accent-light); }
+.phase-label, .sidebar .brand-mark span { color: var(--accent-light); }
+.nav-point, .phase-label span { background: var(--accent-light); }
+.forecast-day.today { background: var(--accent-soft); }
+.sidebar .version { flex-wrap: wrap; }
+.state-card, .placeholder { overflow-wrap: anywhere; }
+.placeholder-note { flex-wrap: wrap; justify-content: center; }
+@media (max-width:1100px) {
+  .weather-layout { grid-template-columns: minmax(0,1.3fr) minmax(0,1fr); }
+  :root[data-font-size="large"] .weather-layout { grid-template-columns: 1fr; }
+  :root[data-font-size="large"] .weather-metrics { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width:760px) {
+  .sidebar { padding: 12px 16px 0; overflow: visible; }
+  .sidebar nav { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 2px 5px; }
+  .nav-item { white-space: normal; font-size: .8rem; padding: 8px 4px; border-radius: 6px; }
+  .nav-item .icon { display: block; width: 16px; height: 16px; }
+  .topbar { min-height: 52px; gap: 5px 12px; }
+  .today-date { font-size: .7rem; }
+  .region-picker, .settings-card { padding: 20px 16px; }
+  .region-form { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .region-form button { grid-column: 1/-1; }
+  .weather-layout { grid-template-columns: 1fr; }
+  .weather-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .metric { flex-wrap: wrap; }
+  .metric-icon { display: none; }
+  .temperature { font-size: 4.6rem; }
+  .weather-art { width: 72px; height: 82px; }
+  .weather-art .icon { width: 60px; height: 60px; }
+  .hero-top .live-dot { font-size: .65rem; }
+  .setting-option { padding: 10px 12px; }
+  .setting-options { gap: 10px; }
+  .page-heading p { max-width: 100%; }
+  footer > span:last-child { margin-left: 0; }
+}
+@media (max-width:380px) {
+  .region-form { grid-template-columns: 1fr; }
+  .temperature { font-size: 4rem; }
+  .weather-art { width: 52px; }
+  .weather-art .icon { width: 48px; }
+}
+/* Scope weather strokes to the SVG artwork; leave card/grid sizing untouched. */
+.weather-symbol > * { vector-effect: non-scaling-stroke; }
+.weather-art .weather-symbol { height: auto; stroke-width: 1.7; }

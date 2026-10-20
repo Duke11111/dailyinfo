@@ -1,0 +1,15 @@
+{
+  "source": "內政部國土測繪中心 鄉鎮市區界線（1140318）",
+  "officialDataset": "https://data.gov.tw/dataset/7441",
+  "distribution": "https://geo.maderaojen.me/datasets/tw-townships/releases/v1/2026-07-04.1/data.geojson",
+  "distributionRelease": "2026-07-04.1",
+  "sha256": "4ab5da8297a75c3e3fd2cb272642693a91f04299a739897dffc8d7ae029d5196",
+  "license": "政府資料開放授權條款－第1版",
+  "licenseUrl": "https://data.gov.tw/license",
+  "coordinateSystem": "EPSG:4326 (GeoJSON distribution)",
+  "method": "Largest polygon component, widest interior horizontal interval across 31 samples; rounded to six decimal places and rechecked inside polygon. Representative forecast point, not a station, office, or official centroid.",
+  "counties": 22,
+  "districts": 368,
+  "verifiedInsideBoundary": 368,
+  "coverage": "臺灣、澎湖、金門、連江的22縣市368鄉鎮市區；不含村里、郵遞區號專用地名或獨立的東沙/南沙選項。多島行政區使用最大面積陸塊。"
+}
