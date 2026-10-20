@@ -56,6 +56,23 @@ it('keeps all five snapshots and prior exchange diagnostics in a core checkpoint
   expect(await read('exchange')).toBe(before);
   expect(JSON.parse(await readFile(join(directory, 'status.json'), 'utf8')).sources.exchange.code).toBe('unexpected_content_type_csv_text_html');
 });
+it('scheduled core isolates a failure, preserves all valid snapshots and throttles the next attempt', async () => {
+  const before = Object.fromEntries(await Promise.all(SOURCES.map(async source => [source, await read(source)])));
+  const clock = () => Date.parse('2026-10-20T10:17:00Z'), perform = runner();
+  const options = { root, sources: selectUpdateSources('core', true), scheduled: true, now: clock, runner: async (source, settings) => {
+    if (source === 'news') throw Error('synthetic private failure');
+    await perform(source, settings);
+  } };
+  const report = await updateData(options);
+  expect(report.failed).toBe(1); expect(report.results.map(item => item.source)).toEqual(CORE_SOURCES);
+  expect(report.results.find(item => item.source === 'news')).toMatchObject({ status: 'failed', code: 'update_failed' });
+  expect(perform.mock.calls.map(([source]) => source)).toEqual(['quotes', 'earthquakes', 'horoscope']);
+  for (const source of SOURCES) expect(await read(source)).toBe(before[source]);
+  expect(JSON.stringify(report)).not.toContain('synthetic private failure');
+  const next = await updateData(options);
+  expect(next.results.every(item => item.status === 'skipped')).toBe(true);
+  expect(perform).toHaveBeenCalledTimes(3);
+});
 
 it.each(SOURCES)('validates %s with actual module schema and updates independently', async source => {
   const before = Object.fromEntries(await Promise.all(SOURCES.map(async name => [name, await read(name)])));
@@ -144,7 +161,7 @@ it('checkpoint-only rejects bad checksum or provenance before writing any snapsh
   await writeFile(join(dir, 'news.json'), '{}'); await expect(restoreState(root, dir, now(), { exact: true, expectedCommit: commit })).rejects.toThrow('checksum'); expect(await read('quotes')).toBe(before);
 });
 it('workflow is opt-in, default-branch only and scopes secrets away from build/deploy', async () => {
-  const workflow = await readFile(resolve('.github/workflows/data-update.yml'), 'utf8'); expect(workflow).toContain("vars.DATA_AUTOMATION_ENABLED == 'true'"); expect(workflow).toContain('github.event.repository.default_branch'); expect(workflow).toContain('cancel-in-progress: false'); expect(workflow).toContain('workflow_dispatch:'); expect(workflow).not.toMatch(/^\s+(?:schedule|push|pull_request|workflow_run):/m); expect(workflow).not.toContain('git push'); expect(workflow).not.toContain('contents: write'); expect(workflow).toContain("needs.deploy.result == 'success' || needs.deploy.result == 'skipped'");
+  const workflow = await readFile(resolve('.github/workflows/data-update.yml'), 'utf8'); expect(workflow).toContain("vars.DATA_AUTOMATION_ENABLED == 'true'"); expect(workflow).toContain('github.event.repository.default_branch'); expect(workflow).toContain('cancel-in-progress: false'); expect(workflow).toContain('workflow_dispatch:'); expect(workflow).not.toMatch(/^\s+(?:push|pull_request|workflow_run):/m); expect(workflow).not.toContain('git push'); expect(workflow).not.toContain('contents: write'); expect(workflow).toContain("needs.deploy.result == 'success' || needs.deploy.result == 'skipped'");
   const build = workflow.slice(workflow.indexOf('- name: Test and build'), workflow.indexOf('- name: Verify built')); expect(build).not.toContain('CWA_API_KEY:'); expect(workflow).toContain("vars.DATA_PUBLISH_ENABLED == 'true'");
   expect(workflow).toContain('options: [all, core, quotes, news, earthquakes, exchange, horoscope, checkpoint]');
   expect(workflow).toContain('npm run update:data -- --sources=core --scheduled');

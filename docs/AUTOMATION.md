@@ -1,5 +1,26 @@
 # Phase 6D：資料更新與發布操作說明
 
+## Phase 8D-3A：獨立排程開關（僅本機準備，未提交或啟用）
+
+本節為最新排程設計；下方各階段保留為歷史紀錄。公開站已於 Phase 8D-2C 成功發布，本階段沒有操作 GitHub Variables、Commit、Push、Workflow 或外部資料來源。
+
+`data-update.yml` 預備每日 UTC 10:17／臺灣 18:17（`17 10 * * *`）。排程更新 job 必須同時滿足 `DATA_AUTOMATION_ENABLED == 'true'`、`DATA_SCHEDULE_ENABLED == 'true'`，且在預設分支 main 執行。新開關未設定、false 或其他值時，整個更新 job 略過，不啟動 runner、不安裝依賴、不還原或更新資料、不產生 checkpoint、不部署；GitHub 仍可能建立顯示 skipped 的排程 Run 紀錄。手動 workflow_dispatch 不檢查 DATA_SCHEDULE_ENABLED；既有 all／core／exchange 與 checkpoint-only 授權條件不變。
+
+排程固定執行 `core --scheduled`，只含 quotes、news、earthquakes、horoscope；永不請求 exchange。沿用 isDue：股票臺灣週一至週五 17:00 後每日一次，星座每日 09:00 後一次，新聞／地震距上次嘗試至少 150 分鐘。每日一輪的設定代表新聞／地震通常每天更新一次，並非每 150 分鐘觸發；週末仍可更新新聞、地震與星座。未額外判斷交易所國定休市，股票保留最後有效交易日期。跨 UTC 午夜以 Asia/Taipei 日期判斷；延遲到臺灣午夜後時股票／星座需等其當日截止時刻，不保證補跑。
+
+排程 INITIALIZE_STATE 固定 false，只能還原成功預設分支更新流程的有效 checkpoint。五份快照（包含既有匯率）、status、manifest、schema、來源時間及 checksum 繼續驗證；metadata 的 expires_at 已到期亦拒絕，不只依賴 expired 標記。沒有有效 checkpoint 就失敗，不初始化、不退回舊 JSON 假裝成功。現有持久 checkpoint 保留七天；停用超過期限時必須另行授權手動恢復，不能靠排程自行初始化。部分來源失敗保留舊快照且其餘來源繼續；發布決策仍可能接受含有效舊資料的候選，不能將 workflow success 視為四來源皆更新成功。
+
+Pages Artifact 及 deploy 仍須有變更候選、DATA_PUBLISH_ENABLED=true 與 DATA_DEPLOY_TARGET=pages 全部符合；發布開關 false 或目標未設定時不部署。更新成功、部署成功或略過後才保存 checkpoint。建置驗證、秘密隔離、固定 SHA、最小權限、互斥及原子寫入不變。
+
+注意 GitHub 字串比較不區分大小寫，因此另以 fromJSON 驗證開關是合法的 true。未設定／false 會正常略過；誤填大寫 TRUE 會在 job 條件解析時失敗並阻擋執行，不會取得 runner 或執行來源腳本。手動觸發會短路略過這項排程專屬檢查。
+
+### Phase 8D-3B 待明確授權後的最小驗收順序
+
+1. 唯讀確認 main／origin/main、最新有效 checkpoint、費用保護與變數；DATA_SCHEDULE_ENABLED 必須未設定／false，DATA_PUBLISH_ENABLED=false、DATA_DEPLOY_TARGET 未設定。只 Commit／Push 本階段必要檔案，不改公開快照；Push 不觸發更新或部署。
+2. 若要驗收一次真正的定時更新，另行授權暫時設定 DATA_SCHEDULE_ENABLED=true；DATA_AUTOMATION_ENABLED 維持 true，發布維持關閉，不手動觸發替代排程。
+3. 等待下一次臺灣 18:17 的 schedule Run（GitHub 可能延遲或漏跑，不能承諾準時）。只監看該 Run 一次，逐項核對四來源 updated／unchanged／failed／not_due、exchange 雜湊不變、checkpoint 還原及新 checksum、deploy skipped、正式站快照不變。不重試；漏跑時回報，另等使用者決定。
+4. 一輪驗收後將 DATA_SCHEDULE_ENABLED 關回 false，確認發布仍關閉。持續排程或自動 Pages 發布須另取得明確授權；不得順便設定發布開關或提高預算。
+
 ## Phase 8D-2C：Checkpoint-only 手動發布
 
 `source=checkpoint` 不執行來源更新步驟。僅接受 workflow_dispatch、main、initialize_state=false、publish_current=true、DATA_PUBLISH_ENABLED=true、DATA_DEPLOY_TARGET=pages，並必填 checkpoint_run（本次核准 Run `39391679062`）。任一條件不符，還原步驟受控失敗，不部署、不初始化。
@@ -102,7 +123,7 @@ GitHub runner 每次是乾淨環境，不能只依賴 checkout 的舊 JSON。流
 
 - [官方 Actions 計費](https://docs.github.com/en/billing/concepts/product-billing/github-actions)：公開 repository 的標準 GitHub-hosted runner 分鐘免費；私人 repository 依帳戶方案使用共享額度。GitHub Free 為每月 2,000 分鐘、Artifact 500 MB，與帳戶其他專案／Packages 共用，不是本專案獨享；大型 runner 不屬免費方案。
 - [方案額度](https://docs.github.com/en/billing/reference/product-usage-included)：超額可能計費，須設定超額停止使用；本階段沒有變更帳戶預算／付款設定，不能保證使用者現有帳戶的其他用量。
-- 本設定每天 8 輪，30 天約 240 輪。若更新、checkpoint、已啟用部署合計平均 3–5 分鐘／輪，估約 720–1,200 分鐘／月；這是估算，尚無雲端實測。失敗、手動執行、其他 workflow 也會占額度，須依實際 Usage 降低頻率。五份現有快照約 596 kB，短期 artifact 保留可減少儲存，不假設免費儲存無限。
+- Phase 8D-3A 改為每天一輪，30 天約 30 輪；預設關閉。工作時間與 Artifact 用量需以實際 Usage 核對，失敗及手動工作也會占用資源，不假設免費儲存無限，不變更既有 US$0 預算保護。
 - [官方排程限制](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)：預設 UTC，最短五分鐘；只執行預設分支，繁忙時會延遲甚至丟棄，公開 repository 60 天無活動會停用排程。它不提供準時或即時更新保證。
 - [Pages 方案](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)、[部署權限](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)：本階段僅準備安全、預設不啟用的 Pages job，沒有改公開可見性、設定 Secrets、實際執行 Actions 或部署網站。
 

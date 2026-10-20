@@ -30,5 +30,5 @@ it('skips the only source updater step for checkpoint mode and verifies the buil
   expect(text).toMatch(/name: Isolated source updates\s+if: inputs.source != 'checkpoint'/);
   expect(text).toContain("CHECKPOINT_ONLY: ${{ inputs.source == 'checkpoint' }}");
   expect(text).toContain('npm run build -- --base=/dailyinfo/'); expect(text).toContain('npm run verify -- --dist');
-  expect(text).not.toMatch(/^\s+(?:schedule|push|pull_request|workflow_run):/m);
+  expect(text).not.toMatch(/^\s+(?:push|pull_request|workflow_run):/m);
 });

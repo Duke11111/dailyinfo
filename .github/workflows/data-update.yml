@@ -1,7 +1,9 @@
 name: DailyInfo data update (disabled until approved)
 
 on:
-  # No automatic triggers. Restore an approved schedule only in Phase 8D.
+  # Inert until DATA_SCHEDULE_ENABLED is explicitly true; manual runs are independent.
+  schedule:
+    - cron: '17 10 * * *' # 18:17 Asia/Taipei; GitHub may delay or omit runs.
   workflow_dispatch:
     inputs:
       source:
@@ -32,7 +34,7 @@ concurrency:
 jobs:
   update:
     # No cloud action runs until the user deliberately opts in on the default branch.
-    if: vars.DATA_AUTOMATION_ENABLED == 'true' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    if: vars.DATA_AUTOMATION_ENABLED == 'true' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.ref == 'refs/heads/main' && vars.DATA_SCHEDULE_ENABLED == 'true' && fromJSON(vars.DATA_SCHEDULE_ENABLED || 'false') == true))
     runs-on: ubuntu-latest
     timeout-minutes: 12
     permissions:
@@ -54,7 +56,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-          INITIALIZE_STATE: ${{ inputs.initialize_state }}
+          INITIALIZE_STATE: ${{ github.event_name == 'workflow_dispatch' && inputs.initialize_state == true && 'true' || 'false' }}
           CHECKPOINT_ONLY: ${{ inputs.source == 'checkpoint' }}
           APPROVED_CHECKPOINT_RUN: ${{ inputs.checkpoint_run }}
           PUBLISH_CURRENT: ${{ inputs.publish_current }}

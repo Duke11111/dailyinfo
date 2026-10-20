@@ -7,7 +7,7 @@ export function assertCheckpointPublish(env) {
 }
 export async function selectCheckpoint(artifacts, getRun, { branch, exact = false, approvedRun, now = Date.now() }) {
   const candidates = artifacts.filter(item => !item.expired && item.name === 'dailyinfo-data-state' && item.workflow_run?.head_branch === branch
-    && (!exact || Date.parse(item.expires_at) > now && Date.parse(item.created_at) <= now))
+    && Date.parse(item.expires_at) > now && Date.parse(item.created_at) <= now)
     .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)).slice(0, 3);
   for (const candidate of candidates) {
     if (!Number.isSafeInteger(candidate.workflow_run.id)) throw Error('checkpoint_run_invalid');
