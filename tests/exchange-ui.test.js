@@ -2,7 +2,8 @@
 import { beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { mountExchange, mountExchangeSummary } from '../src/pages/exchange.js';
 import { mountOverview } from '../src/pages/overview.js';
-import { exchangeFixture, exchangeCaptured, fullExchangeFixture } from './fixtures/exchange.js';
+import { exchangeFixture, exchangeCaptured, fullExchangeFixture, closeFixture } from './fixtures/exchange.js';
+import { EXCHANGE_CLOSE, closeDownloadUrl } from '../src/services/exchange.js';
 import { quoteFixture } from './fixtures/quotes.js';
 import { newsFixture } from './fixtures/news.js';
 import { eqFixture } from './fixtures/earthquakes.js';
@@ -16,6 +17,16 @@ const amount = value => { const input = host.querySelector('input[inputmode="dec
 const click = label => [...host.querySelectorAll('button')].find(button => button.textContent === label).click();
 beforeEach(() => { document.body.innerHTML = '<div id="host"></div>'; host = document.querySelector('#host'); localStorage.clear(); });
 afterEach(() => { dispose?.(); });
+it('labels verified daily close separately from legacy quotes and keeps conversion usable', async () => {
+  const data = { ...closeFixture(), mode: 'daily-close', dataDate: '2026-10-20', sourceUrl: EXCHANGE_CLOSE, downloadUrl: closeDownloadUrl('2026-10-20'), evidence: { mode: 'html-txt', validation: 'daily-close-19-v1', htmlSha256: 'a'.repeat(64), txtSha256: 'b'.repeat(64) } };
+  await boot(data);
+  expect(host.querySelector('h2').textContent).toBe('臺灣銀行每日收盤匯率');
+  expect(host.textContent).toContain('官方收盤日期：2026-10-20'); expect(host.textContent.replace(/\s+/g, ' ')).toContain('官方最後掛牌：2026/10/20 16:01');
+  expect(host.textContent).toContain('HTML 與同日期 TXT 已逐欄核對');
+  expect(host.querySelector('.stock-sources a').href).toBe(EXCHANGE_CLOSE);
+  amount('1000'); expect(host.querySelector('output').textContent).toContain('依牌告匯率估算');
+  dispose(); await boot(); expect(host.textContent).not.toContain('每日收盤');
+});
 it('discloses HTML-only verification rather than claiming CSV cross-checking', async () => {
   const data = fullExchangeFixture(); data.evidence = { mode: 'html-only', reason: 'csv_text_html', validation: 'official-table-19-v1', htmlSha256: 'a'.repeat(64) };
   await boot(data); expect(host.textContent).toContain('未進行 CSV 交叉核對');

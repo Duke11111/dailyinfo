@@ -1,5 +1,7 @@
 export const EXCHANGE_SOURCE = 'https://rate.bot.com.tw/xrt?Lang=zh-TW';
 export const EXCHANGE_CSV = 'https://rate.bot.com.tw/xrt/flcsv/0/day';
+export const EXCHANGE_CLOSE = 'https://rate.bot.com.tw/xrt/all/day';
+export const closeDownloadUrl = date => `https://rate.bot.com.tw/xrt/fltxt/0/${date}`;
 export const EXCHANGE_LICENSE = 'https://data.gov.tw/license';
 export const EXCHANGE_POLICY = 'https://www.bot.com.tw/tw/footer/related-links/open-data-statement';
 export const CURRENCY_NAMES = Object.freeze({ USD: '美元', JPY: '日圓', EUR: '歐元', GBP: '英鎊', HKD: '港幣', CNY: '人民幣', KRW: '韓元', AUD: '澳幣', CAD: '加拿大幣', SGD: '新加坡幣', CHF: '瑞士法郎', ZAR: '南非幣', SEK: '瑞典幣', NZD: '紐元', THB: '泰幣', PHP: '菲國比索', IDR: '印尼幣', VND: '越南盾', MYR: '馬來幣' });
@@ -10,8 +12,12 @@ export function exchangeTime(value) {
   return value;
 }
 export function validateExchangeSnapshot(raw) {
-  if (!raw || raw.version !== 1 || raw.source !== '臺灣銀行' || raw.sourceUrl !== EXCHANGE_SOURCE || raw.downloadUrl !== EXCHANGE_CSV || raw.licenseUrl !== EXCHANGE_LICENSE || raw.base !== 'TWD' || raw.unit !== 1 || !Array.isArray(raw.rates) || !raw.rates.length || raw.rates.length > 100) throw Error('匯率快照格式或來源異常。');
+  const dailyClose = raw?.mode === 'daily-close';
+  if (!raw || raw.mode !== undefined && !dailyClose || raw.version !== 1 || raw.source !== '臺灣銀行'
+    || raw.sourceUrl !== (dailyClose ? EXCHANGE_CLOSE : EXCHANGE_SOURCE) || raw.downloadUrl !== (dailyClose ? closeDownloadUrl(raw.dataDate) : EXCHANGE_CSV)
+    || raw.licenseUrl !== EXCHANGE_LICENSE || raw.base !== 'TWD' || raw.unit !== 1 || !Array.isArray(raw.rates) || !raw.rates.length || raw.rates.length > 100) throw Error('匯率快照格式或來源異常。');
   const quotedAt = exchangeTime(raw.quotedAt);
+  if (dailyClose && (raw.dataDate !== quotedAt.slice(0, 10) || raw.rates.length !== Object.keys(CURRENCY_NAMES).length)) throw Error('收盤匯率日期或幣別不完整。');
   if (typeof raw.fetchedAt !== 'string' || !Number.isFinite(Date.parse(raw.fetchedAt)) || new Date(raw.fetchedAt).toISOString() !== raw.fetchedAt || Date.parse(quotedAt) > Date.parse(raw.fetchedAt) + 60000) throw Error('匯率快照時間異常。');
   const seen = new Set();
   const rates = raw.rates.map(rate => {
@@ -31,7 +37,13 @@ export function validateExchangeSnapshot(raw) {
       || raw.evidence.validation !== 'official-table-19-v1' || !/^[a-f0-9]{64}$/.test(raw.evidence.htmlSha256) || rates.length !== Object.keys(CURRENCY_NAMES).length) throw Error('HTML 備援證據無效。');
     evidence = { mode: 'html-only', reason: 'csv_text_html', validation: 'official-table-19-v1', htmlSha256: raw.evidence.htmlSha256 };
   }
-  return { version: 1, source: '臺灣銀行', sourceUrl: EXCHANGE_SOURCE, downloadUrl: EXCHANGE_CSV, licenseUrl: EXCHANGE_LICENSE, base: 'TWD', unit: 1, quotedAt, fetchedAt: raw.fetchedAt, rates, evidence };
+  if (dailyClose) {
+    const proof = raw.evidence;
+    if (!proof || Object.keys(proof).sort().join(',') !== 'htmlSha256,mode,txtSha256,validation' || proof.mode !== 'html-txt'
+      || proof.validation !== 'daily-close-19-v1' || !['htmlSha256', 'txtSha256'].every(key => /^[a-f0-9]{64}$/.test(proof[key]))) throw Error('收盤匯率核對證據無效。');
+    evidence = { mode: 'html-txt', validation: 'daily-close-19-v1', htmlSha256: proof.htmlSha256, txtSha256: proof.txtSha256 };
+  }
+  return { version: 1, ...(dailyClose ? { mode: 'daily-close', dataDate: raw.dataDate } : {}), source: '臺灣銀行', sourceUrl: raw.sourceUrl, downloadUrl: raw.downloadUrl, licenseUrl: EXCHANGE_LICENSE, base: 'TWD', unit: 1, quotedAt, fetchedAt: raw.fetchedAt, rates, evidence };
 }
 export function filterCurrencies(rates, query = '') {
   if (typeof query !== 'string' || query.length > 80) throw Error('幣別搜尋條件無效。');

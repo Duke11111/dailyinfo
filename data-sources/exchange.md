@@ -1,5 +1,33 @@
 # 臺灣銀行牌告匯率來源與使用方式
 
+## Phase 8E-3A：每日收盤模式（本機實作，尚未提交／發布）
+
+重用 Phase 8E-2 保存的官方收盤 HTML，只新增一次 GET 日期專屬 `https://rate.bot.com.tw/xrt/fltxt/0/2026-10-20`。實際 HTTP 200、text/plain、嚴格 UTF-8 可解碼，與 HTML 的 2026/10/20 16:01 掛牌資料完成 19 幣別 × 四類報價共 76 欄核對，全部一致。未重新請求 HTML、未請求 CSV 或其他來源。研究資料只存放忽略快取；public 五份快照未改動。固定測試樣本按實際結構製作，報價仍為明示的合成測試資料，不假冒真實銀行數據。
+
+正常 `npm.cmd run update:exchange` 現在直接使用 daily-close：GET 固定官方收盤頁 `https://rate.bot.com.tw/xrt/all/day`，要求「歷史匯率收盤價」標題、唯一 p.text-info 掛牌時間、完整 HTML／表頭及 19 種固定幣別；只接受該頁唯一的同日期 HTTPS 官方 `/xrt/fltxt/0/YYYY-MM-DD` 連結，拒絕 query、fragment、外站、不同日期及 /day。未通過 HTML 檢查不請求 TXT。TXT 嚴格驗證 21 欄表頭、買賣標籤、19 種唯一幣別與數值格式，逐幣逐欄比對四類報價；遠期欄位不當成即期。明確缺值保留 null，不任意填價。最多兩個普通 GET，manual redirect、逾時、編碼／大小檢查不變，無重試或代理。
+
+快照仍 version=1，但新增 mode=daily-close、dataDate（與官方 quotedAt 臺灣日期一致）、收盤頁 sourceUrl、日期專屬 downloadUrl。evidence 僅含 mode=html-txt、validation=daily-close-19-v1、htmlSha256、txtSha256，不偽造 CSV 證據。TXT 本身沒有時間，時間證據來自收盤 HTML；同日期連結與全部報價一致後才可組合，不將擷取時間當作掛牌時間。HTTP／hash 不表示額外的銀行數位簽章。
+
+quotedAt 必須不晚於擷取時間，更新時拒絕官方時間／擷取時間倒退；相同官方時間但報價不同也停止，不能只因下載較晚就覆寫。資料日期、幣別、值域、買賣順序、來源與證據經前端及 checkpoint 共用 validator 驗證。失敗沿用既有白名單錯誤、舊快照保留與暫存檔 rename；不修改統一自動化架構。收盤解析／日期連結／TXT 比對異常目前安全回報 parse_error，時間標示缺失回報 quote_time_error，時間倒退為 date_regression。診斷不輸出原始網頁、標頭或任意子程序訊息。
+
+updateExchange 函式預設仍是 legacy，保留 CSV／HTML 與明確 opt-in 的 HTML-only 相容性；CLI 明確指定 daily-close，正常每日更新不再先跑 CSV。未帶 mode 的舊快照仍使用舊來源、舊時間與原牌告 UI；只有驗證通過的 daily-close 快照顯示「臺灣銀行每日收盤匯率」、官方收盤日期、最後掛牌與同日期核對說明。匯率頁、首頁精簡摘要、四種報價與換算保持原有布局。24 小時過期提示仍以真實官方時間／擷取時間計算，週末不冒稱即時。
+
+後續 Phase 8E-3B 須另行授權 Commit／Push 與唯一一次 main、source=exchange、initialize_state=false、publish_current=false 的雲端驗收；先確認 schedule 未啟用、發布 false、deploy target 未設定、最新有效 checkpoint 及費用保護。核對新快照 mode／dataDate／官方 quotedAt、19 幣別、html-txt 證據與 checkpoint；其他四份資料及正式站應保持不變。不啟用排程、不部署、不重試，不能把整體 workflow success 當作匯率更新成功。本機成功不代表 Runner 已可取得收盤頁。
+
+## Phase 8E-1：官方 TXT 一次連線研究（未啟用更新路徑）
+
+2026/10/20 僅對 `https://rate.bot.com.tw/xrt/fltxt/0/day` 進行一次一般 GET，redirect=manual、20 秒逾時，無代理、繞過或重試。回應 HTTP 200、text/plain、6,311 bytes；Content-Type 未宣告 charset，內容可用 fatal UTF-8 嚴格解碼。未輸出完整回應、Cookie 或敏感標頭。研究副本只存放於忽略的 `.cache/txt-research/`，不納入 Git、public、dist 或 checkpoint。
+
+格式為空白分隔／對齊欄位，20 個非空行（1 表頭＋19 幣別），每行 21 欄。以零起算：0 幣別；1 本行買入；2 現金買入；3 即期買入；4–10 買入遠期；11 本行賣出；12 現金賣出；13 即期賣出；14–20 賣出遠期。不能將遠期欄誤當作現金／即期。19 種 ISO 幣別與現有目錄一致、沒有重複；四類現金／即期報價皆為有效正數或明確零佔位，買入不高於賣出。ZAR／SEK 缺現金報價；PHP／IDR／KRW／VND／MYR 缺即期報價，零佔位不能當成可換算的 0 匯率。
+
+本次 TXT 本文只有表頭、幣別、買賣標籤及數值，沒有官方牌告日期、時間或可排序版本。HTTP Last-Modified 未提供；HTTP Date 僅為回應伺服器時間（本次 2026/10/20 17:22:47 臺灣時間），不代表資料掛牌時間。四類報價與舊快照有差異，但「不同」不等於能證明「較新」。沒有將擷取時間填入 quotedAt，也沒有將 TXT 數值套用原快照的 00:42 時間。
+
+結論：TXT 的匯率結構可用，但依現有不可倒退的要求，單靠這份無時間證據的 TXT 不能安全覆蓋現有有效快照。因此沒有新增正式 TXT 解析器、修改 version／時間模型或更新入口；既有 CSV／HTML、UI、五份快照與 checkpoint 機制皆保留。研究用離線欄位檢視不是正式更新器，也不宣稱已完成 TXT 雲端更新。
+
+最小後續方案須先取得官方「資料」時間或可排序版本的可信證據：例如經官方定義確認代表該份資料發布時間的下載 metadata，或另一份可取得且有明確 as-of 的官方報價來源；若以官方頁面佐證，仍須逐幣逐欄核對，不能僅拼接一個時間。此階段未檢視所有下載 metadata，不能宣稱完全沒有其他線索；但也不能自行將下載檔名、HTTP Date 或內容 hash 當作掛牌時間或可排序版本。只有證據明確後，才設計相容舊快照的 quotedAt／observedAt／fetchedAt 語意與遷移測試。
+
+若後續授權唯一一次雲端研究，應採不覆寫快照的 TXT-only 診斷：main、發布／排程關閉、不初始化，固定官方端點最多一次 GET，只產出白名單化 MIME、編碼、19 幣別完整性及時間證據是否存在的結果；保留原 checkpoint 並確認正式網站雜湊不變。這只能驗證 Runner 可連線，不能冒充已完成最新報價更新。不得再用現有 exchange 選項執行 CSV／HTML 失敗路徑來代替 TXT 測試；新診斷與任何額外官方請求都需另行授權。
+
 ## 官方 HTML 備援（本機實作，未提交／未雲端驗收）
 
 本節為最新設計；下列 Phase 8D-1.x 記錄保留為歷史。遵守本次禁止外部請求的限制，僅檢視既有來源紀錄、解析程式與公開快照，沒有重新連線查核官方條款或目前頁面結構。HTML 固定測試樣本為清楚標示的合成資料，不是擷取的真實銀行回應；不能據此宣稱 GitHub Runner 已可成功取得官方 HTML。

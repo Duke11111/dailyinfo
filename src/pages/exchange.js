@@ -5,11 +5,12 @@ function link(text, href, external = false) { const node = el('a', text); node.h
 function button(text, action) { const node = el('button', text, 'stock-button'); node.type = 'button'; node.addEventListener('click', action); return node; }
 function field(text, input) { const node = el('label', text, 'stock-field'); node.append(input); return node; }
 function select(label, choices) { const node = el('select'); node.setAttribute('aria-label', label); choices.forEach(([value, text]) => node.add(new Option(text, value))); return node; }
-function sourceLinks(host) { host.append(link('資料來源：臺灣銀行', EXCHANGE_SOURCE, true), document.createTextNode(' · '), link('政府資料開放授權條款第 1 版', EXCHANGE_LICENSE, true), document.createTextNode(' · '), link('臺銀資料開放宣告', EXCHANGE_POLICY, true)); }
+function sourceLinks(host, snapshot) { host.append(link('資料來源：臺灣銀行', snapshot?.sourceUrl ?? EXCHANGE_SOURCE, true), document.createTextNode(' · '), link('政府資料開放授權條款第 1 版', EXCHANGE_LICENSE, true), document.createTextNode(' · '), link('臺銀資料開放宣告', EXCHANGE_POLICY, true)); }
 export function mountExchange(host, { store = exchangeStore, now = Date.now } = {}) {
   let snapshot = store.peek(), alive = true, loading = false, failure = '', readAt = null, cached = false, request = 0;
   const shell = el('div', '', 'exchange-page'), statusCard = el('section', '', 'card exchange-status'); statusCard.setAttribute('aria-label', '外幣匯率資料狀態');
-  statusCard.append(el('span', 'BANK OF TAIWAN / EXCHANGE', 'eyebrow'), el('h2', '外幣匯率查詢與換算'));
+  const title = el('h2', '外幣匯率查詢與換算');
+  statusCard.append(el('span', 'BANK OF TAIWAN / EXCHANGE', 'eyebrow'), title);
   const status = el('div'); status.setAttribute('role', 'status'); const error = el('p', '', 'stock-error'); error.setAttribute('role', 'alert');
   const refresh = button('重新讀取匯率快照', () => load(true));
   statusCard.append(status, error, refresh, el('p', '每 1 單位外幣折合多少新臺幣（TWD）。頁面只讀取網站已發布的快照，非即時更新銀行報價；銀行買入／賣出皆以銀行立場表示。', 'stock-help'));
@@ -31,7 +32,10 @@ export function mountExchange(host, { store = exchangeStore, now = Date.now } = 
     status.replaceChildren(); refresh.disabled = loading; statusCard.setAttribute('aria-busy', String(loading));
     if (loading) status.append(el('p', '正在讀取匯率快照…'));
     if (snapshot) {
-      status.append(el('strong', `銀行牌告：${formatTime(snapshot.quotedAt)}（臺灣時間）`), el('p', `快照擷取：${formatTime(snapshot.fetchedAt)}${readAt ? ` · 網頁讀取：${formatTime(new Date(readAt).toISOString())}${cached ? '（共用快取）' : ''}` : ''}`, 'stock-help'));
+      title.textContent = snapshot.mode === 'daily-close' ? '臺灣銀行每日收盤匯率' : '外幣匯率查詢與換算';
+      sources.replaceChildren(); sourceLinks(sources, snapshot);
+      if (snapshot.mode === 'daily-close') status.append(el('p', `官方收盤日期：${snapshot.dataDate} · 每日收盤快照，非即時匯率；HTML 與同日期 TXT 已逐欄核對。`, 'stock-help'));
+      status.append(el('strong', `${snapshot.mode === 'daily-close' ? '官方最後掛牌' : '銀行牌告'}：${formatTime(snapshot.quotedAt)}（臺灣時間）`), el('p', `快照擷取：${formatTime(snapshot.fetchedAt)}${readAt ? ` · 網頁讀取：${formatTime(new Date(readAt).toISOString())}${cached ? '（共用快取）' : ''}` : ''}`, 'stock-help'));
       if (snapshot.evidence?.mode === 'html-only') status.append(el('p', '驗證方式：臺灣銀行官方 HTML 牌告頁，19 種幣別與欄位完整性檢查；未進行 CSV 交叉核對。', 'stock-help'));
       if (isExchangeStale(snapshot, now())) status.append(el('p', '牌告或快照已超過 24 小時，可能過期；請以標示時間為準。', 'stock-error'));
     } else status.append(el('p', '目前沒有有效匯率快照。', 'stock-help'));
@@ -75,7 +79,7 @@ export function mountExchangeSummary(host, { store = exchangeStore, now = Date.n
   let alive = true, snapshot = store.peek();
   function render(error = '') {
     host.replaceChildren(); host.className = 'exchange-mini';
-    const heading = el('div', '', 'exchange-mini-heading'); heading.append(el('strong', '外匯 · 即期銀行賣出'), link('匯率與換算 →', '#/stocks?view=exchange')); host.append(heading);
+    const heading = el('div', '', 'exchange-mini-heading'); heading.append(el('strong', `外匯 · ${snapshot?.mode === 'daily-close' ? '每日收盤 · ' : ''}即期銀行賣出`), link('匯率與換算 →', '#/stocks?view=exchange')); host.append(heading);
     if (error) host.append(el('p', `匯率快照讀取失敗：${error}`, 'overview-caption'));
     if (!snapshot) { host.append(el('p', error ? '股票摘要仍可使用。' : '正在讀取匯率快照…', 'overview-caption')); return; }
     const quotes = ['USD', 'JPY', 'EUR'].map(code => snapshot.rates.find(rate => rate.code === code)).filter(rate => Number.isFinite(rate?.spot.sell));

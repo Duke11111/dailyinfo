@@ -24,3 +24,14 @@ export function fullExchangeHtml(data = fullExchangeFixture()) {
   return exchangeHtml(data).replace('<html><body>', '<!DOCTYPE html><html><head><title>臺灣銀行牌告匯率</title></head><body><h1>臺灣銀行牌告匯率</h1>')
     .replace('<table><tbody>', '<table class="table"><thead><tr><th rowspan="2">幣別</th><th colspan="2">現金匯率</th><th colspan="2">即期匯率</th></tr><tr><th>本行買入</th><th>本行賣出</th><th>本行買入</th><th>本行賣出</th></tr></thead><tbody>');
 }
+// Same column structure as the verified official close page/TXT; synthetic prices only.
+export const closeCaptured = '2026-10-20T09:30:00.000Z';
+export const closeFixture = () => ({ ...fullExchangeFixture(), quotedAt: '2026-10-20T16:01:00+08:00', fetchedAt: closeCaptured });
+export function closeHtml(data = closeFixture()) {
+  return fullExchangeHtml(data).replace('<h1>臺灣銀行牌告匯率</h1>', '<h1>歷史匯率收盤價</h1>')
+    .replace('<span>牌價最新掛牌時間：', '<p class="text-info">掛牌時間：').replace('</span>', '</p>')
+    .replace('</body>', `<a href="/xrt/fltxt/0/${data.quotedAt.slice(0, 10)}">下載文字檔</a></body>`);
+}
+export function closeTxt(data = closeFixture()) {
+  return exchangeCsv(data).trim().split(/\r?\n/).map(line => line.replace(/^\uFEFF/, '').replace(/,$/, '').split(',').join('   ')).join('\r\n');
+}

@@ -7,8 +7,8 @@ import { snapshotTarget } from '../scripts/lib/snapshot-target.mjs';
 import { quoteFixture } from './fixtures/quotes.js';
 import { newsFixture } from './fixtures/news.js';
 import { eqFixture } from './fixtures/earthquakes.js';
-import { exchangeFixture, fullExchangeHtml } from './fixtures/exchange.js';
-import { parseBankHtml } from '../scripts/lib/exchange-import.mjs';
+import { exchangeFixture, fullExchangeHtml, closeHtml, closeTxt, closeCaptured } from './fixtures/exchange.js';
+import { parseBankHtml, parseBankDailyClose } from '../scripts/lib/exchange-import.mjs';
 import { SIGNS } from '../src/services/horoscope.js';
 import { ExchangeUpdateError, exchangeExitStatus } from '../scripts/lib/exchange-errors.mjs';
 
@@ -68,6 +68,16 @@ it('validates and restores HTML-only exchange evidence without changing the othe
   const restored = validateData('exchange', JSON.parse(await read('exchange')), now());
   expect(restored.rates).toHaveLength(19); expect(restored.evidence).toEqual(snapshot.evidence);
   for (const source of other) expect(await read(source)).toBe(before[source]);
+});
+it('round-trips daily-close schema and dated evidence through the five-source checkpoint', async () => {
+  const before = Object.fromEntries(await Promise.all(CORE_SOURCES.map(async source => [source, await read(source)])));
+  const snapshot = parseBankDailyClose(closeHtml(), closeTxt(), 'https://rate.bot.com.tw/xrt/fltxt/0/2026-10-20', closeCaptured);
+  await writeFile(path('exchange'), JSON.stringify(snapshot));
+  await mkdir(join(root, '.cache/data-updates'), { recursive: true });
+  await writeFile(join(root, '.cache/data-updates/status.json'), JSON.stringify({ version: 1, sources: {} }));
+  const directory = join(root, 'close-checkpoint'); await exportState(root, directory); await restoreState(root, directory, Date.parse(closeCaptured));
+  expect(validateData('exchange', JSON.parse(await read('exchange')), Date.parse(closeCaptured))).toEqual(snapshot);
+  for (const source of CORE_SOURCES) expect(await read(source)).toBe(before[source]);
 });
 it('scheduled core isolates a failure, preserves all valid snapshots and throttles the next attempt', async () => {
   const before = Object.fromEntries(await Promise.all(SOURCES.map(async source => [source, await read(source)])));

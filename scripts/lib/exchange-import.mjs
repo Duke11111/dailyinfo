@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFile, writeFile, rename, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { EXCHANGE_SOURCE, EXCHANGE_CSV, EXCHANGE_LICENSE, CURRENCY_NAMES, validateExchangeSnapshot } from '../../src/services/exchange.js';
+import { EXCHANGE_SOURCE, EXCHANGE_CSV, EXCHANGE_CLOSE, closeDownloadUrl, EXCHANGE_LICENSE, CURRENCY_NAMES, exchangeTime, validateExchangeSnapshot } from '../../src/services/exchange.js';
 import { ExchangeUpdateError, exchangeNetworkError, exchangeMimeFailureCode } from './exchange-errors.mjs';
 
 const missing = new Set(['', '-', '--', '0', '0.00000']);
@@ -15,15 +15,25 @@ export function parseBankExchange(csv, html, fetchedAt = new Date().toISOString(
   try { return parseExchange(csv, html, fetchedAt); }
   catch (error) { throw error instanceof ExchangeUpdateError ? error : new ExchangeUpdateError('parse_error'); }
 }
-function readBankPage(html, strict = false) {
+function readBankPage(html, strict = false, dailyClose = false) {
   // Malformed server HTML/CSS must not reach the process console through jsdom.
   const dom = new JSDOM(html, { virtualConsole: new VirtualConsole() });
   try {
     const document = dom.window.document;
-    const stamps = [...document.body.textContent.matchAll(/牌價最新掛牌時間[：:]\s*(\d{4}\/\d{2}\/\d{2} \d{2}:\d{2})/g)];
+    const closeTimes = dailyClose ? [...document.querySelectorAll('p.text-info')].map(node => node.textContent.replace(/\s+/g, ' ').trim()).filter(text => text.startsWith('掛牌時間')) : [];
+    if (dailyClose && (closeTimes.length !== 1 || ![...document.querySelectorAll('h1,h2,h3')].some(node => node.textContent.trim() === '歷史匯率收盤價'))) throw new ExchangeUpdateError('quote_time_error');
+    const stamps = dailyClose ? [...closeTimes[0].matchAll(/^掛牌時間[：:]\s*(\d{4}\/\d{2}\/\d{2} \d{2}:\d{2})$/g)]
+      : [...document.body.textContent.matchAll(/牌價最新掛牌時間[：:]\s*(\d{4}\/\d{2}\/\d{2} \d{2}:\d{2})/g)];
     const stamp = stamps[0]?.[1];
     if (!stamp) throw new ExchangeUpdateError('quote_time_error', '官方網頁未提供可驗證的牌告時間。');
     const quotedAt = stamp.replaceAll('/', '-').replace(' ', 'T') + ':00+08:00';
+    let downloadUrl;
+    if (dailyClose) {
+      exchangeTime(quotedAt);
+      const links = [...document.querySelectorAll('a[href]')].map(node => new URL(node.getAttribute('href'), EXCHANGE_CLOSE)).filter(url => url.pathname.startsWith('/xrt/fltxt/'));
+      if (links.length !== 1 || links[0].href !== closeDownloadUrl(quotedAt.slice(0, 10))) throw new ExchangeUpdateError('parse_error');
+      downloadUrl = links[0].href;
+    }
     let scope = document;
     if (strict) {
       const title = document.title;
@@ -57,8 +67,33 @@ function readBankPage(html, strict = false) {
       }); table.set(match[2], { name: match[1].trim(), fields });
     }
     if (strict && table.size !== Object.keys(CURRENCY_NAMES).length) throw new ExchangeUpdateError('parse_error');
-    return { quotedAt, table };
+    return { quotedAt, table, ...(dailyClose ? { downloadUrl } : {}) };
   } finally { dom.window.close(); }
+}
+export function readBankClosePage(html) {
+  try { return readBankPage(html, true, true); }
+  catch (error) { throw error instanceof ExchangeUpdateError ? error : new ExchangeUpdateError('parse_error'); }
+}
+const txtHeader = ['幣別', '匯率', '現金', '即期', '遠期10天', '遠期30天', '遠期60天', '遠期90天', '遠期120天', '遠期150天', '遠期180天', '匯率', '現金', '即期', '遠期10天', '遠期30天', '遠期60天', '遠期90天', '遠期120天', '遠期150天', '遠期180天'];
+export function parseBankDailyClose(html, txt, downloadUrl, fetchedAt = new Date().toISOString()) {
+  try {
+    const page = readBankClosePage(html);
+    if (downloadUrl !== page.downloadUrl) throw new ExchangeUpdateError('parse_error');
+    const rows = txt.replace(/^\uFEFF/, '').trim().split(/\r?\n/).map(line => line.trim().split(/\s+/));
+    if (rows.shift()?.join(',') !== txtHeader.join(',') || rows.length !== 19) throw new ExchangeUpdateError('parse_error');
+    const seen = new Set();
+    for (const row of rows) {
+      if (row.length !== 21 || seen.has(row[0]) || !page.table.has(row[0]) || row[1] !== '本行買入' || row[11] !== '本行賣出'
+        || [...row.slice(2, 11), ...row.slice(12)].some(value => !/^\d+(?:\.\d{1,5})?$/.test(value))) throw new ExchangeUpdateError('parse_error');
+      seen.add(row[0]);
+      const fields = [row[2], row[12], row[3], row[13]].map(parseBankRate);
+      if (fields.some((value, index) => value !== page.table.get(row[0]).fields[index])) throw new ExchangeUpdateError('parse_error');
+    }
+    const rates = [...page.table].map(([code, { name, fields }]) => ({ code, name, cash: { buy: fields[0], sell: fields[1] }, spot: { buy: fields[2], sell: fields[3] } }));
+    return validateExchangeSnapshot({ ...snapshotBase(page.quotedAt, fetchedAt, rates, {
+      mode: 'html-txt', validation: 'daily-close-19-v1', htmlSha256: createHash('sha256').update(html).digest('hex'), txtSha256: createHash('sha256').update(txt).digest('hex'),
+    }), mode: 'daily-close', dataDate: page.quotedAt.slice(0, 10), sourceUrl: EXCHANGE_CLOSE, downloadUrl });
+  } catch (error) { throw error instanceof ExchangeUpdateError ? error : new ExchangeUpdateError('parse_error'); }
 }
 const snapshotBase = (quotedAt, fetchedAt, rates, evidence) => ({ version: 1, source: '臺灣銀行', sourceUrl: EXCHANGE_SOURCE, downloadUrl: EXCHANGE_CSV, licenseUrl: EXCHANGE_LICENSE, base: 'TWD', unit: 1, quotedAt, fetchedAt, rates, evidence });
 export function parseBankHtml(html, fetchedAt = new Date().toISOString()) {
@@ -82,7 +117,8 @@ function parseExchange(csv, html, fetchedAt) {
   if (rates.length !== table.size) throw new ExchangeUpdateError('csv_html_mismatch', 'CSV 與網頁幣別範圍不一致。');
   return validateExchangeSnapshot(snapshotBase(quotedAt, fetchedAt, rates, { csvSha256: createHash('sha256').update(csv).digest('hex'), htmlSha256: createHash('sha256').update(html).digest('hex') }));
 }
-export async function updateExchange({ target = new URL('../../public/data/exchange.json', import.meta.url), fetchImpl = fetch, now = Date.now, allowHtmlFallback = false } = {}) {
+export async function updateExchange({ target = new URL('../../public/data/exchange.json', import.meta.url), fetchImpl = fetch, now = Date.now, allowHtmlFallback = false, mode = 'legacy' } = {}) {
+  if (!['legacy', 'daily-close'].includes(mode)) throw new ExchangeUpdateError('parse_error');
   // At most two ordinary official requests, no retries, proxy, browser evasion or polling.
   const get = async (url, type, endpoint) => {
     let response;
@@ -101,17 +137,26 @@ export async function updateExchange({ target = new URL('../../public/data/excha
     if (text.includes('\uFFFD')) throw new ExchangeUpdateError('encoding_error');
     return text;
   };
-  let csv;
-  try { csv = await get(EXCHANGE_CSV, 'text/csv', 'csv'); }
-  catch (error) {
-    if (allowHtmlFallback !== true || !(error instanceof ExchangeUpdateError) || error.safeCode !== 'unexpected_content_type_csv_text_html') throw error;
+  let snapshot;
+  if (mode === 'daily-close') {
+    const html = await get(EXCHANGE_CLOSE, 'text/html', 'html'), page = readBankClosePage(html);
+    if (Date.parse(page.quotedAt) > now() + 60000) throw new ExchangeUpdateError('quote_time_error');
+    const txt = await get(page.downloadUrl, 'text/plain', 'txt');
+    snapshot = parseBankDailyClose(html, txt, page.downloadUrl, new Date(now()).toISOString());
+  } else {
+    let csv;
+    try { csv = await get(EXCHANGE_CSV, 'text/csv', 'csv'); }
+    catch (error) {
+      if (allowHtmlFallback !== true || !(error instanceof ExchangeUpdateError) || error.safeCode !== 'unexpected_content_type_csv_text_html') throw error;
+    }
+    const html = await get(EXCHANGE_SOURCE, 'text/html', 'html');
+    snapshot = csv === undefined ? parseBankHtml(html, new Date(now()).toISOString()) : parseBankExchange(csv, html, new Date(now()).toISOString());
   }
-  const html = await get(EXCHANGE_SOURCE, 'text/html', 'html');
-  const snapshot = csv === undefined ? parseBankHtml(html, new Date(now()).toISOString()) : parseBankExchange(csv, html, new Date(now()).toISOString());
   let previous;
   try { previous = validateExchangeSnapshot(JSON.parse(await readFile(target, 'utf8'))); }
   catch (error) { if (error.code !== 'ENOENT') throw new ExchangeUpdateError('previous_snapshot_invalid'); }
   if (previous && (snapshot.quotedAt < previous.quotedAt || snapshot.fetchedAt < previous.fetchedAt)) throw new ExchangeUpdateError('date_regression');
+  if (previous && snapshot.quotedAt === previous.quotedAt && JSON.stringify([...snapshot.rates].sort((a, b) => a.code.localeCompare(b.code))) !== JSON.stringify([...previous.rates].sort((a, b) => a.code.localeCompare(b.code)))) throw new ExchangeUpdateError('date_regression');
   try {
     await mkdir(dirname(target instanceof URL ? fileURLToPath(target) : target), { recursive: true });
     const temporary = target instanceof URL ? new URL(target.href + '.tmp') : `${target}.tmp`;
