@@ -1,3 +1,4 @@
+import { startAutoRefresh } from '../services/auto-refresh.js';
 import { loadWatchlists, sortedStocks } from '../services/watchlists.js';
 import { quoteStore, QUOTE_SOURCE } from '../services/quotes.js';
 import { newsStore, NEWS_CATEGORIES, NEWS_RSS_PAGE, filterNews } from '../services/news.js';
@@ -155,6 +156,7 @@ export function mountOverview(host, { weatherState, airState, onRefreshWeather, 
       catch (failure) { if (alive && token === generation) error = `${failure.message || '快照讀取失敗'}；既有有效資料與個人設定均保留。`; }
       finally { if (alive && token === generation) { busy = false; render(); } }
     }
+    if (store === news || store === earthquakes) jobs.push(startAutoRefresh([{ interval: 5 * 60000, run: () => load(true) }]));
     jobs.push(() => { generation++; }); load(); return render;
   }
   return { updateWeather, updateAirQuality, dispose() { alive = false; jobs.forEach(cancel => cancel()); } };

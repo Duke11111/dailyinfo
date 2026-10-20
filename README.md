@@ -1,5 +1,7 @@
 # DailyInfo 每日資訊整合平台
 
+Phase 8G-A 自動更新僅完成本機準備，尚未啟用或部署；四來源定時更新、獨立發布授權、Artifact 用量防護及前景刷新見 [自動更新文件](docs/AUTOMATIC-UPDATES.md)。Phase 8H-1C 正式發布仍待授權。
+
 ## Phase 8H-1：最終繳交範圍
 
 保留天氣／AQI、股票自選與盤後行情、新聞收藏、地震地圖、每日星座及全站設定。已停止開發的匯率功能不包含於目前 UI、更新入口或公開資料。資料自動化改為四來源，舊五來源 Checkpoint 先完整驗證再遷移；詳見 [自動化說明](docs/AUTOMATION.md) 與 [驗收紀錄](VALIDATION.md)。本機備份分支 backup/pre-remove-exchange-20261020 可還原移除前版本；本階段未提交、推送或部署。

@@ -1,3 +1,4 @@
+import { startAutoRefresh } from './services/auto-refresh.js';
 import './styles.css';
 import './preferences.css';
 import './stocks.css';
@@ -27,6 +28,7 @@ const state = { status: 'loading', data: null, error: null, region: loadRegion()
 let settings = loadSettings();
 let settingsSaved = true;
 let regionSaved = true;
+let weatherAttemptAt = Date.now();
 let requestId = 0;
 let requestController;
 let overviewView = null;
@@ -93,6 +95,7 @@ function updateWeatherContent() {
 }
 async function loadWeather(replace = false) {
   if (state.status === 'loading' && requestController && !replace) return;
+  weatherAttemptAt = Date.now();
   requestController?.abort();
   requestController = new AbortController();
   const id = ++requestId;
@@ -128,6 +131,10 @@ app.addEventListener('change', event => {
   main.querySelector('#settings-status').textContent = settingsSaved ? '設定已儲存，重新載入仍有效。' : '無法寫入瀏覽器儲存空間；目前設定僅在本次使用期間有效。';
 });
 const stopRouter = createRouter((route) => { currentRoute = route; render(); });
-export function dispose() { airQuality.dispose(); overviewView?.dispose(); stopRouter(); stopThemeWatcher(); disposeStocks(); disposeNews(); disposeEarthquakes(); requestController?.abort(); requestId++; }
+const stopAutoRefresh = startAutoRefresh([
+  { interval: 15 * 60000, lastAt: () => weatherAttemptAt, enabled: () => ['weather', 'overview'].includes(currentRoute), run: () => loadWeather() },
+  { interval: 30 * 60000, lastAt: () => Date.parse(airQuality.state.data?.fetchedAt) || 0, enabled: () => ['weather', 'overview'].includes(currentRoute), run: () => airQuality.load(state.region, { force: true }) },
+]);
+export function dispose() { stopAutoRefresh(); airQuality.dispose(); overviewView?.dispose(); stopRouter(); stopThemeWatcher(); disposeStocks(); disposeNews(); disposeEarthquakes(); requestController?.abort(); requestId++; }
 if (import.meta.hot) import.meta.hot.dispose(dispose);
 loadWeather();

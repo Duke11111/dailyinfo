@@ -1,3 +1,4 @@
+import { startAutoRefresh } from '../services/auto-refresh.js';
 import { EQ_SOURCE, EQ_SOURCE_URL, EQ_TYPES, earthquakeStore, filterEarthquakes } from '../services/earthquakes.js';
 import { formatEarthquakeTime as formatTime } from '../lib/earthquake-format.js';
 
@@ -128,5 +129,6 @@ export function mountEarthquakes(host, { store = earthquakeStore, mapFactory = d
     finally { if (alive && token === request) { loading = false; renderStatus(); renderTable(); } }
   }
   load();
-  return () => { alive = false; request++; map?.destroy(); };
+  const stopRefresh = startAutoRefresh([{ interval: 5 * 60000, run: () => load(true) }]);
+  return () => { stopRefresh(); alive = false; request++; map?.destroy(); };
 }

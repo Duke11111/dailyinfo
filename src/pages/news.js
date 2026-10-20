@@ -1,3 +1,4 @@
+import { startAutoRefresh } from '../services/auto-refresh.js';
 import { NEWS_CATEGORIES, NEWS_RSS_PAGE, newsStore, filterNews, isNewsStale } from '../services/news.js';
 import { loadNewsFavorites, toggleNewsFavorite } from '../services/news-favorites.js';
 import { formatTime } from '../lib/format.js';
@@ -98,5 +99,6 @@ export function mountNews(host, { store = newsStore, storage, now = Date.now } =
     finally { if (alive && token === request) { loading = false; renderStatus(); renderResults(); } }
   }
   load();
-  return () => { alive = false; request++; };
+  const stopRefresh = startAutoRefresh([{ interval: 5 * 60000, run: () => load(true) }]);
+  return () => { stopRefresh(); alive = false; request++; };
 }

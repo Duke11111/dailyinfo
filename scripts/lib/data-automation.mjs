@@ -65,7 +65,7 @@ export function isDue(source, state, now = Date.now()) {
   if (!SOURCES.includes(source)) return false;
   const local = new Date(now + 8 * 3600000), day = local.getUTCDay(), hour = local.getUTCHours();
   const previous = state.sources[source]?.attemptedAt;
-  if (['news', 'earthquakes'].includes(source)) return !previous || now - Date.parse(previous) >= 150 * 60000;
+  if (['news', 'earthquakes'].includes(source)) return !previous || now - Date.parse(previous) >= 60 * 60000;
   if (source === 'quotes' && (day === 0 || day === 6)) return false;
   const cutoff = source === 'quotes' ? 17 : 9;
   return hour >= cutoff && (!previous || taipeiDate(previous) !== taipeiDate(now) || new Date(Date.parse(previous) + 8 * 3600000).getUTCHours() < cutoff);
