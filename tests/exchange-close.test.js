@@ -2,7 +2,7 @@ import { it, expect, vi } from 'vitest';
 import { mkdir, mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
 import { resolve, join, sep } from 'node:path';
 import { parseBankDailyClose, readBankClosePage, updateExchange } from '../scripts/lib/exchange-import.mjs';
-import { EXCHANGE_CLOSE, closeDownloadUrl, validateExchangeSnapshot } from '../src/services/exchange.js';
+import { EXCHANGE_CLOSE, EXCHANGE_CLOSE_LEGACY, closeDownloadUrl, validateExchangeSnapshot } from '../src/services/exchange.js';
 import { closeFixture, closeHtml, closeTxt, closeCaptured, exchangeFixture } from './fixtures/exchange.js';
 const url = closeDownloadUrl('2026-10-20'), clock = () => Date.parse(closeCaptured);
 const parse = (html = closeHtml(), txt = closeTxt(), download = url) => parseBankDailyClose(html, txt, download, closeCaptured);
@@ -85,6 +85,37 @@ it.each([
   s => { s.rates.pop(); }, s => { delete s.mode; },
 ])('rejects inconsistent persisted close provenance', mutate => { const s = parse(); mutate(s); expect(() => validateExchangeSnapshot(s)).toThrow(); });
 it('keeps legacy snapshots legacy instead of relabeling them daily close', () => { expect(validateExchangeSnapshot(exchangeFixture()).mode).toBeUndefined(); });
+it('requests the explicit official Traditional Chinese page and preserves the dated TXT URL', async () => withTarget(async target => {
+  const fetchImpl = fetcher(closeHtml().replace('<html>', '<html lang="zh-TW">'));
+  const result = await updateExchange({ mode: 'daily-close', target, fetchImpl, now: clock });
+  expect(fetchImpl.mock.calls.map(([u]) => u)).toEqual(['https://rate.bot.com.tw/xrt/all/day?Lang=zh-TW', url]);
+  expect(result.sourceUrl).toBe(EXCHANGE_CLOSE); expect(result.downloadUrl).toBe(url);
+}));
+it.each([
+  ['English heading and timestamp', h => h.replace('歷史匯率收盤價', 'Historical Foreign Exchange Rate - Closing Rate').replace('掛牌時間', 'Quoted Date')],
+  ['declared English', h => h.replace('<html>', '<html lang="en-US">')],
+  ['unexpected language', h => h.replace('<html>', '<html lang="ja">')],
+  ['mixed English headers', h => h.replace('現金匯率', 'Cash Rate').replaceAll('本行買入', 'Bank Buying')],
+])('rejects %s instead of accepting a timestamp-only language workaround', async (_name, mutate) => withTarget(async (target, before) => {
+  const fetchImpl = fetcher(mutate(closeHtml()));
+  await expect(updateExchange({ mode: 'daily-close', target, fetchImpl, now: clock })).rejects.toHaveProperty('safeCode');
+  expect(fetchImpl).toHaveBeenCalledTimes(1); expect(await readFile(target, 'utf8')).toBe(before);
+}));
+it('reproduces quote_time_error from the supplied English heading/time pattern', () => {
+  expect(() => readBankClosePage(closeHtml().replace('歷史匯率收盤價', 'Historical Foreign Exchange Rate - Closing Rate').replace('掛牌時間', 'Quoted Date'))).toThrow(expect.objectContaining({ safeCode: 'quote_time_error' }));
+});
+it('does not trust a specified language to make an older same-day quote newer', async () => withTarget(async target => {
+  const before = JSON.stringify(parse()); await writeFile(target, before);
+  const older = { ...closeFixture(), quotedAt: '2026-10-20T15:01:00+08:00' };
+  const fetchImpl = fetcher(closeHtml(older), closeTxt(older));
+  await expect(updateExchange({ mode: 'daily-close', target, fetchImpl, now: () => clock() + 60000 })).rejects.toMatchObject({ safeCode: 'date_regression' });
+  expect(await readFile(target, 'utf8')).toBe(before);
+}));
+it('keeps existing no-language daily-close provenance valid without rewriting it', () => {
+  const old = { ...parse(), sourceUrl: EXCHANGE_CLOSE_LEGACY };
+  expect(validateExchangeSnapshot(old)).toEqual(old);
+  expect(() => validateExchangeSnapshot({ ...old, sourceUrl: EXCHANGE_CLOSE_LEGACY + '?Lang=en-US' })).toThrow();
+});
 it('uses daily-close as the normal CLI entry while preserving explicit legacy library behavior', async () => {
   expect(await readFile('scripts/update-exchange.mjs', 'utf8')).toContain("mode: 'daily-close'");
   expect(readBankClosePage(closeHtml()).downloadUrl).toBe(url);

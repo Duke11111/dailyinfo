@@ -20,6 +20,7 @@ function readBankPage(html, strict = false, dailyClose = false) {
   const dom = new JSDOM(html, { virtualConsole: new VirtualConsole() });
   try {
     const document = dom.window.document;
+    if (dailyClose && document.documentElement.hasAttribute('lang') && !/^zh-tw$/i.test(document.documentElement.lang)) throw new ExchangeUpdateError('quote_time_error');
     const closeTimes = dailyClose ? [...document.querySelectorAll('p.text-info')].map(node => node.textContent.replace(/\s+/g, ' ').trim()).filter(text => text.startsWith('掛牌時間')) : [];
     if (dailyClose && (closeTimes.length !== 1 || ![...document.querySelectorAll('h1,h2,h3')].some(node => node.textContent.trim() === '歷史匯率收盤價'))) throw new ExchangeUpdateError('quote_time_error');
     const stamps = dailyClose ? [...closeTimes[0].matchAll(/^掛牌時間[：:]\s*(\d{4}\/\d{2}\/\d{2} \d{2}:\d{2})$/g)]

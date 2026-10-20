@@ -1,6 +1,7 @@
 export const EXCHANGE_SOURCE = 'https://rate.bot.com.tw/xrt?Lang=zh-TW';
 export const EXCHANGE_CSV = 'https://rate.bot.com.tw/xrt/flcsv/0/day';
-export const EXCHANGE_CLOSE = 'https://rate.bot.com.tw/xrt/all/day';
+export const EXCHANGE_CLOSE_LEGACY = 'https://rate.bot.com.tw/xrt/all/day';
+export const EXCHANGE_CLOSE = `${EXCHANGE_CLOSE_LEGACY}?Lang=zh-TW`;
 export const closeDownloadUrl = date => `https://rate.bot.com.tw/xrt/fltxt/0/${date}`;
 export const EXCHANGE_LICENSE = 'https://data.gov.tw/license';
 export const EXCHANGE_POLICY = 'https://www.bot.com.tw/tw/footer/related-links/open-data-statement';
@@ -14,7 +15,7 @@ export function exchangeTime(value) {
 export function validateExchangeSnapshot(raw) {
   const dailyClose = raw?.mode === 'daily-close';
   if (!raw || raw.mode !== undefined && !dailyClose || raw.version !== 1 || raw.source !== '臺灣銀行'
-    || raw.sourceUrl !== (dailyClose ? EXCHANGE_CLOSE : EXCHANGE_SOURCE) || raw.downloadUrl !== (dailyClose ? closeDownloadUrl(raw.dataDate) : EXCHANGE_CSV)
+    || (dailyClose ? ![EXCHANGE_CLOSE, EXCHANGE_CLOSE_LEGACY].includes(raw.sourceUrl) : raw.sourceUrl !== EXCHANGE_SOURCE) || raw.downloadUrl !== (dailyClose ? closeDownloadUrl(raw.dataDate) : EXCHANGE_CSV)
     || raw.licenseUrl !== EXCHANGE_LICENSE || raw.base !== 'TWD' || raw.unit !== 1 || !Array.isArray(raw.rates) || !raw.rates.length || raw.rates.length > 100) throw Error('匯率快照格式或來源異常。');
   const quotedAt = exchangeTime(raw.quotedAt);
   if (dailyClose && (raw.dataDate !== quotedAt.slice(0, 10) || raw.rates.length !== Object.keys(CURRENCY_NAMES).length)) throw Error('收盤匯率日期或幣別不完整。');
