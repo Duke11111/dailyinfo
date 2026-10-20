@@ -4,7 +4,7 @@ import { readFile, writeFile, rename, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { EXCHANGE_SOURCE, EXCHANGE_CSV, EXCHANGE_LICENSE, validateExchangeSnapshot } from '../../src/services/exchange.js';
-import { ExchangeUpdateError, exchangeNetworkError } from './exchange-errors.mjs';
+import { ExchangeUpdateError, exchangeNetworkError, exchangeMimeFailureCode } from './exchange-errors.mjs';
 
 const missing = new Set(['', '-', '--', '0', '0.00000']);
 export function parseBankRate(raw) {
@@ -47,7 +47,7 @@ function parseExchange(csv, html, fetchedAt) {
 }
 export async function updateExchange({ target = new URL('../../public/data/exchange.json', import.meta.url), fetchImpl = fetch, now = Date.now } = {}) {
   // At most two ordinary official requests, no retries, proxy, browser evasion or polling.
-  const get = async (url, type) => {
+  const get = async (url, type, endpoint) => {
     let response;
     try { response = await fetchImpl(url, { signal: AbortSignal.timeout(20000), redirect: 'manual' }); }
     catch (error) { throw exchangeNetworkError(error); }
@@ -55,7 +55,7 @@ export async function updateExchange({ target = new URL('../../public/data/excha
     if (response.status >= 300 && response.status < 400) throw new ExchangeUpdateError('redirect_error');
     if (!response.ok) throw new ExchangeUpdateError(response.status === 403 ? 'http_403' : response.status === 429 ? 'http_429' : response.status >= 500 && response.status <= 599 ? 'http_5xx' : 'http_error');
     const contentType = response.headers.get('content-type') ?? '';
-    if (contentType.split(';')[0].trim().toLowerCase() !== type) throw new ExchangeUpdateError('unexpected_content_type');
+    if (contentType.split(';')[0].trim().toLowerCase() !== type) throw new ExchangeUpdateError(exchangeMimeFailureCode(endpoint, contentType));
     const charset = contentType.match(/charset\s*=\s*["']?([^\s;"']+)/i)?.[1];
     if (charset && !/^(?:utf-?8|us-ascii)$/i.test(charset)) throw new ExchangeUpdateError('encoding_error');
     let text;
@@ -64,7 +64,7 @@ export async function updateExchange({ target = new URL('../../public/data/excha
     if (text.includes('\uFFFD')) throw new ExchangeUpdateError('encoding_error');
     return text;
   };
-  const csv = await get(EXCHANGE_CSV, 'text/csv'), html = await get(EXCHANGE_SOURCE, 'text/html');
+  const csv = await get(EXCHANGE_CSV, 'text/csv', 'csv'), html = await get(EXCHANGE_SOURCE, 'text/html', 'html');
   const snapshot = parseBankExchange(csv, html, new Date(now()).toISOString());
   let previous;
   try { previous = validateExchangeSnapshot(JSON.parse(await readFile(target, 'utf8'))); }

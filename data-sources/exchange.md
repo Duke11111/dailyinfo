@@ -1,5 +1,15 @@
 # 臺灣銀行牌告匯率來源與使用方式
 
+## Phase 8D-1.3：端點／MIME 精準診斷（本機未提交）
+
+只在 MIME 不符時回報固定代碼，例如 `unexpected_content_type_csv_text_plain`、`unexpected_content_type_html_application_json`。`csv`／`html` 是程式內固定端點標籤，不是伺服器網址。MIME 僅分類為 text/plain、text/html、text/csv、application/octet-stream、application/json、missing、other；參數、任意型別及伺服器文字不進入代碼。
+
+14 種端點／MIME 組合追加於既有 exit status 表尾（85–98），舊代碼 64–84 不變，原 checkpoint 的 `unexpected_content_type` 仍相容。CLI、統一入口及 checkpoint 沿用數字狀態與白名單，不解析／轉印子程序原始輸出。
+
+本階段沒有放寬接受條件：CSV 仍只接受 text/csv，牌告頁仍只接受 text/html；不符便停止、不讀本文、不覆寫舊資料。HTTP、編碼、CSV／HTML 核對、日期及原子寫入規則不變。只以 Mock 測試，不請求銀行、不 Commit／Push 或執行 Actions。後續另行授權上傳後，原則上只需一次 exchange-only（initialize_state=false、publish_current=false）取得真實分類，再決定是否有合理的 MIME 相容性調整，不能先接受未知資料。
+
+本機驗收：`npm.cmd test -- tests/exchange-update.test.js tests/exchange.test.js tests/data-automation.test.js`，3 檔、95/95 通過；涵蓋兩端點、全部 MIME 分類、大小寫／參數去識別、異常本文不讀取、舊快照位元組保留、數字子程序傳遞與 checkpoint 相容性。未重跑全套或建置，公開資料及 workflow 未變。
+
 ## Phase 8D-1.1：安全診斷（本機未提交）
 
 首次雲端 Run `39371257503` 僅留下 exchange 的 `update_failed`；子程序與統一入口原先都丟棄細節，不能事後判定銀行故障、封鎖、CSV／HTML 競態或解析問題。本階段不請求銀行、不重新觸發 Actions，只用 Mock 驗證診斷。

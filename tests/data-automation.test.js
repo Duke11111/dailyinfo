@@ -62,7 +62,10 @@ it('suppresses stdout/stderr from an actual failing Node updater process', async
   await mkdir(join(root, 'scripts')); await writeFile(join(root, 'scripts/update-quotes.mjs'), "console.log('private-test-token'); console.error('private-test-token'); process.exit(1);");
   const before = await read('quotes'), report = await updateData({ root, sources: ['quotes'], now }); expect(report.failed).toBe(1); expect(JSON.stringify(report)).not.toContain('private-test-token'); expect(await read('quotes')).toBe(before);
 });
-it.each([[exchangeExitStatus(new ExchangeUpdateError('http_403')), 'http_403'], [1, 'update_failed']])('uses only numeric child status %s for exchange diagnostics', async (exit, code) => {
+it.each([[exchangeExitStatus(new ExchangeUpdateError('http_403')), 'http_403'], [1, 'update_failed'],
+  [exchangeExitStatus(new ExchangeUpdateError('unexpected_content_type_csv_text_plain')), 'unexpected_content_type_csv_text_plain'],
+  [exchangeExitStatus(new ExchangeUpdateError('unexpected_content_type_html_application_json')), 'unexpected_content_type_html_application_json'],
+])('uses only numeric child status %s for exchange diagnostics', async (exit, code) => {
   await mkdir(join(root, 'scripts'));
   await writeFile(join(root, 'scripts/update-exchange.mjs'), `console.log('private-test-token ::error::untrusted'); console.error('{"code":"http_429","secret":"private-test-token"}'); process.exit(${exit});`);
   const before = await read('exchange'), report = await updateData({ root, sources: ['exchange'], now });

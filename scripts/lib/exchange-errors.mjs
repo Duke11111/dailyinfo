@@ -1,10 +1,22 @@
 // Numeric child exit statuses are the only diagnostic IPC. Never parse child output.
+export const EXCHANGE_MIME_CLASSES = Object.freeze(['text/plain', 'text/html', 'text/csv', 'application/octet-stream', 'application/json', 'missing', 'other']);
+const mimeCode = (endpoint, mime) => `unexpected_content_type_${endpoint}_${mime.replace(/[\/-]/g, '_')}`;
+export function classifyExchangeMime(header) {
+  const type = typeof header === 'string' ? header.split(';')[0].trim().toLowerCase() : '';
+  if (!type) return 'missing';
+  return EXCHANGE_MIME_CLASSES.slice(0, 5).includes(type) ? type : 'other';
+}
+export function exchangeMimeFailureCode(endpoint, header) {
+  return ['csv', 'html'].includes(endpoint) ? mimeCode(endpoint, classifyExchangeMime(header)) : 'unexpected_content_type';
+}
 export const EXCHANGE_ERROR_CODES = Object.freeze([
   'network_error', 'dns_error', 'tls_error', 'connection_error', 'request_timeout',
   'http_403', 'http_429', 'http_5xx', 'http_error', 'redirect_error',
   'unexpected_content_type', 'encoding_error', 'response_too_large',
   'csv_format_error', 'quote_time_error', 'csv_html_mismatch', 'parse_error',
   'date_regression', 'previous_snapshot_invalid', 'filesystem_error', 'update_failed',
+  // Append only: keep every existing exit status/checkpoint code compatible.
+  ...['csv', 'html'].flatMap(endpoint => EXCHANGE_MIME_CLASSES.map(mime => mimeCode(endpoint, mime))),
 ]);
 export class ExchangeUpdateError extends Error {
   constructor(code, message = code) {
