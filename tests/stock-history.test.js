@@ -21,6 +21,17 @@ it('marks partial history as incomplete and never invents missing dates', async 
   const data = await history.load('2330', '2026-10-16'); expect(data.warnings).toHaveLength(1); expect(data.points.map(p => p.date)).toEqual(['2026-10-15', '2026-10-16']);
 });
 it('reports complete network failure without synthetic data', async () => { await expect(createHistoryService({ fetchImpl: async () => { throw Error('offline'); } }).load('2330', '2026-10-16')).rejects.toThrow('offline'); });
+it('keeps expired last-valid monthly data and original timestamp on failure, isolated by stock', async () => {
+  let time = Date.parse('2026-10-20T00:00:00Z');
+  const fetcher = vi.fn(async url => ({ ok: true, json: async () => monthData(url.includes('202610') ? '2026-10' : '2026-09') }));
+  const service = createHistoryService({ fetchImpl: fetcher, now: () => time, ttl: 100 });
+  const before = await service.load('2330', '2026-10-16'); time += 101;
+  fetcher.mockRejectedValue(Error('offline'));
+  const after = await service.load('2330', '2026-10-16');
+  expect(after.points).toEqual(before.points); expect(after.fetchedAt).toBe(before.fetchedAt);
+  expect(after.warnings.join('')).toContain('最後有效快取');
+  await expect(service.load('0050', '2026-10-16')).rejects.toThrow('offline');
+});
 it('includes the intervening February when thirty days span three months', async () => {
   const fetcher = vi.fn(async url => ({ ok: true, json: async () => ({ stat: 'OK', fields: ['日期', '收盤價'], data: [[url.includes('202603') ? '115/03/02' : url.includes('202602') ? '115/02/27' : '115/01/30', '100']] }) }));
   const result = await createHistoryService({ fetchImpl: fetcher }).load('2330', '2026-03-02');

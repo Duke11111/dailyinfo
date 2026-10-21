@@ -55,11 +55,12 @@ it('opens detailed OHLC/value/source with no HTML injection and readable signs',
   const injected = openQuoteDetails(host, { code: '9999', name: '<img src=x onerror=alert(1)>' }, null, null);
   expect(injected.querySelector('img')).toBeNull(); expect(injected.textContent).toContain('<img');
 });
-it('renders genuine historical points with explicit gaps and tabular values', async () => {
+it('renders genuine valid historical points and tabular values without fabricated missing prices', async () => {
   const data = quoteFixture(), service = { load: vi.fn().mockResolvedValue({ start: '2026-09-16', end: '2026-10-16', points: [{ date: '2026-09-16', close: 2300 }, { date: '2026-09-17', close: null }, { date: '2026-10-16', close: 2420 }], warnings: ['部分月份缺值'], sources: ['https://www.twse.com.tw/exchangeReport/STOCK_DAY?stockNo=2330'], fetchedAt: data.fetchedAt }) };
-  const dialog = openQuoteDetails(host, data.quotes[0], data.quotes[0], data, { historyService: service });
-  dialog.querySelector('.quote-history button').click(); await vi.waitFor(() => expect(dialog.querySelector('svg')).not.toBeNull());
-  expect(dialog.querySelectorAll('polyline')).toHaveLength(2); expect(dialog.querySelectorAll('circle')).toHaveLength(2); expect(dialog.textContent).toContain('資料不完整'); expect(dialog.textContent).toContain('2026-09-17：暫無行情');
+  const chartLoader = async () => class { constructor(canvas, config) { this.data = config.data; this.options = config.options; } update() {} destroy() {} };
+  const dialog = openQuoteDetails(host, data.quotes[0], data.quotes[0], data, { historyService: service, chartLoader });
+  dialog.querySelector('.quote-history button').click(); await vi.waitFor(() => expect(dialog.querySelector('canvas')).not.toBeNull());
+  expect(dialog.querySelector('svg')).toBeNull(); expect(dialog.textContent).toContain('資料不完整'); expect(dialog.textContent).toContain('2026-09-16：2,300.00'); expect(dialog.textContent).toContain('2 個有效交易日'); expect(dialog.textContent).not.toContain('2026-09-17：0');
 });
 it('does not update a dismissed history dialog after a slow response', async () => {
   let resolve; const historyService = { load: () => new Promise(done => { resolve = done; }) }, data = quoteFixture();

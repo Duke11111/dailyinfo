@@ -1,0 +1,48 @@
+.calendar-page { padding: clamp(1rem, 2vw, 1.8rem); min-width: 0; }
+.calendar-note { color: var(--muted); font-size: .85rem; margin: 0 0 1.4rem; }
+.calendar-view { min-width: 0; }
+.calendar-add { margin-bottom: .5rem; }
+.calendar-dialog { color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; width: min(32rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow-y: auto; }
+.calendar-dialog::backdrop { background: #0008; }
+.calendar-dialog h2 { font-size: 1.25rem; margin: 0 0 1rem; }
+.calendar-dialog form { display: grid; gap: .8rem; }
+.calendar-dialog label { display: grid; gap: .35rem; font-size: .9rem; }
+.calendar-dialog input:not([type="checkbox"]), .calendar-dialog select { box-sizing: border-box; width: 100%; min-width: 0; font: inherit; padding: .6rem; border: 1px solid var(--border); border-radius: 6px; }
+.calendar-dialog label:has(input[type="checkbox"]) { display: flex; align-items: center; }
+.calendar-dialog input[type="checkbox"] { accent-color: var(--accent); }
+.calendar-form-error { color: var(--text); margin: 0; overflow-wrap: anywhere; }
+.calendar-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .7rem; }
+.calendar-actions button { font: inherit; padding: .5rem .8rem; border: 1px solid var(--border); border-radius: 6px; }
+.calendar-delete-confirm { border: 1px solid var(--border); border-radius: 6px; padding: .8rem; }
+.calendar-delete-confirm button { font: inherit; margin: .25rem; padding: .5rem; }
+.calendar-page .fc-event { white-space: normal; overflow-wrap: anywhere; cursor: pointer; }
+.calendar-page .fc {
+  --fc-border-color: var(--border);
+  --fc-page-bg-color: var(--surface);
+  --fc-neutral-bg-color: var(--subtle);
+  --fc-neutral-text-color: var(--text-secondary);
+  --fc-today-bg-color: var(--accent-soft);
+  --fc-button-text-color: var(--on-accent);
+  --fc-button-bg-color: var(--accent);
+  --fc-button-border-color: var(--accent);
+  --fc-button-hover-bg-color: var(--accent-mid);
+  --fc-button-hover-border-color: var(--accent-mid);
+  --fc-button-active-bg-color: var(--accent-deep);
+  --fc-button-active-border-color: var(--accent-deep);
+  color: var(--text); font: inherit;
+}
+.calendar-page .fc .fc-toolbar { flex-wrap: wrap; gap: .8rem; }
+.calendar-page .fc .fc-toolbar-title { font-size: 1.4rem; line-height: 1.5; }
+.calendar-page .fc .fc-button { font: inherit; padding: .45rem .8rem; }
+.calendar-page .fc .fc-button:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; box-shadow: none; }
+.calendar-page .fc .fc-col-header-cell { background: var(--subtle); }
+.calendar-page .fc .fc-col-header-cell-cushion { padding: .6rem .1rem; font-size: .85rem; }
+.calendar-page .fc .fc-daygrid-day-frame { min-height: clamp(3.2rem, 7vw, 6rem); }
+.calendar-page .fc .fc-daygrid-day-number { padding: .4rem; font-size: .9rem; color: var(--text); }
+.calendar-page .fc .fc-day-today .fc-daygrid-day-number { color: var(--accent); font-weight: 700; }
+@media (max-width: 600px) {
+  .calendar-page .fc .fc-header-toolbar { display: grid; grid-template-columns: 1fr auto; }
+  .calendar-page .fc .fc-toolbar-chunk:nth-child(2) { grid-column: 1 / -1; grid-row: 1; }
+  .calendar-page .fc .fc-toolbar-title { font-size: 1.25rem; }
+  .calendar-page .fc .fc-daygrid-day-number { padding: .25rem; }
+}

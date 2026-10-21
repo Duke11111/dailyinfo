@@ -23,6 +23,10 @@
     "vitest": "^4.0.0"
   },
   "dependencies": {
+    "@fullcalendar/core": "6.1.22",
+    "@fullcalendar/daygrid": "6.1.22",
+    "@fullcalendar/interaction": "6.1.22",
+    "chart.js": "4.5.1",
     "leaflet": "^1.9.4"
   }
 }

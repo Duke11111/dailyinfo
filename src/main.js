@@ -23,6 +23,7 @@ import { mountRegionPicker } from './components/region-picker.js';
 import { mountStocks } from './pages/stocks.js';
 import { mountNews } from './pages/news.js';
 import { mountEarthquakes } from './pages/earthquakes.js';
+import { mountCalendar } from './pages/calendar.js';
 
 const state = { status: 'loading', data: null, error: null, region: loadRegion() };
 let settings = loadSettings();
@@ -35,6 +36,7 @@ let overviewView = null;
 let disposeStocks = () => {};
 let disposeNews = () => {};
 let disposeEarthquakes = () => {};
+let disposeCalendar = () => {};
 applySettings(settings);
 const stopThemeWatcher = watchSystemTheme(() => settings);
 let currentRoute = 'overview';
@@ -53,6 +55,7 @@ function render() {
   disposeStocks(); disposeStocks = () => {};
   disposeNews(); disposeNews = () => {};
   disposeEarthquakes(); disposeEarthquakes = () => {};
+  disposeCalendar(); disposeCalendar = () => {};
   const route = routes[currentRoute];
   document.title = `${route.title} · DailyInfo`;
   document.querySelector('#breadcrumb-title').textContent = route.title;
@@ -63,7 +66,7 @@ function render() {
   });
   const isWeather = currentRoute === 'weather';
   main.innerHTML = `<div class="page-heading"><div><span class="eyebrow">${route.english}</span><h1>${route.title}<span class="heading-dot">.</span></h1><p>${route.description}</p></div>${isWeather ? `<button class="refresh-button" data-refresh ${state.status === 'loading' ? 'disabled' : ''}>${icon('refresh', state.status === 'loading' ? 'spinning' : '')}<span>${state.status === 'loading' ? '更新中' : '重新整理'}</span></button>` : ''}</div>
-    ${currentRoute === 'overview' ? '<div id="overview-host"></div>' : isWeather ? `<div id="region-picker-host"></div><p id="region-storage-status" class="storage-status" role="status">${regionSaved ? '' : '無法儲存地區；重新載入時可能無法保留選擇。'}</p><div id="weather-content">${renderWeather(state)}</div><div id="air-quality-host">${renderAirQuality(airQuality.state)}</div>` : currentRoute === 'settings' ? renderSettings(settings, settingsSaved) : currentRoute === 'stocks' ? '<div id="stocks-host"></div>' : currentRoute === 'news' ? '<div id="news-host"></div>' : currentRoute === 'earthquakes' ? '<div id="earthquakes-host"></div>' : renderPlaceholder(currentRoute)}`;
+    ${currentRoute === 'overview' ? '<div id="overview-host"></div>' : isWeather ? `<div id="region-picker-host"></div><p id="region-storage-status" class="storage-status" role="status">${regionSaved ? '' : '無法儲存地區；重新載入時可能無法保留選擇。'}</p><div id="weather-content">${renderWeather(state)}</div><div id="air-quality-host">${renderAirQuality(airQuality.state)}</div>` : currentRoute === 'settings' ? renderSettings(settings, settingsSaved) : currentRoute === 'stocks' ? '<div id="stocks-host"></div>' : currentRoute === 'news' ? '<div id="news-host"></div>' : currentRoute === 'earthquakes' ? '<div id="earthquakes-host"></div>' : currentRoute === 'calendar' ? '<div id="calendar-host"></div>' : renderPlaceholder(currentRoute)}`;
   if (currentRoute === 'overview') overviewView = mountOverview(main.querySelector('#overview-host'), { weatherState: state, airState: airQuality.state, onRefreshWeather: () => loadWeather() });
   if (isWeather) mountRegionPicker(main.querySelector('#region-picker-host'), state.region, region => {
     if (!validateCoordinates(region)) return;
@@ -75,6 +78,7 @@ function render() {
   });
   if (currentRoute === 'stocks') disposeStocks = mountStocks(main.querySelector('#stocks-host'));
   if (currentRoute === 'news') disposeNews = mountNews(main.querySelector('#news-host'));
+  if (currentRoute === 'calendar') disposeCalendar = mountCalendar(main.querySelector('#calendar-host'));
   if (currentRoute === 'earthquakes') disposeEarthquakes = mountEarthquakes(main.querySelector('#earthquakes-host'), { initialEventId: new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('event') });
   if (isWeather || currentRoute === 'overview') airQuality.load(state.region);
 }
@@ -135,6 +139,6 @@ const stopAutoRefresh = startAutoRefresh([
   { interval: 15 * 60000, lastAt: () => weatherAttemptAt, enabled: () => ['weather', 'overview'].includes(currentRoute), run: () => loadWeather() },
   { interval: 30 * 60000, lastAt: () => Date.parse(airQuality.state.data?.fetchedAt) || 0, enabled: () => ['weather', 'overview'].includes(currentRoute), run: () => airQuality.load(state.region, { force: true }) },
 ]);
-export function dispose() { stopAutoRefresh(); airQuality.dispose(); overviewView?.dispose(); stopRouter(); stopThemeWatcher(); disposeStocks(); disposeNews(); disposeEarthquakes(); requestController?.abort(); requestId++; }
+export function dispose() { stopAutoRefresh(); airQuality.dispose(); overviewView?.dispose(); stopRouter(); stopThemeWatcher(); disposeCalendar(); disposeStocks(); disposeNews(); disposeEarthquakes(); requestController?.abort(); requestId++; }
 if (import.meta.hot) import.meta.hot.dispose(dispose);
 loadWeather();

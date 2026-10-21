@@ -13,6 +13,7 @@ import { loadStockCatalog } from '../services/stock-catalog.js';
 import { explorationEntries } from '../services/stock-exploration.js';
 import { renderAirQuality } from '../components/air-quality.js';
 import { mountHoroscope } from '../components/horoscope.js';
+import { mountTodayAgenda } from '../components/today-agenda.js';
 
 const el = (tag, text = '', className = '') => { const node = document.createElement(tag); node.textContent = text; node.className = className; return node; };
 function link(label, href, external = false) {
@@ -30,7 +31,9 @@ export function mountOverview(host, { weatherState, airState, onRefreshWeather, 
   const grid = el('div', '', 'overview-grid');
   const notice = el('p', '天氣直接查詢 Open-Meteo；股票、新聞與地震讀取網站已發布的資料快照。「重新讀取快照」不會更新外部 API。所有時間皆為臺灣時間。', 'overview-notice');
   const horoscopeHost = el('div');
-  host.replaceChildren(notice, horoscopeHost, grid);
+  const agendaHost = el('div');
+  host.replaceChildren(notice, horoscopeHost, agendaHost, grid);
+  jobs.push(mountTodayAgenda(agendaHost, { now }));
   jobs.push(mountHoroscope(horoscopeHost));
   function card(key, title, subtitle, sourceName, sourceUrl) {
     const node = el('section', '', `card overview-card overview-${key}`); node.setAttribute('aria-labelledby', `overview-${key}-title`);

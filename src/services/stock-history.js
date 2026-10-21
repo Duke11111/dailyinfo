@@ -54,7 +54,11 @@ export function createHistoryService({ fetchImpl = (...args) => fetch(...args), 
       // A 30-day window normally spans two months, but can span three around February.
       for (const month of months) {
         try { results.push(await monthData(code, month)); }
-        catch (error) { warnings.push(`${month}：${error.message}`); }
+        catch (error) {
+          const last = cache.get(`${code}:${month}`);
+          if (last) results.push(last.value);
+          warnings.push(`${month}：${error.message}${last ? ' 顯示最後有效快取，非最新資料。' : ''}`);
+        }
       }
       if (!results.length) throw new Error(warnings.join('；'));
       return { points: results.flatMap(r => r.points).filter(p => p.date >= start && p.date <= end).sort((a, b) => a.date.localeCompare(b.date)), start, end, warnings, sources: results.map(r => r.source), fetchedAt: results.map(r => r.fetchedAt).sort().at(-1) };

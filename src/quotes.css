@@ -16,13 +16,8 @@
 .quote-detail-grid dd { margin:8px 0 0; font-size:1.15rem; font-weight:600; overflow-wrap:anywhere; }
 .quote-history { border-top:1px solid var(--border); margin:22px 0; padding-top:16px; }
 .quote-history a,.stock-detail-dialog > a { font-size:.8rem; text-decoration:underline; }
-.stock-history-chart { width:100%; min-width:400px; height:auto; margin-top:12px; overflow:visible; }
-.stock-history-chart text { fill:var(--text-secondary); font-family:inherit; font-size:.75rem; }
-.history-grid { stroke:var(--border); stroke-width:1; }
-.history-line { stroke:var(--accent); stroke-width:2; }
-.history-point { fill:var(--accent); }
-:root[data-theme="dark"] .history-line { stroke:var(--accent-light); }
-:root[data-theme="dark"] .history-point { fill:var(--accent-light); }
+.stock-history-frame { position:relative; width:100%; min-width:0; height:18rem; margin-top:12px; }
+.stock-history-frame canvas { max-width:100%; touch-action:pan-y; }
 .quote-history > div { overflow-x:auto; }
 .quote-history details { font-size:.8rem; margin:12px 0; }
 .stock-table { min-width:1000px; }

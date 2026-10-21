@@ -1,5 +1,9 @@
 # DailyInfo 每日資訊整合平台
 
+Phase 8F 本機完成 Chart.js 股票五日走勢：沿用 TWSE 歷史服務，僅顯示行情快照交易日以前最近五筆有效收盤價；支援價格提示、主題、字級與手機版，未部署。使用免費 MIT Chart.js 4.5.1，授權保留於 public/licenses。
+
+Phase 8H-2C 本機完成免費 [個人行事曆](docs/CALENDAR.md)：繁中月曆、月份切換、新增／編輯／確認刪除行程、全天與跨日時間、五色及獨立 localStorage 保存；首頁顯示臺灣日期的今日行程（最多五筆，可點擊查看），支援全站主題及字級；尚未部署，不提供同步或提醒。
+
 Phase 8G-A 自動更新僅完成本機準備，尚未啟用或部署；四來源定時更新、獨立發布授權、Artifact 用量防護及前景刷新見 [自動更新文件](docs/AUTOMATIC-UPDATES.md)。Phase 8H-1C 正式發布仍待授權。
 
 ## Phase 8H-1：最終繳交範圍
