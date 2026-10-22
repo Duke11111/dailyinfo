@@ -2,10 +2,22 @@
 import { beforeEach, afterEach, describe, it, expect, vi } from 'vitest';
 import { regions, counties, getRegion, getDistricts, searchRegions, DEFAULT_REGION, REGION_KEY, loadRegion, saveRegion, validateCoordinates } from '../src/services/regions.js';
 import { mountRegionPicker } from '../src/components/region-picker.js';
+import { mountOverviewRegion } from '../src/components/overview-region.js';
+import { loadOverviewRegion, saveOverviewRegion } from '../src/services/overview-region.js';
 import { buildWeatherUrl, fetchWeather } from '../src/services/weather.js';
 beforeEach(() => localStorage.clear());
 afterEach(() => vi.restoreAllMocks());
 describe('complete administrative dataset', () => {
+  it('orders exactly the 22 canonical counties from north to south, east and islands', () => {
+    expect(counties).toEqual([
+      '臺北市', '新北市', '基隆市', '桃園市', '新竹市', '新竹縣', '宜蘭縣',
+      '苗栗縣', '臺中市', '彰化縣', '南投縣', '雲林縣',
+      '嘉義市', '嘉義縣', '臺南市', '高雄市', '屏東縣',
+      '花蓮縣', '臺東縣', '澎湖縣', '金門縣', '連江縣',
+    ]);
+    expect(new Set(counties).size).toBe(22);
+    expect(new Set(counties)).toEqual(new Set(regions.map(region => region.county)));
+  });
   it('covers all 22 counties and 368 unique districts, including islands', () => {
     expect(counties).toHaveLength(22); expect(regions).toHaveLength(368); expect(new Set(regions.map(r => r.id)).size).toBe(368);
     expect(regions.every(validateCoordinates)).toBe(true);
@@ -55,6 +67,31 @@ describe('canonical coordinates sent to weather API', () => {
   });
 });
 describe('region picker DOM', () => {
+  it('uses identical county order in both pickers without changing independently saved regions', () => {
+    saveRegion('63000040'); saveOverviewRegion('10005040');
+    const storedBefore = { ...localStorage };
+    const pageHost = document.createElement('div'), homeHost = document.createElement('div');
+    mountRegionPicker(pageHost, loadRegion(), vi.fn());
+    Object.defineProperty(HTMLDialogElement.prototype, 'showModal', { configurable: true, value() { this.open = true; } });
+    Object.defineProperty(HTMLDialogElement.prototype, 'close', { configurable: true, value() { this.open = false; } });
+    const dispose = mountOverviewRegion(homeHost, { selection: loadOverviewRegion(), onSave: vi.fn() });
+    try {
+      homeHost.querySelector('button').click();
+      const pageCounty = pageHost.querySelector('#county-select'), homeCounty = homeHost.querySelector('select');
+      const labels = select => [...select.options].map(option => [option.value, option.textContent]);
+      expect(labels(pageCounty)).toEqual(counties.map(county => [county, county]));
+      expect(labels(homeCounty)).toEqual(labels(pageCounty));
+      expect(pageCounty.value).toBe('臺北市');
+      expect(pageHost.querySelector('#district-select').value).toBe('63000040');
+      expect(homeCounty.value).toBe('苗栗縣');
+      expect(homeHost.querySelectorAll('select')[1].value).toBe('10005040');
+      expect({ ...localStorage }).toEqual(storedBefore);
+    } finally {
+      dispose();
+      delete HTMLDialogElement.prototype.showModal;
+      delete HTMLDialogElement.prototype.close;
+    }
+  });
   it('resets district after county change and submits only valid combinations', () => {
     const host = document.createElement('div'), select = vi.fn(); mountRegionPicker(host, DEFAULT_REGION, select);
     const county = host.querySelector('#county-select'), district = host.querySelector('#district-select');
