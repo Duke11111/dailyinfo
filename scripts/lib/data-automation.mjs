@@ -65,27 +65,32 @@ export function validateState(raw, now = Date.now()) {
 }
 async function optionalJson(file) { try { return JSON.parse(await readFile(file, 'utf8')); } catch (error) { if (error.code === 'ENOENT') return null; throw error; } }
 async function atomicWrite(file, data) { const temp = `${file}.tmp`; await writeFile(temp, `${JSON.stringify(data, null, 2)}\n`); await rename(temp, file); }
-export async function runSource(source, { root, directory }) {
+export async function runSource(source, { root, directory, deadline }) {
   try {
     // Never forward child stdout/stderr, URLs, arbitrary exceptions or authenticated bodies.
     const env = { ...process.env, DAILYINFO_DATA_DIR: directory };
     if (source !== 'earthquakes') delete env.CWA_API_KEY;
-    await runFile(process.execPath, [join(root, 'scripts', `update-${source}.mjs`)], { cwd: root, env, timeout: 210000, maxBuffer: 1048576, windowsHide: true });
+    const timeout = deadline == null ? 210000 : Math.min(210000, deadline - Date.now());
+    if (!Number.isFinite(timeout) || timeout <= 0) throw Error();
+    await runFile(process.execPath, [join(root, 'scripts', `update-${source}.mjs`)], { cwd: root, env, timeout, maxBuffer: 1048576, windowsHide: true });
   } catch (error) { throw safeFailure('update_failed'); }
 }
-export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, scheduled = false, cron, now = Date.now, runner = runSource } = {}) {
+export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, scheduled = false, cron, now = Date.now, runner = runSource, deadline, startBy } = {}) {
+  if (startBy != null && (!Number.isFinite(startBy) || now() > startBy)) throw safeFailure('acceptance_expired');
+  if (deadline != null && (!Number.isFinite(deadline) || now() >= deadline)) throw safeFailure('acceptance_expired');
   if (!sources.length || new Set(sources).size !== sources.length || sources.some(name => !SOURCES.includes(name))) throw safeFailure('unknown_source');
   if (scheduled) scheduleDecision(sources[0], { sources: {} }, now(), { cron });
   const base = resolve(root, '.cache/data-updates'); await mkdir(base, { recursive: true });
   const lock = join(base, 'lock');
   try { await mkdir(lock); } catch { throw safeFailure('update_locked'); }
-  let staging;
+  let staging, sourceStarted = false;
   try {
     const statePath = join(base, 'status.json');
     const old = await optionalJson(statePath), state = old ? validateState(old, now()) : { version: 1, sources: {} };
     staging = await mkdtemp(join(base, 'run-'));
     const results = [], startedAt = new Date(now()).toISOString();
     for (const source of sources) {
+      if (deadline != null && now() >= deadline) throw safeFailure('acceptance_expired');
       const target = join(root, 'public/data', `${source}.json`), directory = join(staging, source);
       let previous;
       const oldSuccess = state.sources[source]?.lastSuccessAt;
@@ -99,7 +104,10 @@ export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, sched
         if (scheduled && !due.due) { results.push({ source, status: 'skipped', code: 'not_due', ...details(previous) }); continue; }
         await mkdir(directory);
         if (previous) await copyFile(target, join(directory, `${source}.json`));
-        try { await runner(source, { root, directory }); } catch (error) { throw safeFailure('update_failed'); }
+        if (!sourceStarted && startBy != null && now() > startBy) throw safeFailure('acceptance_expired');
+        sourceStarted = true;
+        try { await runner(source, { root, directory, ...(deadline != null ? { deadline } : {}) }); } catch (error) { throw safeFailure('update_failed'); }
+        if (deadline != null && now() >= deadline) throw safeFailure('acceptance_expired');
         const rawNext = await optionalJson(join(directory, `${source}.json`));
         const next = validateData(source, rawNext, now());
         if (previous && (sourceDate(source, next) < sourceDate(source, previous) || Date.parse(next.fetchedAt) < Date.parse(previous.fetchedAt))) throw safeFailure('validation_failed');
@@ -113,6 +121,7 @@ export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, sched
         const accepted = changed ? next : previous;
         results.push({ source, ...item, ...details(accepted) });
       } catch (error) {
+        if (error.safeCode === 'acceptance_expired' || deadline != null && now() >= deadline) throw safeFailure('acceptance_expired');
         const code = ['update_failed', 'source_delayed'].includes(error.safeCode) ? error.safeCode : 'validation_failed';
         const item = { attemptedAt: startedAt, status: code === 'source_delayed' ? 'unchanged' : 'failed', code, ...(oldSuccess ? { lastSuccessAt: oldSuccess } : {}) };
         state.sources[source] = item; results.push({ source, ...item, ...details(previous) });

@@ -44,7 +44,8 @@ it.each([null, [{}], [item(-1)], [item(NaN)]])('refuses unmeasurable storage %j'
 it('workflow budgets before requests/uploads and only checkpoints after a safe outcome', async () => {
   const workflow = await readFile('.github/workflows/data-update.yml', 'utf8');
   expect(workflow.indexOf('run: node scripts/artifact-budget.mjs')).toBeLessThan(workflow.indexOf('name: Isolated source updates'));
-  expect(workflow.indexOf('artifact-budget.mjs --upload')).toBeLessThan(workflow.indexOf('uses: actions/upload-artifact'));
+  expect(workflow.indexOf('artifact-budget.mjs --upload')).toBeLessThan(workflow.indexOf('name: dailyinfo-state-candidate'));
+  expect(workflow.indexOf('run: node scripts/artifact-budget.mjs')).toBeLessThan(workflow.indexOf('name: Persist single-use claim'));
   expect(workflow).toContain("needs.update.result == 'success'");
   expect(workflow).toContain("needs.deploy.result == 'success' || needs.deploy.result == 'skipped'");
   expect(workflow).toContain('retention-days: 7');

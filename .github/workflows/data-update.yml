@@ -29,6 +29,17 @@ on:
 permissions:
   contents: read
 
+# Opt-in only; the configuration is never written by this workflow.
+env:
+  D4_CONFIG: ${{ vars.DATA_D4_ONCE }}
+  SCHEDULE_CRON: ${{ github.event.schedule }}
+  AUTOMATION: ${{ vars.DATA_AUTOMATION_ENABLED }}
+  SCHEDULE: ${{ vars.DATA_SCHEDULE_ENABLED }}
+  FREE: ${{ vars.DATA_FREE_USAGE_CONFIRMED }}
+  PUBLISH: ${{ vars.DATA_PUBLISH_ENABLED }}
+  AUTO_PUBLISH: ${{ vars.DATA_AUTO_PUBLISH_ENABLED }}
+  DEPLOY_TARGET: ${{ vars.DATA_DEPLOY_TARGET }}
+
 concurrency:
   group: dailyinfo-data-update
   cancel-in-progress: false
@@ -36,12 +47,13 @@ concurrency:
 jobs:
   update:
     # No cloud action runs until the user deliberately opts in on the default branch.
-    if: vars.DATA_AUTOMATION_ENABLED == 'true' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.ref == 'refs/heads/main' && vars.DATA_FREE_USAGE_CONFIRMED == 'true' && vars.DATA_SCHEDULE_ENABLED == 'true' && fromJSON(vars.DATA_SCHEDULE_ENABLED || 'false') == true))
+    if: github.event.repository.visibility == 'public' && vars.DATA_AUTOMATION_ENABLED == 'true' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '43 12 * * *' && vars.DATA_D4_ONCE != '' && github.ref == 'refs/heads/main' && vars.DATA_FREE_USAGE_CONFIRMED == 'true' && vars.DATA_SCHEDULE_ENABLED == 'true' && fromJSON(vars.DATA_SCHEDULE_ENABLED || 'false') == true))
     runs-on: ubuntu-latest
     timeout-minutes: 12
     permissions:
       contents: read
       actions: read
+      deployments: read
     outputs:
       changed: ${{ steps.decision.outputs.changed }}
       publish: ${{ steps.decision.outputs.publish }}
@@ -57,6 +69,20 @@ jobs:
         run: node scripts/artifact-budget.mjs
         env:
           GH_TOKEN: ${{ github.token }}
+      - name: Admit one scheduled attempt within the approved window
+        if: github.event_name == 'schedule'
+        id: d4
+        run: node scripts/d4-acceptance.mjs admit
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Persist single-use claim before restoring or updating any source
+        if: github.event_name == 'schedule'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ${{ steps.d4.outputs.claim_name }}
+          path: .cache/d4/claim.json
+          retention-days: 7
+          if-no-files-found: error
       - name: Restore last successful checkpoint (fail closed if missing)
         id: restore
         run: node scripts/automation-state.mjs restore
@@ -69,6 +95,9 @@ jobs:
           PUBLISH_CURRENT: ${{ inputs.publish_current }}
           PUBLISH_ENABLED: ${{ vars.DATA_PUBLISH_ENABLED }}
           DEPLOY_TARGET: ${{ vars.DATA_DEPLOY_TARGET }}
+      - name: Capture restored source state for independent acceptance
+        if: github.event_name == 'schedule'
+        run: node scripts/d4-acceptance.mjs capture
       - name: Isolated source updates
         if: inputs.source != 'checkpoint'
         id: refresh
@@ -93,6 +122,17 @@ jobs:
           elif [ "$code" != 0 ]; then
             exit "$code"
           fi
+      - name: Preserve source acceptance evidence
+        if: github.event_name == 'schedule'
+        run: node scripts/d4-acceptance.mjs evidence
+      - name: Upload bounded acceptance evidence
+        if: github.event_name == 'schedule'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: dailyinfo-d4-evidence
+          path: .cache/d4/evidence.json
+          retention-days: 1
+          if-no-files-found: error
       - name: Verify every public snapshot
         run: npm run verify:data
         env:
@@ -103,7 +143,7 @@ jobs:
           CODE_CHANGED: ${{ steps.restore.outputs.code_changed }}
           FORCE_BUILD: ${{ inputs.publish_current }}
           EVENT: ${{ github.event_name }}
-          AUTO_PUBLISH_ENABLED: ${{ vars.DATA_AUTO_PUBLISH_ENABLED }}
+          AUTO_PUBLISH_ENABLED: ${{ github.event_name == 'schedule' && 'false' || vars.DATA_AUTO_PUBLISH_ENABLED }}
           FREE_USAGE_CONFIRMED: ${{ vars.DATA_FREE_USAGE_CONFIRMED }}
           PUBLISH_ENABLED: ${{ vars.DATA_PUBLISH_ENABLED }}
           DEPLOY_TARGET: ${{ vars.DATA_DEPLOY_TARGET }}
@@ -146,7 +186,7 @@ jobs:
 
   deploy:
     needs: update
-    if: needs.update.outputs.publish == 'true' && vars.DATA_PUBLISH_ENABLED == 'true' && vars.DATA_DEPLOY_TARGET == 'pages'
+    if: github.event_name != 'schedule' && needs.update.outputs.publish == 'true' && vars.DATA_PUBLISH_ENABLED == 'true' && vars.DATA_DEPLOY_TARGET == 'pages'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -186,3 +226,27 @@ jobs:
           CHECKPOINT_RESULT: ${{ job.status }}
         run: |
           printf '## Workflow outcomes\n\n- update: %s\n- deploy: %s\n- checkpoint job: %s\n\nSource results are listed separately; workflow success does not imply every source changed or was published.\n' "$UPDATE_RESULT" "$DEPLOY_RESULT" "$CHECKPOINT_RESULT" >> "$GITHUB_STEP_SUMMARY"
+
+  d4-acceptance:
+    needs: [update, deploy, checkpoint]
+    if: always() && github.event.repository.visibility == 'public' && github.event_name == 'schedule' && github.event.schedule == '43 12 * * *' && vars.DATA_D4_ONCE != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      actions: read
+      deployments: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Independent final PASS or FAIL (never publish or retry)
+        run: node scripts/d4-acceptance.mjs verify
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UPDATE_RESULT: ${{ needs.update.result }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
+          CHECKPOINT_RESULT: ${{ needs.checkpoint.result }}

@@ -1,12 +1,15 @@
 import { appendFile } from 'node:fs/promises';
 import { selectUpdateSources, updateData } from './lib/data-automation.mjs';
 import { updateSummary } from './lib/update-summary.mjs';
+import { d4Config } from './lib/d4-acceptance.mjs';
 try {
   const args = process.argv.slice(2);
   if (args.some(arg => arg !== '--scheduled' && !arg.startsWith('--sources='))) throw Error('Invalid arguments');
   const selected = args.find(arg => arg.startsWith('--sources='));
   const scheduled = args.includes('--scheduled');
-  const report = await updateData({ sources: selectUpdateSources(selected ? selected.slice(10) : 'all', scheduled), scheduled, cron: scheduled ? process.env.SCHEDULE_CRON : undefined });
+  const deadline = scheduled && process.env.D4_CONFIG ? Date.parse(d4Config(process.env.D4_CONFIG).deadline) : undefined;
+  const startBy = deadline == null ? undefined : deadline - 20 * 60000;
+  const report = await updateData({ sources: selectUpdateSources(selected ? selected.slice(10) : 'all', scheduled), scheduled, cron: scheduled ? process.env.SCHEDULE_CRON : undefined, deadline, startBy });
   console.log(JSON.stringify(report, null, 2)); // Only allowlisted fields and controlled error codes.
   if (process.env.GITHUB_OUTPUT) await appendFile(process.env.GITHUB_OUTPUT, `changed=${report.changed}\nfailed=${report.failed}\n`);
   if (process.env.GITHUB_STEP_SUMMARY) await appendFile(process.env.GITHUB_STEP_SUMMARY, updateSummary(report));

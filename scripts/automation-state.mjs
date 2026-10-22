@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { PROJECT_ROOT, verifySnapshots } from './lib/data-automation.mjs';
 import { exportState, restoreState } from './lib/update-state.mjs';
 import { assertCheckpointPublish, selectCheckpoint } from './lib/checkpoint-policy.mjs';
+import { d4Config, assertD4Checkpoint } from './lib/d4-acceptance.mjs';
 const exec = promisify(execFile);
 async function gh(args) { const result = await exec('gh', args, { cwd: PROJECT_ROOT, timeout: 30000, maxBuffer: 2097152, windowsHide: true }); return result.stdout; }
 async function output(name, value) { if (process.env.GITHUB_OUTPUT) await appendFile(process.env.GITHUB_OUTPUT, `${name}=${value}\n`); }
@@ -21,6 +22,7 @@ try {
     const list = JSON.parse(await gh(['api', `repos/${repository}/actions/artifacts?name=dailyinfo-data-state&per_page=100`]));
     const selected = await selectCheckpoint(list.artifacts, async id => JSON.parse(await gh(['api', `repos/${repository}/actions/runs/${id}`])),
       { branch, exact, approvedRun: process.env.APPROVED_CHECKPOINT_RUN });
+    if (process.env.GITHUB_EVENT_NAME === 'schedule' && process.env.D4_CONFIG) assertD4Checkpoint(d4Config(process.env.D4_CONFIG), selected);
     if (!selected) {
       if (exact || process.env.INITIALIZE_STATE !== 'true') throw Error();
       await verifySnapshots(); await output('code_changed', true);

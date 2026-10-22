@@ -7,8 +7,8 @@ import { selectCheckpoint } from '../scripts/lib/checkpoint-policy.mjs';
 const workflow = await readFile('.github/workflows/data-update.yml', 'utf8');
 const update = workflow.split('\n  update:')[1].split('\n  deploy:')[0];
 const context = (event = 'schedule', variables = {}, inputs = {}) => ({
-  vars: { DATA_AUTOMATION_ENABLED: 'true', DATA_FREE_USAGE_CONFIRMED: 'true', ...variables }, inputs,
-  github: { event_name: event, ref: 'refs/heads/main', event: { repository: { default_branch: 'main' } } },
+  vars: { DATA_AUTOMATION_ENABLED: 'true', DATA_FREE_USAGE_CONFIRMED: 'true', DATA_D4_ONCE: '{}', ...variables }, inputs,
+  github: { event_name: event, ref: 'refs/heads/main', event: { schedule: '43 12 * * *', repository: { default_branch: 'main', visibility: 'public' } } },
   format: (pattern, value) => pattern.replace('{0}', value),
   fromJSON: JSON.parse,
 });
@@ -54,8 +54,9 @@ it.each(['skipped', 'failure', 'cancelled'])('does not save a checkpoint after a
   expect(evaluate(condition, { always: () => true, needs: { update: { result }, deploy: { result: 'skipped' } } })).toBe(false);
 });
 it.each([[undefined, undefined, false], ['false', 'pages', false], ['true', undefined, false], ['true', 'other', false], ['true', 'pages', true]])('gates Pages on explicit publish %s and target %s', (enabled, target, expected) => {
-  const values = { vars: { DATA_PUBLISH_ENABLED: enabled, DATA_DEPLOY_TARGET: target }, needs: { update: { outputs: { publish: 'true' } } } };
+  const values = { github: { event_name: 'workflow_dispatch' }, vars: { DATA_PUBLISH_ENABLED: enabled, DATA_DEPLOY_TARGET: target }, needs: { update: { outputs: { publish: 'true' } } } };
   expect(evaluate(deployCondition, values)).toBe(expected);
+  expect(evaluate(deployCondition, { ...values, github: { event_name: 'schedule' } })).toBe(false);
   values.needs.update.outputs.publish = 'false'; expect(evaluate(deployCondition, values)).toBe(false);
   expect(workflow).toContain("if: steps.decision.outputs.publish == 'true'");
 });
