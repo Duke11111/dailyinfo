@@ -1,18 +1,20 @@
 # DailyInfo 每日資訊整合平台
 
-Phase 8F 本機完成 Chart.js 股票五日走勢：沿用 TWSE 歷史服務，僅顯示行情快照交易日以前最近五筆有效收盤價；支援價格提示、主題、字級與手機版，未部署。使用免費 MIT Chart.js 4.5.1，授權保留於 public/licenses。
+Phase 8F 已完成並發布 Chart.js 股票五日走勢：沿用 TWSE 歷史服務，僅顯示行情快照交易日以前最近五筆有效收盤價；支援價格提示、主題、字級與手機版。使用免費 MIT Chart.js 4.5.1，授權保留於 public/licenses。
 
-Phase 8H-2C 本機完成免費 [個人行事曆](docs/CALENDAR.md)：繁中月曆、月份切換、新增／編輯／確認刪除行程、全天與跨日時間、五色及獨立 localStorage 保存；首頁顯示臺灣日期的今日行程（最多五筆，可點擊查看），支援全站主題及字級；尚未部署，不提供同步或提醒。
+Phase 8H-2C 已完成並發布免費 [個人行事曆](docs/CALENDAR.md)：繁中月曆、月份切換、新增／編輯／確認刪除行程、全天與跨日時間、五色及獨立 localStorage 保存；首頁顯示臺灣日期的今日行程（最多五筆，可點擊查看），支援全站主題及字級；不提供同步或提醒。
 
-Phase 8G-D1 已完成本機三時段排程與有限補跑改造；長期排程與自動發布尚未啟用。四來源更新、獨立發布授權、Checkpoint v2 相容性、Artifact 防護與維護方式見 [自動更新文件](docs/AUTOMATIC-UPDATES.md)。正式 UI 已於 Phase 9B-6 單次部署；本次自動更新改造尚未提交或上線。
+Phase 8G-D2 已提交／推送三時段排程與有限補跑改造（`d315796`），D3 手動雲端更新 Run `39727082746` 成功，其資料後續納入單次核准發布。依使用者確認 D4 一次性 schedule 未觸發、臨時開關已清理；D5 自動發布尚未完成雲端驗收。長期排程與自動發布尚未啟用。四來源更新、獨立發布授權、Checkpoint v2 相容性、Artifact 防護與維護方式見 [自動更新文件](docs/AUTOMATIC-UPDATES.md)。正式 UI 已於 Phase 9B-6 單次部署。
+
+D5-Guard 已在 `test/d5-integration` 整合至 `ee30aed`，仍僅為尚未推送的本機候選版：[正式資料防倒退與部署互斥](docs/PUBLISH-GUARD.md)。`DATA_SCHEDULE_MODE` 必須明確選擇 d4 或 continuous，未設定就拒絕排程；更新授權與發布授權分離。首次基線機制已實作：只接受明確手動核准的 Deployment／五份 SHA-256、有限期限與 approval digest；初次發布不更新資料，仍須完整 Guard。雲端接軌與自動發布均未執行，需另外授權。
 
 ## Phase 8H-1：最終繳交範圍
 
-保留天氣／AQI、股票自選與盤後行情、新聞收藏、地震地圖、每日星座及全站設定。已停止開發的匯率功能不包含於目前 UI、更新入口或公開資料。資料自動化改為四來源，舊五來源 Checkpoint 先完整驗證再遷移；詳見 [自動化說明](docs/AUTOMATION.md) 與 [驗收紀錄](VALIDATION.md)。本機備份分支 backup/pre-remove-exchange-20261020 可還原移除前版本；本階段未提交、推送或部署。
+保留天氣／AQI、股票自選與盤後行情、新聞收藏、地震地圖、每日星座及全站設定。已停止開發的匯率功能不包含於目前 UI、更新入口或公開資料。四來源遷移與匯率移除已正式發布，舊五來源 Checkpoint 先完整驗證再遷移；詳見 [自動化說明](docs/AUTOMATION.md) 與 [驗收紀錄](VALIDATION.md)。本機備份分支 backup/pre-remove-exchange-20261020 可還原移除前版本。
 
-> Repository 已公開：[Duke11111/dailyinfo](https://github.com/Duke11111/dailyinfo)，首次提交 `399edd1`，不含原始 Git 歷史。**GitHub Pages 尚未部署、Repository Actions 仍停用、資料自動更新未啟用。** Phase 8B 部署準備僅存在本機未提交變更。[Pages 安全部署說明](docs/PAGES.md) · [公開準備與身分狀態](docs/PUBLIC_CANDIDATE.md) · [Actions SHA 查證](docs/ACTIONS_PINS.md)。
+> Repository 已公開：[Duke11111/dailyinfo](https://github.com/Duke11111/dailyinfo)，首次提交 `399edd1`，不含原始 Git 歷史。[正式網站](https://duke11111.github.io/dailyinfo/) 已上線，Actions 已支援經授權的手動更新／部署；長期自動化仍關閉。歷史準備文件：[Pages 安全部署說明](docs/PAGES.md) · [公開準備與身分狀態](docs/PUBLIC_CANDIDATE.md) · [Actions SHA 查證](docs/ACTIONS_PINS.md)。
 
-期中專案，展示日期 **2026/10/30**。DailyInfo 每日資訊整合平台提供天氣／AQI、股票、新聞、地震、星座與個人行事曆。正式網站已上線；本機 UI 精修與首頁獨立天氣地區仍待整合發布驗收。介面不以內部開發階段或未制定的發布版本號作為展示標示。正式發布前的資料保護流程見 [發布前檢查](docs/PRE-RELEASE.md)。
+期中專案，展示日期 **2026/10/30**。DailyInfo 每日資訊整合平台提供天氣／AQI、股票、新聞、地震、星座與個人行事曆。UI 精修與首頁獨立天氣地區已完成 Phase 9B-6 單次發布。介面不以內部開發階段或未制定的發布版本號作為展示標示。正式發布前的資料保護流程見 [發布前檢查](docs/PRE-RELEASE.md)。
 
 使用 Vite、Vanilla JavaScript ES Modules、HTML5、CSS3 與 Vitest。繁體中文介面，無資料庫及登入功能。
 
@@ -20,9 +22,9 @@ Phase 8G-D1 已完成本機三時段排程與有限補跑改造；長期排程�
 
 ### Phase 6D：資料自動更新準備
 
-已新增統一入口 `npm.cmd run update:data`、到期檢查 `npm.cmd run update:data -- --scheduled`、指定來源 `npm.cmd run update:data -- --sources=quotes,news` 及驗證 `npm.cmd run verify:data`。各來源隔離執行、驗證後才替換；失敗保留舊快照，內容未變不重複發布。天氣與 AQI 維持原有前端查詢。
+已新增統一入口 `npm.cmd run update:data`、指定來源 `npm.cmd run update:data -- --sources=quotes,news` 及驗證 `npm.cmd run verify:data`。`--scheduled` 是 Workflow 專用的到期檢查入口，需完整的事件、模式與授權 context，直接在本機無設定執行會拒絕。各來源隔離執行、驗證後才替換；失敗保留舊快照，內容未變不重複發布。天氣與 AQI 維持原有前端查詢。
 
-資料更新工作流程保留手動入口，Phase 8B 已在本機移除 schedule；更新及資料發布開關仍未設定，Repository Actions 停用，未設定雲端 Secrets。獨立 Pages 手動部署只驗證及發布既有快照，不更新外部來源。[資料更新說明](docs/AUTOMATION.md)；首次網站部署以 [Phase 8B 說明](docs/PAGES.md) 為準。舊基線 `7fed01f` 僅為開發紀錄，不在公開 Git 歷史內。
+資料更新工作流程保留手動入口與預設關閉的三時段 schedule，更新、排程、自動發布授權分離。既有 CWA Repository Secret 僅供地震更新使用，前端不需金鑰。實際雲端開關及最新有效 Checkpoint 須操作前重新確認。[目前自動更新狀態](docs/AUTOMATIC-UPDATES.md)；[Phase 8B 說明](docs/PAGES.md) 為歷史部署準備紀錄。舊基線 `7fed01f` 僅為開發紀錄，不在公開 Git 歷史內。
 
 建議 Node.js 24 LTS。本次環境：Node.js 24.19.0、npm 11.17.0。
 

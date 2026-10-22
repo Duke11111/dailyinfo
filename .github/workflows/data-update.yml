@@ -25,13 +25,22 @@ on:
         description: Rebuild unchanged snapshots (first approved deployment or recovery)
         type: boolean
         default: false
+      initialize_manifest:
+        description: Explicit first-manifest adoption only (checkpoint source, no data refresh)
+        type: boolean
+        default: false
+      baseline_approval:
+        description: SHA-256 of compact reviewed release-baseline JSON (first adoption only)
+        type: string
+        default: ''
 
 permissions:
   contents: read
 
 # Opt-in only; the configuration is never written by this workflow.
 env:
-  D4_CONFIG: ${{ vars.DATA_D4_ONCE }}
+  SCHEDULE_MODE: ${{ vars.DATA_SCHEDULE_MODE }}
+  D4_CONFIG: ${{ vars.DATA_SCHEDULE_MODE == 'd4' && vars.DATA_D4_ONCE || '' }}
   SCHEDULE_CRON: ${{ github.event.schedule }}
   AUTOMATION: ${{ vars.DATA_AUTOMATION_ENABLED }}
   SCHEDULE: ${{ vars.DATA_SCHEDULE_ENABLED }}
@@ -39,15 +48,22 @@ env:
   PUBLISH: ${{ vars.DATA_PUBLISH_ENABLED }}
   AUTO_PUBLISH: ${{ vars.DATA_AUTO_PUBLISH_ENABLED }}
   DEPLOY_TARGET: ${{ vars.DATA_DEPLOY_TARGET }}
+  INITIALIZE_MANIFEST: ${{ inputs.initialize_manifest }}
+  BASELINE_APPROVAL: ${{ inputs.baseline_approval }}
+  CHECKPOINT_ONLY: ${{ inputs.source == 'checkpoint' }}
+  INITIALIZE_STATE: ${{ inputs.initialize_state }}
+  PUBLISH_CURRENT: ${{ inputs.publish_current }}
+  APPROVED_CHECKPOINT_RUN: ${{ inputs.checkpoint_run }}
 
 concurrency:
-  group: dailyinfo-data-update
+  # Shared by all production workflows, across restore, guard and deployment.
+  group: dailyinfo-production
   cancel-in-progress: false
 
 jobs:
   update:
     # No cloud action runs until the user deliberately opts in on the default branch.
-    if: github.event.repository.visibility == 'public' && vars.DATA_AUTOMATION_ENABLED == 'true' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '43 12 * * *' && vars.DATA_D4_ONCE != '' && github.ref == 'refs/heads/main' && vars.DATA_FREE_USAGE_CONFIRMED == 'true' && vars.DATA_SCHEDULE_ENABLED == 'true' && fromJSON(vars.DATA_SCHEDULE_ENABLED || 'false') == true))
+    if: github.event.repository.visibility == 'public' && vars.DATA_AUTOMATION_ENABLED == 'true' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.run_attempt == 1 && github.ref == 'refs/heads/main' && vars.DATA_FREE_USAGE_CONFIRMED == 'true' && vars.DATA_SCHEDULE_ENABLED == 'true' && fromJSON(vars.DATA_SCHEDULE_ENABLED || 'false') == true && ((vars.DATA_SCHEDULE_MODE == 'd4' && github.event.schedule == '43 12 * * *' && vars.DATA_D4_ONCE != '') || (vars.DATA_SCHEDULE_MODE == 'continuous' && (github.event.schedule == '37 2 * * *' || github.event.schedule == '43 12 * * *' || github.event.schedule == '47 14 * * *')))))
     runs-on: ubuntu-latest
     timeout-minutes: 12
     permissions:
@@ -70,19 +86,22 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
       - name: Admit one scheduled attempt within the approved window
-        if: github.event_name == 'schedule'
+        if: github.event_name == 'schedule' && vars.DATA_SCHEDULE_MODE == 'd4'
         id: d4
         run: node scripts/d4-acceptance.mjs admit
         env:
           GH_TOKEN: ${{ github.token }}
       - name: Persist single-use claim before restoring or updating any source
-        if: github.event_name == 'schedule'
+        if: github.event_name == 'schedule' && vars.DATA_SCHEDULE_MODE == 'd4'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: ${{ steps.d4.outputs.claim_name }}
           path: .cache/d4/claim.json
           retention-days: 7
           if-no-files-found: error
+      - name: Authorize explicit first manifest before restore or source requests
+        if: github.event_name == 'workflow_dispatch' && (inputs.initialize_manifest == true || inputs.baseline_approval != '')
+        run: node scripts/authorize-release-baseline.mjs
       - name: Restore last successful checkpoint (fail closed if missing)
         id: restore
         run: node scripts/automation-state.mjs restore
@@ -96,7 +115,7 @@ jobs:
           PUBLISH_ENABLED: ${{ vars.DATA_PUBLISH_ENABLED }}
           DEPLOY_TARGET: ${{ vars.DATA_DEPLOY_TARGET }}
       - name: Capture restored source state for independent acceptance
-        if: github.event_name == 'schedule'
+        if: github.event_name == 'schedule' && vars.DATA_SCHEDULE_MODE == 'd4'
         run: node scripts/d4-acceptance.mjs capture
       - name: Isolated source updates
         if: inputs.source != 'checkpoint'
@@ -123,10 +142,10 @@ jobs:
             exit "$code"
           fi
       - name: Preserve source acceptance evidence
-        if: github.event_name == 'schedule'
+        if: github.event_name == 'schedule' && vars.DATA_SCHEDULE_MODE == 'd4'
         run: node scripts/d4-acceptance.mjs evidence
       - name: Upload bounded acceptance evidence
-        if: github.event_name == 'schedule'
+        if: github.event_name == 'schedule' && vars.DATA_SCHEDULE_MODE == 'd4'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: dailyinfo-d4-evidence
@@ -143,7 +162,7 @@ jobs:
           CODE_CHANGED: ${{ steps.restore.outputs.code_changed }}
           FORCE_BUILD: ${{ inputs.publish_current }}
           EVENT: ${{ github.event_name }}
-          AUTO_PUBLISH_ENABLED: ${{ github.event_name == 'schedule' && 'false' || vars.DATA_AUTO_PUBLISH_ENABLED }}
+          AUTO_PUBLISH_ENABLED: ${{ vars.DATA_SCHEDULE_MODE == 'continuous' && vars.DATA_AUTO_PUBLISH_ENABLED || 'false' }}
           FREE_USAGE_CONFIRMED: ${{ vars.DATA_FREE_USAGE_CONFIRMED }}
           PUBLISH_ENABLED: ${{ vars.DATA_PUBLISH_ENABLED }}
           DEPLOY_TARGET: ${{ vars.DATA_DEPLOY_TARGET }}
@@ -158,6 +177,13 @@ jobs:
         run: npm run verify -- --dist
         env:
           CWA_API_KEY: ${{ secrets.CWA_API_KEY }}
+      - name: Guard production baseline and seal release manifest
+        if: steps.decision.outputs.publish == 'true'
+        run: |
+          node scripts/publish-guard.mjs
+          npm run verify -- --dist
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: Prepare validated checkpoint
         run: node scripts/automation-state.mjs export
       - name: Bound checkpoint and build uploads
@@ -186,7 +212,7 @@ jobs:
 
   deploy:
     needs: update
-    if: github.event_name != 'schedule' && needs.update.outputs.publish == 'true' && vars.DATA_PUBLISH_ENABLED == 'true' && vars.DATA_DEPLOY_TARGET == 'pages'
+    if: (github.event_name != 'schedule' || (vars.DATA_SCHEDULE_MODE == 'continuous' && vars.DATA_AUTOMATION_ENABLED == 'true' && vars.DATA_SCHEDULE_ENABLED == 'true' && vars.DATA_FREE_USAGE_CONFIRMED == 'true' && vars.DATA_AUTO_PUBLISH_ENABLED == 'true')) && needs.update.outputs.publish == 'true' && vars.DATA_PUBLISH_ENABLED == 'true' && vars.DATA_DEPLOY_TARGET == 'pages'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -229,7 +255,7 @@ jobs:
 
   d4-acceptance:
     needs: [update, deploy, checkpoint]
-    if: always() && github.event.repository.visibility == 'public' && github.event_name == 'schedule' && github.event.schedule == '43 12 * * *' && vars.DATA_D4_ONCE != ''
+    if: always() && github.event.repository.visibility == 'public' && github.event_name == 'schedule' && vars.DATA_SCHEDULE_MODE == 'd4' && github.event.schedule == '43 12 * * *' && vars.DATA_D4_ONCE != ''
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:

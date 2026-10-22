@@ -4,6 +4,8 @@
 
 ## 有限授權，不需要人在 20:43 守候
 
+本 D5 整合候選版需另明確選擇 `DATA_SCHEDULE_MODE=d4` 才啟用以下一次性路徑。`continuous` 模式不讀取 D4 日期與指定 Checkpoint；模式未設定即拒絕排程。所有設定仍需另行核准，本機整合不會修改雲端。D4 核准 SHA 必須是最終整合後實際執行的新 Commit，不可沿用本機基準 SHA。
+
 保留原三個 Cron，D4 模式只允許 `43 12 * * *`（臺灣 20:43）啟動來源更新。上午、補救時段及缺少一次性設定時，整個更新 Job skipped。手動更新／checkpoint-only 原有政策保留，並不自動取得 D4 授權。
 
 未來另經核准後才可設定 `DATA_D4_ONCE` JSON。它必須包含 version=1、`id=d4-YYYYMMDD-evening`、經核准的**新程式 Commit 完整 SHA**、當天 `target=YYYY-MM-DDT20:43:00+08:00`、同日 `deadline=YYYY-MM-DDT21:30:00+08:00`、已核准 Checkpoint 的 runId／artifactId／commit／GitHub digest、正式 deploymentId，以及五份已核准公開 JSON 的 SHA-256（published 的鍵為 stocks／quotes／news／earthquakes／horoscope）。未提供完整證據、設定錯誤或日期不符就停止。不是在程式內寫死今天，以免提交延遲後誤測另一天；每次換日期都需使用者重新明確授權。

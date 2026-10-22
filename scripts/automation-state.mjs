@@ -6,6 +6,7 @@ import { PROJECT_ROOT, verifySnapshots } from './lib/data-automation.mjs';
 import { exportState, restoreState } from './lib/update-state.mjs';
 import { assertCheckpointPublish, selectCheckpoint } from './lib/checkpoint-policy.mjs';
 import { d4Config, assertD4Checkpoint } from './lib/d4-acceptance.mjs';
+import { scheduledMode } from './lib/schedule-mode.mjs';
 const exec = promisify(execFile);
 async function gh(args) { const result = await exec('gh', args, { cwd: PROJECT_ROOT, timeout: 30000, maxBuffer: 2097152, windowsHide: true }); return result.stdout; }
 async function output(name, value) { if (process.env.GITHUB_OUTPUT) await appendFile(process.env.GITHUB_OUTPUT, `${name}=${value}\n`); }
@@ -15,6 +16,7 @@ try {
     await exportState(PROJECT_ROOT, join(PROJECT_ROOT, '.cache/data-state'), process.env.GITHUB_SHA || '');
     console.log('Validated data checkpoint prepared.');
   } else if (mode === 'restore') {
+    const schedule = process.env.GITHUB_EVENT_NAME === 'schedule' ? scheduledMode(process.env) : null;
     assertCheckpointPublish(process.env);
     const exact = process.env.CHECKPOINT_ONLY === 'true';
     const repository = process.env.GITHUB_REPOSITORY, branch = process.env.DEFAULT_BRANCH;
@@ -22,7 +24,7 @@ try {
     const list = JSON.parse(await gh(['api', `repos/${repository}/actions/artifacts?name=dailyinfo-data-state&per_page=100`]));
     const selected = await selectCheckpoint(list.artifacts, async id => JSON.parse(await gh(['api', `repos/${repository}/actions/runs/${id}`])),
       { branch, exact, approvedRun: process.env.APPROVED_CHECKPOINT_RUN });
-    if (process.env.GITHUB_EVENT_NAME === 'schedule' && process.env.D4_CONFIG) assertD4Checkpoint(d4Config(process.env.D4_CONFIG), selected);
+    if (schedule === 'd4') assertD4Checkpoint(d4Config(process.env.D4_CONFIG), selected);
     if (!selected) {
       if (exact || process.env.INITIALIZE_STATE !== 'true') throw Error();
       await verifySnapshots(); await output('code_changed', true);

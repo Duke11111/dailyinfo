@@ -7,8 +7,8 @@ import { selectCheckpoint } from '../scripts/lib/checkpoint-policy.mjs';
 const workflow = await readFile('.github/workflows/data-update.yml', 'utf8');
 const update = workflow.split('\n  update:')[1].split('\n  deploy:')[0];
 const context = (event = 'schedule', variables = {}, inputs = {}) => ({
-  vars: { DATA_AUTOMATION_ENABLED: 'true', DATA_FREE_USAGE_CONFIRMED: 'true', DATA_D4_ONCE: '{}', ...variables }, inputs,
-  github: { event_name: event, ref: 'refs/heads/main', event: { schedule: '43 12 * * *', repository: { default_branch: 'main', visibility: 'public' } } },
+  vars: { DATA_AUTOMATION_ENABLED: 'true', DATA_FREE_USAGE_CONFIRMED: 'true', DATA_SCHEDULE_MODE: 'd4', DATA_D4_ONCE: '{}', ...variables }, inputs,
+  github: { event_name: event, run_attempt: 1, ref: 'refs/heads/main', event: { schedule: '43 12 * * *', repository: { default_branch: 'main', visibility: 'public' } } },
   format: (pattern, value) => pattern.replace('{0}', value),
   fromJSON: JSON.parse,
 });

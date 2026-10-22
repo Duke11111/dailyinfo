@@ -15,7 +15,8 @@ export async function selectCheckpoint(artifacts, getRun, { branch, exact = fals
     if (run.path === '.github/workflows/data-update.yml' && ['schedule', 'workflow_dispatch'].includes(run.event)
       && run.head_branch === branch && run.status === 'completed' && run.conclusion === 'success') {
       if (exact && String(candidate.workflow_run.id) !== approvedRun) throw Error('checkpoint_approval_changed');
-      if (exact && !/^[a-f0-9]{40}$/.test(run.head_sha ?? '')) throw Error('checkpoint_commit_invalid');
+      // Every restore must bind the manifest to a verified source run, not just manual publication.
+      if (!/^[a-f0-9]{40}$/.test(run.head_sha ?? '')) throw Error('checkpoint_commit_invalid');
       return { ...candidate, verifiedHeadSha: run.head_sha };
     }
   }

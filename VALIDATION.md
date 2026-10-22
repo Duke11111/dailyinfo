@@ -649,3 +649,37 @@ Phase 1 到此停止，等待使用者驗收；股票、新聞、地震僅有頁
 - 1440／834／390px 主要頁面沒有整頁水平溢出；三種模式、五色、三字級抽樣正常。系統外觀變動回應、資料損壞、寫入失敗、無行情、請求競態及群組管理亦有完整自動化回歸。未宣稱人工窮舉所有外觀組合或完成全站螢幕閱讀器認證。Chrome 捕捉的 error 日誌為空。
 - 正式五份 JSON 唯讀比較均 HTTP 200：股票目錄雜湊相同；正式 quotes（10/20）、news（10/21 擷取）、earthquakes（最新事件 10/21）、horoscope（10/21）皆比本機更新。沒有下載覆寫、還原 Checkpoint 或更新外部來源快照。本機 dist 含較舊資料，不可直接發布；安全方案與比較表見 `docs/PRE-RELEASE.md`。
 - 原有 UI、獨立地區修改及 `docs/DEMO-GUIDE.md` 保留；正式 JSON、腳本、Workflow、套件及鎖檔未修改。未 Commit／Push／部署／觸發 Actions，也沒有修改雲端開關或費用設定。
+# Phase 8G-D5-Prep：隔離本機自動發布預檢（2026-10-22）
+
+- 由 `d315796` 建立獨立 `test/d5-auto-publish-prep` worktree；不合併縣市排序分支，不修改原 main 工作樹。
+- 新增 26 項離線模擬，使用固定時鐘、獨立四來源 Fixture、唯一暫存資料夾與禁止網路的 fetch Mock。串接實際 updateData／releaseDecision、Checkpoint 匯出還原及 Workflow job 條件；GitHub job／建置失敗為本機條件模擬，沒有實際啟動雲端 Runner、部署或外部資料請求。
+- 涵蓋新資料／無變更、延遲股票的真實內容變更、部分來源失敗、各發布開關、手動與排程授權分離、Checkpoint 來源／期限／Manifest／SHA-256／Schema、資料時間倒退及失敗時禁止推進正式 Checkpoint。
+- 補強一般還原的來源 Commit SHA 驗證：與 checkpoint-only 一樣拒絕缺失或不合法的 Run SHA，不能跳過 Manifest Commit 比對。Checkpoint v2、status v1 與舊五來源完整驗證及遷移均保留。
+- 相關 5 檔 **109／109** 通過；完整 **51 檔、700／700** 通過。Vite Build（74 模組）、`npm.cmd run verify -- --dist`（5 份 JSON、隱私與子路徑）、actionlint v1.7.12（未配置 ShellCheck，使用 `-shellcheck=`）與 `git diff --check` 通過。
+- 正式資料、行政區資料、UI、Workflow、套件與鎖檔未改。沒有 Commit／Push、雲端操作或新增付費服務。D2／D3 與已發布功能的過期文件狀態已修正；Checkpoint 識別資訊僅記錄當時驗收快照，不冒稱即時最新狀態。
+- 尚存界線：Checkpoint 和更新器只能防止相對於已還原基線的資料倒退，不會查詢正式網站。D5 雲端驗收前須重查正式五份 JSON 與候選資料，確認沒有較新正式資料或並行部署；無法確認就停止。長期無人發布仍需可靠的最後成功發布基線防護，不能只憑本機測試通過宣稱完成。
+
+
+# Phase 8G-D5-Guard：既有本機成果紀錄（2026-10-22）
+
+- 原隔離分支紀錄：保留 D5-Prep 26 項測試，新增 Guard 25 項測試，當時完整 725／725 通過；這是既有驗收紀錄，不是本次整合測試結果。匯入時發現該段中文已是問號，僅在新整合 worktree 依實際程式與既有結果重寫本段，原 worktree 不變。
+- Guard 核對正式 Deployment、來源 Run／deploy Job、Manifest v1 與五份 JSON 的 SHA-256、Schema、有效日期和 fetchedAt；兩條 Workflow 共用 dailyinfo-production，部署失敗不推進 Checkpoint。Checkpoint v2 與 status v1 保持獨立。
+- 首次可信公開 Manifest 接軌仍未完成，因此不能直接啟用 D5 雲端發布；不以公開網頁的單次讀取取代授權基線。詳見 docs/PUBLISH-GUARD.md。
+
+# D5 與最新 main 整合：本機驗收（2026-10-22）
+
+- worktree `dailyinfo-d5-integration`，分支 `test/d5-integration`，HEAD 基準 `ee30aed725e29c1ed530585d1fbe19b212338f9a`；所有整合變更未提交。原 main、縣市、D4、D5-Prep 四個 worktree 的 HEAD、工作樹狀態與修改檔案雜湊均核對不變。
+- 安全整合原 Guard 的正式 Deployment／Manifest v1／五份 SHA-256／Schema／來源日期及 fetchedAt 防倒退，以及兩條 Workflow 共用整段 dailyinfo-production concurrency。一般 Checkpoint 還原同樣綁定合法來源 Commit；v2／status v1、舊五來源安全遷移、七天保存及 Artifact 限制不變。
+- 新增模式隔離 26 項測試：未設定模式拒絕、d4 的時段與禁止發布、continuous 三時段不受過期 D4 設定干擾、非精確開關拒絕、排程重跑拒絕、每個獨立發布授權及手動行為。原 D4 與 D5 測試按模式更新，未略過或刪除安全驗證。
+- 完整 Vitest **54 檔、817／817 通過**；Vite Production Build 通過（74 modules）；公開產物安全／五份 JSON／子路徑檢查、actionlint v1.7.12（`-shellcheck=`，未配置 ShellCheck）及 `git diff --check` 通過。測試使用 Fixture／Mock，沒有呼叫外部來源或 GitHub API。
+- 正式 JSON、股票目錄、行政區、UI、套件、鎖檔與 Checkpoint 資料未修改。沒有 Commit／Push、Workflow 執行、部署或 Variables／Secrets／Billing 操作，也沒有啟用長期排程或自動發布。
+- 尚存阻礙：首次可信公開 Manifest 接軌未完成；目前 main 的已發布程式不產生此檔，不能假設有基線。既有 D3 四來源成功證據保留，不重做雲端更新驗收；D4 未觸發不是 schedule PASS，後續仍需另行授權受控排程／發布驗收與當時的免費額度確認。舊版重跑／管理員或外部部署不受新鎖保證，操作前須排除；不宣稱無條件永久免費或跨所有部署方式完全無競態。
+
+# D5 首次可信 Manifest 接軌：本機完成（2026-10-22）
+
+- 精確阻擋原因為正式 release-manifest.json HTTP 404。22:14 臺灣時間的唯讀證據驗證成功：Deployment 7248868617、成功 Run 39757223565／attempt 1／Commit 0471d5a；Pages Artifact 12416491719 與 Checkpoint 12416865318 的下載壓縮檔 digest、Pages tar、Checkpoint v2 Manifest／SHA-256／Schema／status v1，以及五份正式 JSON 的來源日期／fetchedAt／位元組均相符。下載內容僅在記憶體處理，未覆寫正式 JSON 或修改 Artifact。
+- 新增 data-sources/release-baseline.json 作為需人工審查的固定信任根，包含公開來源證據與完整五份 hash，期限為 2026/10/29 17:41:22 臺灣時間。approval digest 為 compact JSON SHA-256：sha256:f83594416e570875811e72bedbe5c1033b42e1d5aa5e39697e8b9af1f1f47b20，Windows 換行不影響。
+- 只接受 data-update.yml/main 的明確 workflow_dispatch、attempt 1、initialize_manifest=true、正確 approval digest、source=checkpoint、指定核准 Run、initialize_state=false、publish_current=true、免費與發布授權，且 schedule=false、auto-publish 未設定。前置 authorization 在還原及來源腳本前執行；沒有 PAT、API 寫入或新的 Token 權限。
+- Guard 僅在確認 HTTP 404 且全部證據相符時初始化；403／5xx／連線失敗／已存在或損壞 Manifest 不觸發。初次五份候選資料必須與核准基線完全相同，不能混入新資料或 Repository 舊資料。再次確認部署與 Manifest 缺失狀態後才產生公開 Manifest；後續一律走正常完整 Guard，成功初始化不能重放。Checkpoint 與 production concurrency 保護不變。
+- 新增 25 項必要離線案例，相關 3 檔 102／102 通過；完整 **54 檔、842／842 通過**。Production Build（74 modules）、公開產物安全／五份 JSON／子路徑、actionlint v1.7.12（未配置 ShellCheck，使用 -shellcheck=）與 git diff --check 均通過。
+- 本次僅授權本機 Commit，未 Push／部署／執行雲端 Workflow，未修改 Variables／Secrets／Billing、正式資料、依賴或原 D4／D5 worktree。真正首次接軌、短期排程發布及長期啟用各需另外授權；操作前必須重查基線、期限、共享免費用量、US$0 封鎖及回復依據。精確步驟見 docs/PUBLISH-GUARD.md。

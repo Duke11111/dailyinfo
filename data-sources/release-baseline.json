@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "repository": "Duke11111/dailyinfo",
+  "baseline": {
+    "deploymentId": 7248868617,
+    "commit": "0471d5a64afaea5af87384c1763b566d36cdef64",
+    "runId": 39757223565,
+    "runAttempt": 1
+  },
+  "verifiedAt": "2026-10-22T14:14:40.313Z",
+  "expiresAt": "2026-10-29T09:41:22Z",
+  "files": {
+    "stocks.json": {
+      "sha256": "cb57026130cc7ad33eda82c062fd327bd03ec03bc59bb74eacca3e1700af8588",
+      "sourceDate": "2026-10-18",
+      "fetchedAt": "2026-10-19T10:56:36.712Z"
+    },
+    "quotes.json": {
+      "sha256": "df42fddd3741aac3519f7babfa51381840af8654d05adbb9db82e3602940dbfb",
+      "sourceDate": "2026-10-21",
+      "fetchedAt": "2026-10-22T05:16:45.604Z"
+    },
+    "news.json": {
+      "sha256": "3b29951e5e80e39897af31862b4f4ef185b4b9ed6ad395106e9e7d5f4bb96c71",
+      "sourceDate": "2026-10-22T04:19:07.000Z",
+      "fetchedAt": "2026-10-22T05:16:46.649Z"
+    },
+    "earthquakes.json": {
+      "sha256": "79ef2259db2a16f02f704e27dbf977738912c2c48695acdc38c63970f2e06158",
+      "sourceDate": "2026-10-21T06:51:20.000Z",
+      "fetchedAt": "2026-10-22T05:16:50.168Z"
+    },
+    "horoscope.json": {
+      "sha256": "5edfb6b8f783088a3b4b7f70712f0dccb5ca39e36fc7da31570cce2f063be347",
+      "sourceDate": "2026-10-22",
+      "fetchedAt": "2026-10-22T05:16:51.057Z"
+    }
+  },
+  "evidence": {
+    "pagesArtifactId": 12416491719,
+    "pagesArtifactDigest": "sha256:c9b71be4cd307f8062ba0c3878647a6307f8a8260d96639690e0fa2504e1d9ee",
+    "checkpointArtifactId": 12416865318,
+    "checkpointArtifactDigest": "sha256:a0314195c14f208ab1ab5377667b99ed1f053199e3ff213fa4cc0a142363fa5d"
+  }
+}

@@ -1,7 +1,24 @@
-# 零付費自動更新準備（Phase 8G-D1，本機改造，未啟用）
+# 零付費自動更新與發布驗收狀態
 
-2026/10/22 基線：main 為 ab82abb，正式 Pages 已完成新版 UI 單次部署。核准部署 Run 39721908929 產生的 Checkpoint 到期為 2026/10/29 12:22:14（臺灣）；這是當時驗收結果，下一次雲端操作前須重查。
-以下三時段排程與補跑改造僅存在本機，未 Commit、Push、執行或啟用，不代表長期自動更新已開始。
+2026/10/22 驗收紀錄（依已確認的階段結果，不代表即時雲端查詢）：
+
+- Phase 8G-D2 已 Commit／Push，程式基線為 `d315796e08febc3dd6e61400a302977123f72c17`。
+- Phase 8G-D3 手動雲端更新成功：[Run 39727082746](https://github.com/Duke11111/dailyinfo/actions/runs/39727082746)。update／checkpoint 成功，deploy skipped。其資料後續已納入單次核准發布，不能再把「尚未發布」當作目前狀態。
+- 當時核准的 Checkpoint Artifact 為 `12403845950`，到期為 **2026/10/29 13:17:14（臺灣時間）**。這是當時的驗收快照，並非永久最新狀態；下次雲端操作必須重查來源 Run、期限、Schema 與 SHA-256。
+- 依使用者本次確認，D4 一次性 schedule 未觸發，測試變數已清理，不能視為排程 PASS；D5 自動發布仍未完成雲端驗收。
+- 長期排程與自動發布仍未啟用。本次 D5-Prep 僅在隔離 worktree 執行離線測試，不改變任何雲端設定。
+
+## 本次 D5 整合的版本界線
+
+整合 worktree 為 `dailyinfo-d5-integration`、分支 `test/d5-integration`，從 `ee30aed725e29c1ed530585d1fbe19b212338f9a` 建立。原 D5-Prep／Guard 的未提交成果、D4 與正式 main worktree 均保留。本文及程式是本機候選版，本次核准驗收後只建立本機 Commit，沒有推送或啟用雲端。
+
+新增必要的 `DATA_SCHEDULE_MODE`，未設定／未知值均拒絕排程，不能因只開啟總排程開關就意外進入長期模式：
+
+- `d4`：僅晚間 20:43，必須有有效 `DATA_D4_ONCE`；保留指定 Commit、Checkpoint、claim、21:10 最晚啟動及 21:30 截止，無論自動發布開關如何都不部署。
+- `continuous`：三個既有 cron、四來源 `isDue`、失敗隔離與 60 分鐘冷卻不變；刻意不讀取 D4 指定日期及 Checkpoint。過期甚至格式不合法的殘留 `DATA_D4_ONCE` 不會介入，但仍建議清理。
+- 手動更新／checkpoint-only 保持獨立，不需要 schedule mode。手動發布仍需要明確 `publish_current` 及既有發布授權，不能繼承自動發布授權。
+
+Workflow gate 與來源啟動前的 Node 驗證皆檢查模式與更新授權；排程 `run_attempt` 必須為 1，不允許以重新執行原 schedule 取代新授權。同一 Workflow 與手動 Pages 共用整段 `dailyinfo-production` 互斥；每來源同一時段不重複、成功後按原規則跳過、失敗只在下一個合格時段補跑。這不是跨所有平台取消／外部操作的 exactly-once 保證：若 Run 在狀態續存前被取消，後續合格排程仍可能再次查詢來源，不能宣稱上一次已成功。
 
 ## 來源與時間
 
@@ -36,18 +53,20 @@ Workflow 觸發、來源成功與正式 deploy 是不同結果：即使部分來
 
 ## 授權與發布
 
-排程 update job 必須 automation=true、schedule=true、free-usage-confirmed=true，且為 main；任一未設定即不啟動 runner。
+排程 update job 必須公開儲存庫、main、automation=true、schedule=true、free-usage-confirmed=true，並明確選擇上述模式；任一必要條件未設定即不執行更新。Node 另以精確字串檢查，避免 GitHub 表達式大小寫寬鬆比較造成來源請求。
 
 | Repository Variable | 用途 | 目前雲端 |
 | --- | --- | --- |
 | DATA_AUTOMATION_ENABLED | 既有總更新開關 | true |
-| DATA_SCHEDULE_ENABLED | 排程授權 | false（本機改造未操作雲端） |
+| DATA_SCHEDULE_ENABLED | 排程授權 | false（已知安全基線；本次未操作雲端） |
+| DATA_SCHEDULE_MODE | d4 一次性或 continuous 長期模式，須獨立明確選擇 | 未設定（本機不操作雲端） |
 | DATA_FREE_USAGE_CONFIRMED | 啟用前重新確認免費條款、帳號共用儲存額度與零預算封鎖 | 未設定 |
 | DATA_AUTO_PUBLISH_ENABLED | 使用者另行授權長期排程發布 | 未設定 |
 | DATA_PUBLISH_ENABLED | 所有資料發布總開關 | false |
 | DATA_DEPLOY_TARGET | 僅支援 pages | 未設定 |
 
-自動發布需上述發布開關、Pages 目標、免費確認，以及本輪真的有 validated updated 資料；只有程式碼變化或 force-build 不足以自動發布。
+上表是階段驗收時的已知狀態，不是本機文件讀取時即時查詢的結果。
+自動發布必須 continuous 模式、上述更新及發布開關、Pages 目標、免費確認，以及本輪真的有 validated updated 資料；只有程式碼變化或 force-build 不足以自動發布。D4 模式的 decision 與 deploy Job 各自禁止自動發布。
 手動更新不受排程開關影響；即使長期自動發布已啟用，手動 Workflow 也必須明確指定 publish_current=true 才能發布。
 checkpoint-only 仍須指定已核准的 checkpoint_run，沿用原有精確還原與安全核准。
 每次發布前沿用完整測試、建置、公開產物掃描與最小權限。單一來源失敗時保留有效舊值，其他成功來源可以獨立更新；不清除資料。
@@ -59,10 +78,19 @@ checkpoint-only 仍須指定已核准的 checkpoint_run，沿用原有精確還�
 - 每輪成功後保存新 dailyinfo-data-state，期限 7 天；candidate 1 天。
 - 排程不產生 site-preview；手動預覽及必要 Pages Artifact 僅 1 天。
 - 每輪還原最近成功 main 流程且未過期的有效 Checkpoint。沒有有效備份就停止，排程絕不初始化。
+- 排程與手動還原均須有合法來源 Commit SHA，並與 Manifest Commit 完全一致；不能因為不是 checkpoint-only 就省略來源 Commit 驗證。
 - 來源請求前及上傳前，唯讀分頁計算本儲存庫所有 Artifact；未知格式、無法取得用量、超過 10 頁或用量加 24 MiB 預留超過 180 MiB 時拒絕。
 - 單份 Checkpoint 未壓縮上限 1 MiB，dist 上限 8 MiB；超限停止，不刪備份、不提高額度。
 - 此限制是保守的儲存庫防線，不能代表帳號內其他專案／Packages／過去累積計費用量。必須保持帳號 Actions、Packages 的 US$0／Usage blocked，並在啟用前人工確認共用額度；不能只依本機估算宣稱永久免費保證。
-- 目前四份資料合計約 0.56 MiB；加入 status/manifest 保守估算每份 0.6 MiB。每小時 7 天有 168 份 checkpoint，加 24 份 candidate 約 115 MiB（未計壓縮）。Pages Artifact 以實際大小估算，最多 24 份／日；實際佔用依壓縮、更新頻率與其他手動操作變化。到保守上限會停止更新，並非自動清理。
+- 以四份資料合計約 0.56 MiB、每份狀態保守估算 0.6 MiB：每日三輪、七天 21 份 checkpoint，加一天 3 份 candidate 約 14.4 MiB（未計壓縮，不含手動操作及 Pages Artifact）。Pages Artifact 以實際大小估算，計畫排程最多 3 份／日；到保守上限停止更新，不自動清理或提高額度。
+
+## D5 本機模擬與雲端驗收界線
+
+隔離測試使用固定時鐘、合成四來源 Fixture、獨立暫存目錄及禁止網路的 Mock。測試串接實際更新／發布決策與 Workflow job 條件，涵蓋新資料、無變更、延遲股票、部分失敗、獨立授權、Checkpoint 完整性、資料倒退及失敗後禁止推進 Checkpoint。這不等於實際執行 GitHub Runner 或 Pages 部署。
+
+既有還原政策可保護 Repository 中較新的快照不被一般舊 Checkpoint 覆蓋；更新器亦拒絕相對於還原基線的來源日期與 fetchedAt 倒退。D5-Guard 本機版本另外加入 [正式發布基線防護](PUBLISH-GUARD.md)：兩條部署 Workflow 共用整段流程互斥，發布前比對 GitHub 最新成功部署、公開 Manifest 與五份 JSON，驗證 SHA-256、Schema、有效日期與 fetchedAt。任何無法確認的基線或倒退均停止；沒有用舊 JSON 或重新初始化繞過的路徑。
+
+目前仍不能直接啟用自動發布：正式站 Manifest 404 已於本次唯讀確認，核准 Deployment 的 Pages Artifact、Checkpoint 與五份正式 JSON 已逐一驗證。首次基線初始化已實作，僅限額外明確手動核准的 checkpoint-only 發布、固定核准檔／digest、有限期限及完全相同的五份資料；不存在「缺檔就自動信任」的路徑。兩條新版 Workflow 的鎖也不能約束舊版重新執行、外部部署或管理員；存在這些未受控部署途徑時必須停止。精確操作與恢復開關見 PUBLISH-GUARD.md；本次只有唯讀外部證據查核，未啟用雲端發布。
 
 ## 網站開啟期間
 
@@ -73,11 +101,11 @@ checkpoint-only 仍須指定已核准的 checkpoint_run，沿用原有精確還�
 
 ## 下一階段最小安全啟用順序（需另行授權）
 
-1. 保留目前已發布網站與有效 Checkpoint；審閱本次 8G-D1 改造及既有單次發布紀錄，不重新初始化備份。
+1. 保留目前已發布網站與有效 Checkpoint；審閱已提交的 D2、已通過的 D3 與本機 D5-Prep 修正，不重新初始化備份。
 2. 重新確認官方免費條款、帳號共用儲存空間、US$0／Usage blocked 及有效 Checkpoint；無法確認就停止。
-3. 經授權只提交／推送本機準備，再用一次不發布的手動 core 驗收所有保護。
-4. 另經授權標記免費確認，短期開啟 schedule；先保持所有發布開關關閉，驗收一次真正 schedule，立即關閉 schedule。
-5. 另取得長期自動發布授權後，才設定自動發布專用開關、總發布開關、pages 目標及排程。不得更改任何預算、付款方式、Secrets 或 Runner 等級。
+3. D4 未觸發仍是未驗收，不能把 D3 當成 schedule 證據。若要重做 D4 必須另核准日期、最終新 SHA 與完整基線，模式選 d4，結束後關閉排程並清理臨時變數。
+4. 本次只核准本機 Commit，推送仍需另行授權。再依 PUBLISH-GUARD.md 額外核准一次首次 Manifest 接軌：指定 initialize_manifest=true、核准 digest 與固定 checkpoint_run，保持排程關閉；不能暫停 guard 或換資料。接軌後再以新 SHA／有效備份／免費額度及回復依據規劃受控 continuous schedule 驗收；發布須另行明確授權，不能把本機整合或更新授權視為發布授權。僅開啟核准開關，結束後恢復安全狀態，不自行重試。
+5. D5 短期驗收不代表長期授權。另取得長期自動發布授權並處理上述正式網站基線風險後，才可規劃長期啟用；不得更改任何預算、付款方式、Secrets 或 Runner 等級。
 6. 停止方式：先關 DATA_SCHEDULE_ENABLED／DATA_AUTO_PUBLISH_ENABLED，再關 DATA_PUBLISH_ENABLED、移除 DATA_DEPLOY_TARGET。既有網站與有效備份保留。
 
 來源條款（2026/10/20 檢查）：

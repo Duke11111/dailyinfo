@@ -6,16 +6,19 @@ on:
 permissions: {}
 
 concurrency:
-  group: dailyinfo-pages
+  # Same workflow-level lock as data-update: no check/deploy gap between these paths.
+  group: dailyinfo-production
   cancel-in-progress: false
 
 jobs:
   build:
-    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    if: github.ref == 'refs/heads/main' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && vars.DATA_PUBLISH_ENABLED == 'true' && vars.DATA_DEPLOY_TARGET == 'pages'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
+      actions: read
+      deployments: read
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4; official ref verified 2026-10-20
         with:
@@ -24,9 +27,19 @@ jobs:
         with:
           node-version: '24'
       - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Check free storage headroom
+        run: node scripts/artifact-budget.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}
       - run: npm test
       - run: npm run build -- --base=/dailyinfo/
       - run: npm run verify -- --dist
+      - name: Guard production baseline and seal release manifest
+        run: |
+          node scripts/publish-guard.mjs
+          npm run verify -- --dist
+        env:
+          GH_TOKEN: ${{ github.token }}
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3; official ref verified 2026-10-20
         with:
           path: dist/
@@ -34,6 +47,7 @@ jobs:
 
   deploy:
     needs: build
+    if: vars.DATA_PUBLISH_ENABLED == 'true' && vars.DATA_DEPLOY_TARGET == 'pages'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:

@@ -173,8 +173,8 @@ it('workflow keeps manual behavior, persists a claim before requests, and cannot
   const workflow = (await readFile('.github/workflows/data-update.yml', 'utf8')).replace(/\r\n/g, '\n');
   const condition = workflow.split('  update:\n')[1].match(/^    if: (.+)$/m)[1];
   const gate = (event, vars, cron = D4_CRON, visibility = 'public') => Function('vars', 'github', 'format', 'fromJSON', `return (${condition});`)(vars,
-    { ref: 'refs/heads/main', event_name: event, event: { schedule: cron, repository: { default_branch: 'main', visibility } } }, (pattern, value) => pattern.replace('{0}', value), JSON.parse);
-  const vars = { DATA_AUTOMATION_ENABLED: 'true', DATA_SCHEDULE_ENABLED: 'true', DATA_FREE_USAGE_CONFIRMED: 'true', DATA_D4_ONCE: '{}' };
+    { ref: 'refs/heads/main', event_name: event, run_attempt: 1, event: { schedule: cron, repository: { default_branch: 'main', visibility } } }, (pattern, value) => pattern.replace('{0}', value), JSON.parse);
+  const vars = { DATA_SCHEDULE_MODE: 'd4', DATA_AUTOMATION_ENABLED: 'true', DATA_SCHEDULE_ENABLED: 'true', DATA_FREE_USAGE_CONFIRMED: 'true', DATA_D4_ONCE: '{}' };
   expect(gate('schedule', vars)).toBe(true);
   expect(gate('schedule', vars, D4_CRON, 'private')).toBe(false);
   expect(gate('schedule', vars, D4_CRON, '')).toBe(false);
@@ -184,8 +184,8 @@ it('workflow keeps manual behavior, persists a claim before requests, and cannot
   expect(gate('schedule', vars, '37 2 * * *')).toBe(false);
   expect(gate('workflow_dispatch', { DATA_AUTOMATION_ENABLED: 'true' })).toBe(true);
   expect(workflow.indexOf('name: Persist single-use claim')).toBeLessThan(workflow.indexOf('name: Isolated source updates'));
-  expect(workflow).toContain("if: github.event_name != 'schedule' && needs.update.outputs.publish");
-  expect(workflow).toContain("github.event_name == 'schedule' && 'false' || vars.DATA_AUTO_PUBLISH_ENABLED");
+  expect(workflow).toContain("github.event_name != 'schedule' || (vars.DATA_SCHEDULE_MODE == 'continuous'");
+  expect(workflow).toContain("vars.DATA_SCHEDULE_MODE == 'continuous' && vars.DATA_AUTO_PUBLISH_ENABLED || 'false'");
   expect(workflow).toContain('needs: [update, deploy, checkpoint]');
   expect(workflow).not.toMatch(/actions: write|gh variable|initialize_state: true/);
   const cli = await readFile('scripts/d4-acceptance.mjs', 'utf8');
