@@ -1,6 +1,6 @@
 # D4 一次性排程驗收（本機準備，未啟用）
 
-基準 main：`0471d5a64afaea5af87384c1763b566d36cdef64`。隔離分支 `test/d4-one-shot-acceptance`；未修改 D5 worktree，也未提交、推送或操作雲端。
+原始基準 main：`0471d5a64afaea5af87384c1763b566d36cdef64`。D4 初版 `709b95069064268f6a3eda12e93ecbc6a04fc865` 已推送；本次 Runner 權限修正只在隔離分支 `test/d4-one-shot-acceptance` 處理，未啟用雲端驗收，未修改 D5 worktree。
 
 ## 有限授權，不需要人在 20:43 守候
 
@@ -11,6 +11,8 @@
 既有 automation=true、schedule=true、free-usage-confirmed=true 閘門仍全數必要。總發布必須 false，AUTO_PUBLISH 與 DEPLOY_TARGET 必須未設定。啟用前仍須人工確認公開 Repository、免費標準 Runner、帳號共用額度及 US$0／Usage blocked；免費確認變數是人工預檢證據，不是假裝程式能讀取全帳號 Billing。沒有權限擴充或變更預算的路徑。
 
 ## 一次性與截止
+
+六個開關均來自 Workflow 既有 `vars` context 傳入的環境變數；admission 及最終 acceptance 使用同一嚴格檢查。必要值必須是精確字串，選用值只接受未提供或 GitHub 對未設定值產生的空字串，不接受字串 `false`、空白或其他型別作為「未設定」。Runner 不呼叫 `actions/variables`，不需要 PAT 或新增 Token 權限。這些值是執行環境中的 context 快照，不能保證反映管理員在執行期間的即時修改；最終 Job 即使重新取得 context，也不能宣稱是 Variables 即時重讀。部署 ID 與五份公開資料仍另行透過唯讀 API／HTTP 核對。
 
 1. 只有真正 schedule、main、核准 Commit、run_attempt=1 才可領用。Workflow 歷史與 claim Artifact 任一顯示已嘗試（包括失敗）即拒絕；查詢失敗、分頁超出邊界或資料不可信亦拒絕。
 2. 領用前確認正式部署 ID／成功狀態及五份 JSON 的 Schema、SHA-256 與核准基線一致；不把網站單次讀取當成新的授權基線。
@@ -26,7 +28,7 @@ update 原有錯誤隔離與 Schema／Checksum／來源日期防護保留。額�
 
 最後新增 `d4-acceptance` Job：update success、deploy skipped、checkpoint success 才可驗證新 Checkpoint。以原有 restoreState 驗證所有檔案 Manifest／SHA-256／Schema／Commit，並逐一比對來源摘要與最終資料。updated 必須確有內容改變；unchanged 必須保留原位元組；skipped 必須符合還原前 status 的 isDue；failed 一律不能 PASS。合法股票 source_delayed 可通過驗收，但清楚保留真實交易日，不能說已取得今日行情。
 
-完整 PASS 必須在截止前完成，且正式 deploymentId、五份 JSON 雜湊與發布開關均未變。Summary 列出事件、截止、Job、來源日期、最近成功時間、補跑資格、Checkpoint ID／期限與各項 PASS／FAIL。測試／建置或原有安全檢查失敗會使 update 失敗，因此不能 PASS；沒有新內容且程式未變時，原有 build 省略政策仍保留，不虛稱未執行的測試已通過。
+完整 PASS 必須在截止前完成，且正式 deploymentId、五份 JSON 雜湊符合核准基線、執行 context 的所有安全開關通過檢查。Summary 列出事件、截止、Job、來源日期、最近成功時間、補跑資格、Checkpoint ID／期限與各項 PASS／FAIL。測試／建置或原有安全檢查失敗會使 update 失敗，因此不能 PASS；沒有新內容且程式未變時，原有 build 省略政策仍保留，不虛稱未執行的測試已通過。
 
 只要最終驗收 FAIL，整個 Run failure，新 Artifact 即使存在也不會被「只信任成功 Run」的還原政策選中；上一個有效 Checkpoint 不變。取消或平台故障若讓最後 Job 本身未執行，不能保證產生 Summary，也不能判 PASS。
 

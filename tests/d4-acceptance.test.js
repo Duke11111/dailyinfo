@@ -2,7 +2,7 @@ import { it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { readFile, writeFile, mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { resolve, join, sep } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { d4Config, admitD4, assertD4StartWindow, assertD4Checkpoint, acceptanceReport, snapshotFacts, D4_CRON, D4_FILES } from '../scripts/lib/d4-acceptance.mjs';
+import { d4Config, d4SwitchesSafe, admitD4, assertD4StartWindow, assertD4Checkpoint, acceptanceReport, snapshotFacts, D4_CRON, D4_FILES } from '../scripts/lib/d4-acceptance.mjs';
 import { SOURCES, updateData, runSource } from '../scripts/lib/data-automation.mjs';
 import { exportState } from '../scripts/lib/update-state.mjs';
 import { checkpointFixture } from './fixtures/checkpoint.js';
@@ -85,6 +85,22 @@ async function evidence() {
   return { config: config(), env: env(), jobs: { update: 'success', deploy: 'skipped', checkpoint: 'success' }, before, report, after, manifest,
     artifact: { id: 300, expired: false, expires_at: '2026-10-27T12:43:00Z', workflow_run: { id: 123 } }, publicUnchanged: true, now: now + 60000 };
 }
+it.each([
+  ['AUTOMATION', undefined], ['AUTOMATION', 'TRUE'], ['SCHEDULE', undefined], ['SCHEDULE', 'false'],
+  ['FREE', undefined], ['FREE', 'true '], ['PUBLISH', undefined], ['PUBLISH', 'true'], ['PUBLISH', false],
+  ['AUTO_PUBLISH', 'true'], ['AUTO_PUBLISH', 'false'], ['AUTO_PUBLISH', false], ['AUTO_PUBLISH', null],
+  ['DEPLOY_TARGET', 'pages'], ['DEPLOY_TARGET', ' '], ['DEPLOY_TARGET', false], ['DEPLOY_TARGET', null],
+])('admission and final acceptance both reject unsafe context %s=%s', async (key, value) => {
+  const unsafe = { ...env(), [key]: value };
+  expect(d4SwitchesSafe(unsafe)).toBe(false);
+  expect(() => admitD4(config(), unsafe, { runs: [current()], artifacts: [], now })).toThrow();
+  const input = await evidence(); input.env = unsafe;
+  const result = acceptanceReport(input);
+  expect(result.checks.safetySwitches).toBe(false); expect(result.pass).toBe(false);
+});
+it('accepts absent optional values represented by GitHub as empty strings', () => {
+  expect(d4SwitchesSafe({ ...env(), AUTO_PUBLISH: '', DEPLOY_TARGET: '' })).toBe(true);
+});
 it('independently accepts updated news, delayed quotes, unchanged earthquakes and legitimately skipped horoscope', async () => {
   const input = await evidence(), result = acceptanceReport(input);
   expect(input.report.results.map(({ status, code }) => [status, code])).toEqual([
@@ -172,4 +188,10 @@ it('workflow keeps manual behavior, persists a claim before requests, and cannot
   expect(workflow).toContain("github.event_name == 'schedule' && 'false' || vars.DATA_AUTO_PUBLISH_ENABLED");
   expect(workflow).toContain('needs: [update, deploy, checkpoint]');
   expect(workflow).not.toMatch(/actions: write|gh variable|initialize_state: true/);
+  const cli = await readFile('scripts/d4-acceptance.mjs', 'utf8');
+  expect(cli).not.toContain('actions/variables');
+  expect(cli).toContain('d4SwitchesSafe(process.env)');
+  for (const [key, variable] of Object.entries({ AUTOMATION: 'DATA_AUTOMATION_ENABLED', SCHEDULE: 'DATA_SCHEDULE_ENABLED', FREE: 'DATA_FREE_USAGE_CONFIRMED', PUBLISH: 'DATA_PUBLISH_ENABLED', AUTO_PUBLISH: 'DATA_AUTO_PUBLISH_ENABLED', DEPLOY_TARGET: 'DATA_DEPLOY_TARGET' })) {
+    expect(workflow).toContain(key + ': ${{ vars.' + variable + ' }}');
+  }
 });

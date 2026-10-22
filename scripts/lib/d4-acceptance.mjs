@@ -8,6 +8,12 @@ export const D4_FILES = ['stocks', ...SOURCES];
 export const hash = text => createHash('sha256').update(text).digest('hex');
 const reject = () => { throw Error('d4_refused'); };
 const integer = n => Number.isSafeInteger(n) && n > 0;
+// GitHub vars maps an unset value to an empty string; never coerce other inputs.
+export function d4SwitchesSafe(env) {
+  const absent = value => value === undefined || value === '';
+  return env?.AUTOMATION === 'true' && env.SCHEDULE === 'true' && env.FREE === 'true'
+    && env.PUBLISH === 'false' && absent(env.AUTO_PUBLISH) && absent(env.DEPLOY_TARGET);
+}
 export function d4Config(raw) {
   const c = typeof raw === 'string' ? JSON.parse(raw) : raw;
   if (!c || c.version !== 1 || !/^d4-[0-9]{8}-evening$/.test(c.id ?? '') || !/^[a-f0-9]{40}$/.test(c.expectedSha ?? '')
@@ -27,8 +33,7 @@ export function admitD4(c, env, { runs, artifacts, now = Date.now() }) {
   if (env.GITHUB_EVENT_NAME !== 'schedule' || env.SCHEDULE_CRON !== D4_CRON || env.GITHUB_REF !== 'refs/heads/main'
     || env.GITHUB_SHA !== c.expectedSha || env.GITHUB_REPOSITORY !== 'Duke11111/dailyinfo'
     || env.GITHUB_RUN_ATTEMPT !== '1' || !/^[1-9]\d*$/.test(env.GITHUB_RUN_ID ?? '')
-    || env.AUTOMATION !== 'true' || env.SCHEDULE !== 'true' || env.FREE !== 'true'
-    || env.PUBLISH !== 'false' || env.AUTO_PUBLISH || env.DEPLOY_TARGET
+    || !d4SwitchesSafe(env)
     || !Array.isArray(runs) || !Array.isArray(artifacts)) reject();
   const current = runs.find(run => String(run.id) === env.GITHUB_RUN_ID);
   const eligible = run => run.event === 'schedule' && run.head_branch === 'main' && run.head_sha === c.expectedSha
@@ -57,6 +62,7 @@ export function acceptanceReport({ config, env, jobs, report, before, after, man
   checks.event = env.GITHUB_EVENT_NAME === 'schedule' && env.SCHEDULE_CRON === D4_CRON && env.GITHUB_SHA === config.expectedSha
     && env.GITHUB_RUN_ATTEMPT === '1' && env.GITHUB_REF === 'refs/heads/main' && env.GITHUB_REPOSITORY === 'Duke11111/dailyinfo';
   checks.publicationDisabled = env.PUBLISH === 'false' && !env.AUTO_PUBLISH && !env.DEPLOY_TARGET;
+  checks.safetySwitches = d4SwitchesSafe(env);
   checks.deadline = now >= Date.parse(config.target) && now <= Date.parse(config.deadline)
     && Date.parse(report?.startedAt) >= Date.parse(config.target) && Date.parse(report?.startedAt) <= now;
   checks.jobs = jobs.update === 'success' && jobs.deploy === 'skipped' && jobs.checkpoint === 'success';

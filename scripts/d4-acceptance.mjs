@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { mkdir, readFile, writeFile, appendFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { d4Config, admitD4, assertD4StartWindow, D4_FILES, hash, snapshotFacts, acceptanceReport } from './lib/d4-acceptance.mjs';
+import { d4Config, d4SwitchesSafe, admitD4, assertD4StartWindow, D4_FILES, hash, snapshotFacts, acceptanceReport } from './lib/d4-acceptance.mjs';
 import { SOURCES, validateState } from './lib/data-automation.mjs';
 import { restoreState } from './lib/update-state.mjs';
 import { validateCatalog } from '../src/services/stock-catalog.js';
@@ -12,6 +12,8 @@ const api = path => JSON.parse(gh(['api', `repos/${repository}/${path}`]));
 const json = async path => JSON.parse(await readFile(path, 'utf8'));
 async function summary(text) { if (process.env.GITHUB_STEP_SUMMARY) await appendFile(process.env.GITHUB_STEP_SUMMARY, text); }
 async function publicBaseline(config) {
+  // Workflow vars context snapshot only; this is NOT a live Variables API read.
+  if (!d4SwitchesSafe(process.env)) throw Error();
   if (api('commits/main').sha !== config.expectedSha) throw Error();
   for (const status of ['in_progress', 'queued']) {
     const runs = api(`actions/runs?status=${status}&per_page=100`);
@@ -32,13 +34,11 @@ async function publicBaseline(config) {
     if (name === 'stocks') validateCatalog(JSON.parse(text)); else snapshotFacts(name, text);
   }
   if (api('deployments?environment=github-pages&per_page=1')[0]?.id !== config.deploymentId) throw Error();
-  const vars = Object.fromEntries(api('actions/variables').variables.map(item => [item.name, item.value]));
-  if (vars.DATA_PUBLISH_ENABLED !== 'false' || vars.DATA_AUTO_PUBLISH_ENABLED || vars.DATA_DEPLOY_TARGET) throw Error();
   return true;
 }
 try {
   const config = d4Config(process.env.D4_CONFIG), mode = process.argv[2];
-  if (process.env.GITHUB_REPOSITORY !== repository) throw Error();
+  if (process.env.GITHUB_REPOSITORY !== repository || !d4SwitchesSafe(process.env)) throw Error();
   await mkdir(directory, { recursive: true });
   if (mode === 'admit') {
     const result = api(`actions/workflows/data-update.yml/runs?event=schedule&head_sha=${config.expectedSha}&per_page=100`);
