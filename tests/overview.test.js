@@ -38,6 +38,18 @@ it('renders all four summaries, accurate dates, sources and seven forecast days'
   expect(document.querySelector('.overview-news a[target="_blank"]').rel).toContain('noopener');
   expect(document.querySelectorAll('.overview-source>a')).toHaveLength(4);
 });
+it('places the agenda then horoscope together ahead of all four summaries without dropping sources', async () => {
+  boot(); await settled();
+  const agenda = document.querySelector('.today-agenda'), grid = document.querySelector('.overview-grid'), horoscope = document.querySelector('.horoscope-card');
+  expect(agenda.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(agenda.compareDocumentPosition(horoscope) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(horoscope.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(document.querySelector('.overview-personal').contains(agenda)).toBe(true);
+  expect(document.querySelector('.overview-personal').contains(horoscope)).toBe(true);
+  expect(document.querySelectorAll('.overview-source>a')).toHaveLength(4);
+  expect(horoscope.textContent).toContain('星座運勢僅供娛樂參考');
+  expect(agenda.querySelector('a[href="#/calendar"]')).not.toBeNull();
+});
 it('reads existing groups and switches summary without writing any user data', async () => {
   seed(); localStorage.setItem('dailyinfo.news.favorites.v1', 'keep'); const before = { ...localStorage };
   boot(); await settled(); const select = document.querySelector('.overview-stocks select'); select.value = 'etf'; select.dispatchEvent(new Event('change'));

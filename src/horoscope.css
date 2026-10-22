@@ -5,6 +5,7 @@
 .horoscope-controls select { padding: .55rem .7rem; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--text); font: inherit; }
 .horoscope-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
 .horoscope-reading { line-height: 1.8; overflow-wrap: anywhere; max-width: 110ch; }
+.horoscope-reading.is-collapsed { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
 .horoscope-meta { color: var(--muted); font-size: .8rem; line-height: 1.6; overflow-wrap: anywhere; }
 .horoscope-meta a { color: var(--accent); }
 @media (max-width: 700px) { .horoscope-controls label { margin-left: 0; } }

@@ -5,7 +5,8 @@ import { createHash } from 'node:crypto';
 import { SOURCES, validateState, updateData, selectUpdateSources } from '../scripts/lib/data-automation.mjs';
 import { exportState, restoreState } from '../scripts/lib/update-state.mjs';
 import { CHECKPOINT_NOW, checkpointFixture } from './fixtures/checkpoint.js';
-const base = resolve('.cache/migration-tests'), now = CHECKPOINT_NOW, commit = 'a'.repeat(40);
+// Vite ignores **/test-results/**; keep rapidly replaced JSON outside dev watchers.
+const base = resolve('.cache/test-results/migration-tests'), now = CHECKPOINT_NOW, commit = 'a'.repeat(40);
 const hash = text => createHash('sha256').update(text).digest('hex');
 let root, archive;
 // Synthetic retired v1 archive only; never a public snapshot or an updater fixture.

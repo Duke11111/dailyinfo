@@ -1,0 +1,257 @@
+/* Shared visual layer only: source data, personal storage and feature behavior stay in their services. */
+:root {
+  --radius-card: 14px;
+  --radius-control: 8px;
+  --space-card: clamp(1.15rem, 2vw, 1.85rem);
+  --space-section: 1.65rem;
+  --control-border: #87959b;
+  --card-shadow: 0 2px 6px var(--shadow);
+}
+:root[data-theme="dark"] { --control-border: #718796; }
+
+main { max-width: 1480px; padding: 36px clamp(20px, 2.8vw, 48px) 48px; }
+.topbar { padding-inline: clamp(20px, 2.8vw, 48px); font-size: .85rem; }
+.page-heading { align-items: flex-start; gap: 1rem; margin-bottom: 1.65rem; }
+.page-heading p { font-size: .95rem; line-height: 1.75; }
+h1 { font-size: 2.15rem; letter-spacing: -.045em; }
+.eyebrow { font-size: .72rem; letter-spacing: .14em; }
+.card { border-radius: var(--radius-card); box-shadow: var(--card-shadow); }
+.workspace, main, #overview-host, .card { min-width: 0; }
+.card h2, .card h3, .page-heading, .topbar, footer { overflow-wrap: anywhere; }
+.stock-search-card, .watchlist-card, .news-status-card, .news-tools, .news-card,
+.eq-status-card, .eq-filter, .eq-map-card, .eq-detail, .eq-list-card, .settings-card, .region-picker {
+  padding: var(--space-card);
+}
+.stocks-page, .news-page { gap: var(--space-section); }
+.stock-help, .stock-sources, .news-help, .news-status-card > a, .eq-help,
+.source-note, .region-source, .overview-caption, .overview-source, .horoscope-meta, .calendar-note {
+  font-size: .86rem; line-height: 1.75;
+}
+.stock-help a, .news-help a, .eq-help a { text-underline-offset: .2em; }
+.quote-value, .quote-date, .overview-stock-table, .air-metrics strong, .temperature {
+  font-variant-numeric: tabular-nums;
+}
+
+.sidebar { padding: 30px 20px; }
+.nav-caption { margin-top: 32px; letter-spacing: .15em; }
+.nav-item { min-height: 46px; border: 1px solid transparent; }
+.nav-item.active { border-color: color-mix(in srgb, var(--accent-light) 26%, transparent); font-weight: 600; }
+.sidebar nav { min-width: 0; }
+
+.primary, .refresh-button, .stock-button, .news-button, .eq-button, .overview-refresh,
+.horoscope-card button, .calendar-actions button, .calendar-delete-confirm button,
+.calendar-add, .calendar-page .fc .fc-button {
+  min-height: 44px; border-radius: var(--radius-control); line-height: 1.5;
+  white-space: normal; overflow-wrap: anywhere;
+}
+.horoscope-card button:not(.primary), .calendar-actions button:not(.primary), .calendar-delete-confirm button {
+  background: var(--surface); color: var(--text-secondary); border: 1px solid var(--border); padding: .6rem .85rem;
+}
+.overview-refresh, .stock-button, .news-button, .eq-button, .refresh-button { font-size: .86rem; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, summary:focus-visible {
+  outline: 3px solid var(--focus); outline-offset: 3px;
+}
+input:not([type="checkbox"]):not([type="radio"]), .workspace select, dialog select, textarea { border-color: var(--control-border); }
+summary { cursor: pointer; line-height: 1.6; }
+.stock-button:hover:not(:disabled), .news-button:hover:not(:disabled), .eq-button:hover:not(:disabled),
+.overview-refresh:hover:not(:disabled), .refresh-button:hover:not(:disabled) { background: var(--accent-soft); }
+.stock-dialog, .calendar-dialog { border-radius: var(--radius-card); }
+.stock-dialog button, .calendar-dialog button { max-width: 100%; }
+.stock-detail-dialog, .calendar-dialog { scrollbar-gutter: stable; }
+.quote-history a { display: inline-block; margin: .3rem .6rem .3rem 0; }
+
+.overview-notice { font-size: .86rem; line-height: 1.8; margin-bottom: 1.2rem; max-width: none; }
+.overview-grid { gap: var(--space-section); }
+.overview-card { padding: var(--space-card); }
+.overview-card-heading { gap: .75rem; margin-bottom: .8rem; }
+.overview-card-heading h2 { font-size: 1.3rem; letter-spacing: -.015em; }
+.overview-status { min-height: 0; line-height: 1.75; margin: 0 0 1rem; font-size: .86rem; }
+.overview-status:empty, .overview-error:empty { display: none; }
+.overview-source { padding-top: 1rem; margin-top: 1.2rem; }
+.overview-actions { gap: .65rem 1rem; }
+.overview-list a { line-height: 1.75; }
+.overview-list li { padding-block: .95rem; }
+.overview-stock-table { font-size: .92rem; }
+.overview-stock-table th, .overview-stock-table td { padding-block: .95rem; }
+.overview-weather-current { margin-block: .3rem 1.15rem; }
+.overview-day { padding: .7rem .25rem; border-radius: var(--radius-control); }
+.overview-today { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 50%, var(--border)); }
+.overview-air-host .air-footer { line-height: 1.75; }
+
+.today-agenda {
+  padding: var(--space-card); margin-bottom: var(--space-section);
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .4rem 1.5rem; align-items: center;
+}
+.today-agenda > .overview-card-heading { grid-column: 1 / -1; margin: 0; }
+.today-agenda h2 { margin: 0; font-size: 1.3rem; }
+.today-agenda > p { margin: .15rem 0; grid-column: 1; }
+.today-agenda > a:last-child { grid-column: 2; grid-row: 2 / 4; padding-block: .6rem; }
+.today-agenda > [role="alert"], .today-agenda-list { grid-column: 1 / -1; }
+.today-agenda-list { margin: .8rem 0 0; }
+.today-agenda-list li { padding-block: .7rem; }
+.today-agenda-list p { margin-left: 1.25rem; }
+.today-agenda a { text-decoration: underline; }
+.horoscope-card { padding: var(--space-card); margin: var(--space-section) 0 0; }
+.horoscope-reading { max-width: 90ch; line-height: 1.85; }
+.horoscope-meta a { color: var(--focus); text-decoration: underline; text-underline-offset: .2em; }
+.overview-personal { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--space-section); margin-bottom: var(--space-section); }
+.overview-personal > div { display: flex; min-width: 0; }
+.overview-personal .card { width: 100%; margin: 0; }
+.overview-personal .today-agenda { display: flex; flex-direction: column; align-items: stretch; gap: .65rem; }
+.overview-personal .horoscope-controls { gap: .65rem 1rem; }
+.overview-personal .horoscope-controls label { margin-left: 0; }
+.overview-personal .horoscope-actions { width: 100%; }
+
+@media (max-width: 1100px) {
+  .overview-personal { grid-template-columns: minmax(0,1fr); }
+  main { padding-inline: 26px; }
+  .topbar { padding-inline: 26px; }
+  .sidebar { padding: 26px 16px; }
+}
+@media (max-width: 760px) {
+  main { padding: 24px 16px 32px; }
+  .topbar { padding-inline: 16px; }
+  .page-heading { align-items: center; }
+  .page-heading p { font-size: .9rem; }
+  .sidebar { padding: 12px 16px 0; }
+  .sidebar nav { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 8px; gap: 4px; }
+  .nav-item { flex-direction: column; gap: .2rem; min-height: 52px; padding: .45rem .2rem; font-size: .83rem; line-height: 1.3; text-align: center; }
+  .overview-grid { gap: 1.15rem; }
+  .overview-card, .today-agenda, .horoscope-card { padding: 1.2rem; }
+  .today-agenda { grid-template-columns: minmax(0, 1fr); gap: .5rem; }
+  .today-agenda > a:last-child { grid-column: 1; grid-row: auto; }
+  .overview-card-heading > a, .today-agenda .overview-card-heading > a { white-space: normal; padding-block: .45rem; }
+  .overview-actions > a { padding-block: .6rem; }
+  .horoscope-controls label { width: 100%; }
+  .horoscope-controls select { width: 100%; }
+  .horoscope-actions { gap: .6rem; }
+  .quote-detail-grid { gap: 1rem .65rem; padding: 1rem; }
+  :root[data-font-size="large"] .quote-detail-grid { grid-template-columns: minmax(0, 1fr); }
+  .stock-dialog { padding: 1.2rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .module-card:hover { transform: none; }
+}
+
+/* Feature pages: shared spacing and readable data, without changing their services. */
+.news-status-card, .eq-status-card {
+  display: grid; grid-template-columns: minmax(0,1fr) auto; gap: .65rem 1.25rem; align-items: start;
+}
+.news-status-card > .eyebrow, .eq-status-card > .eyebrow,
+.news-status-card > p, .eq-status-card > p,
+.news-status-card > a, .eq-status-card > a { grid-column: 1 / -1; margin: 0; }
+.news-status-card > [role="status"], .eq-status-card > [role="status"] { min-width: 0; grid-column: 1; }
+.news-status-card > button, .eq-status-card > button { grid-column: 2; grid-row: 2; }
+.news-status-card [role="status"] > p, .eq-status-card [role="status"] > p { margin: .35rem 0; }
+.news-status-title, .eq-status-title { font-size: 1.15rem; line-height: 1.6; margin-top: 0 !important; }
+.news-stale, .eq-stale {
+  border-left: 3px solid var(--error); padding: .65rem .85rem;
+  background: color-mix(in srgb,var(--error) 7%,var(--surface)); border-radius: 0 var(--radius-control) var(--radius-control) 0;
+}
+.news-toolbar { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(9rem,.38fr) auto; gap: 1rem; }
+.news-search-field { font-size: .86rem; }
+.news-search-field input, .news-search-field select, .stock-search-bar input, .stock-search-bar select,
+.eq-filter input, .eq-filter select { min-height: 44px; }
+.news-category-tabs { border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1rem; gap: .6rem; }
+.news-result-count { padding-inline: .15rem; line-height: 1.7; }
+.news-grid { gap: var(--space-section); }
+.news-card h2 { margin: .85rem 0 .6rem; font-size: 1.2rem; line-height: 1.65; }
+.news-card h2 a { text-underline-offset: .2em; }
+.news-meta, .news-card time { font-size: .82rem; line-height: 1.7; }
+.news-summary { font-size: .94rem; line-height: 1.85; margin-block: .9rem 1.1rem; }
+.news-card-footer { padding-top: 1rem; gap: .75rem; }
+.news-card-footer a { color: var(--focus); line-height: 1.7; }
+.news-card-footer .news-button[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.news-pagination, .eq-pagination { flex-wrap: wrap; gap: .75rem 1.25rem; }
+
+.quote-summary { padding: var(--space-card); gap: .75rem 1.25rem; }
+.stock-search-bar { gap: 1rem; }
+.stock-field { font-size: .86rem; }
+.stock-watch-heading h2 { margin: 0; }
+.stock-group-tabs { gap: .6rem; margin-block: 1.25rem; }
+.stock-tools { padding: 1rem; background: var(--subtle); border-radius: var(--radius-control); gap: .75rem; }
+.stock-table { font-size: .88rem; }
+.stock-table caption { font-size: .83rem; line-height: 1.7; }
+.stock-table td, .stock-table th { padding: 1rem .8rem; }
+.stock-name small, .stock-unavailable { font-size: .79rem; line-height: 1.6; }
+.stock-detail-link { line-height: 1.65; overflow-wrap: anywhere; }
+.stock-detail-dialog { width: min(60rem,calc(100% - 2rem)); }
+.quote-detail-grid dd { line-height: 1.5; font-variant-numeric: tabular-nums; }
+.stock-history-frame { height: clamp(18rem,30vw,23rem); }
+.quote-history summary { padding-block: .5rem; }
+.stock-table-scroll:focus-visible, .eq-table-scroll:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+.earthquake-page, .eq-workspace { gap: var(--space-section); }
+.eq-workspace { grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); }
+.eq-filter-grid { gap: 1rem; }
+.eq-filter label { font-size: .86rem; }
+.eq-map-heading h2, .eq-detail h2, .eq-list-card h2 { font-size: 1.3rem; margin-block: 0 .5rem; }
+.eq-map { height: clamp(20rem,34vw,30rem); border-radius: var(--radius-control); }
+.eq-map .leaflet-bar a { width: 40px; height: 40px; line-height: 40px; }
+.eq-detail-grid { gap: 1.2rem; padding: 1rem; background: var(--subtle); border-radius: var(--radius-control); }
+.eq-detail-grid dt { font-size: .82rem; line-height: 1.6; }
+.eq-detail-grid dd { font-size: .96rem; line-height: 1.65; font-variant-numeric: tabular-nums; }
+.eq-table { font-size: .88rem; }
+.eq-table th, .eq-table td { padding: 1rem .8rem; line-height: 1.7; }
+.eq-table td:first-child { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.eq-event-button { min-height: 44px; }
+.eq-table td:nth-child(3), .eq-table td:nth-child(4), .eq-table td:nth-child(5) { font-variant-numeric: tabular-nums; }
+
+.calendar-page { padding: var(--space-card); }
+.calendar-page > [role="status"]:empty { display: none; }
+.calendar-page .fc .fc-header-toolbar { margin-bottom: 1.5rem; }
+.calendar-page .fc .fc-daygrid-day-number { margin: .3rem; padding: .3rem; line-height: 1.5; }
+.calendar-page .fc .fc-day-today .fc-daygrid-day-number {
+  background: var(--accent); color: var(--on-accent); border-radius: 50%; min-width: 1.9rem; text-align: center;
+}
+.calendar-page .fc .fc-daygrid-event { padding: .2rem .3rem; margin: .2rem .25rem; line-height: 1.55; border-radius: .35rem; }
+.calendar-page .fc .fc-daygrid-event-dot { flex-shrink: 0; }
+.calendar-page .fc .calendar-event-preview { overflow-wrap: anywhere; }
+.calendar-dialog form { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1rem; }
+.calendar-dialog form > label, .calendar-dialog .calendar-actions,
+.calendar-dialog .calendar-delete-confirm, .calendar-dialog .calendar-form-error { grid-column: 1 / -1; }
+.calendar-dialog label:has([name="startDate"]), .calendar-dialog label:has([name="endDate"]),
+.calendar-dialog label:has([name="startTime"]), .calendar-dialog label:has([name="endTime"]) { grid-column: auto; }
+.calendar-dialog input:not([type="checkbox"]), .calendar-dialog select { min-height: 44px; }
+.calendar-dialog input:disabled { opacity: .6; }
+.calendar-actions { border-top: 1px solid var(--border); padding-top: 1rem; }
+.calendar-dialog .calendar-delete { color: var(--error); border-color: var(--error); }
+.calendar-delete-confirm { border-color: var(--error); background: color-mix(in srgb,var(--error) 5%,var(--surface)); }
+.calendar-dialog { color-scheme: light; }
+:root[data-theme="dark"] .calendar-dialog { color-scheme: dark; }
+@media (max-width: 1100px) {
+  .news-toolbar { grid-template-columns: minmax(0,1fr) auto; }
+}
+@media (max-width: 1000px) {
+  .eq-workspace { grid-template-columns: minmax(0,1fr); }
+}
+@media (max-width: 760px) {
+  .news-status-card, .eq-status-card { grid-template-columns: minmax(0,1fr); }
+  .news-status-card > button, .eq-status-card > button { grid-column: 1; grid-row: auto; justify-self: start; }
+  .news-toolbar { gap: .85rem; }
+  .news-toolbar > .news-search-field:first-child, .news-saved-filter { grid-column: 1 / -1; }
+  .news-grid { gap: 1.15rem; }
+  .news-card h2 { font-size: 1.12rem; }
+  .stock-tools { padding: .85rem; }
+  .stock-tools > .stock-field { min-width: 0; width: 100%; margin-right: 0; }
+  .stock-detail-link { min-height: 44px; display: inline-flex; align-items: center; }
+  .stock-detail-dialog { width: calc(100% - 1rem); max-height: calc(100dvh - 1rem); }
+  .stock-history-frame { height: 19rem; }
+  .eq-filter-grid { gap: .85rem; }
+  .eq-filter-grid > label:first-child { grid-column: 1 / -1; }
+  .eq-map { height: 22rem; max-height: 65dvh; }
+  .eq-map .leaflet-bar a { width: 44px; height: 44px; line-height: 44px; }
+  .eq-detail-grid { padding: .85rem; gap: 1rem; }
+  .calendar-page { padding: 1rem; }
+  .calendar-page .fc .fc-daygrid-day-frame { min-height: 5rem; }
+  .calendar-page .fc .fc-daygrid-day-number { white-space: nowrap; margin: .1rem; padding: .1rem; font-size: .85rem; }
+  .calendar-page .fc .fc-daygrid-event { font-size: .8rem; padding-inline: .15rem; }
+  .calendar-page .fc .calendar-event-preview { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+}
+@media (max-width: 480px) {
+  .calendar-dialog form { grid-template-columns: minmax(0,1fr); }
+  .calendar-dialog label:has(input) { grid-column: 1 / -1; }
+  .calendar-actions button { flex: 1 1 auto; }
+  :root[data-font-size="large"] .eq-detail-grid { grid-template-columns: minmax(0,1fr); }
+}

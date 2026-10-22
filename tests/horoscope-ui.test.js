@@ -10,6 +10,48 @@ const click = text => [...host.querySelectorAll('button')].find(b => b.textConte
 function select(value) { const el = host.querySelector('select'); el.value = value; el.dispatchEvent(new Event('change')); }
 beforeEach(() => { document.body.innerHTML = '<div id="host"></div>'; host = document.querySelector('#host'); localStorage.clear(); });
 afterEach(() => dispose?.());
+it('previews the complete original text and toggles accessibly without losing keyboard focus or writing storage', async () => {
+  boot(); await vi.waitFor(() => expect(host.querySelector('.horoscope-reading')).not.toBeNull());
+  const text = host.querySelector('.horoscope-reading'), original = text.textContent;
+  const toggle = [...host.querySelectorAll('button')].find(b => b.textContent === '展開完整運勢');
+  expect(text.classList.contains('is-collapsed')).toBe(true);
+  expect(toggle.getAttribute('aria-controls')).toBe(text.id);
+  expect(toggle.getAttribute('aria-expanded')).toBe('false');
+  toggle.focus(); toggle.click();
+  expect(document.activeElement).toBe(toggle);
+  expect(toggle.textContent).toBe('收合運勢');
+  expect(toggle.getAttribute('aria-expanded')).toBe('true');
+  expect(text.classList.contains('is-collapsed')).toBe(false);
+  toggle.click(); expect(text.textContent).toBe(original);
+  expect(toggle.getAttribute('aria-expanded')).toBe('false');
+  expect(localStorage.length).toBe(0);
+});
+it('keeps stale warnings, source dates, retrieval times and attribution outside the collapsed reading', async () => {
+  boot({ now: () => Date.parse('2026-10-21T00:00:00Z') });
+  await vi.waitFor(() => expect(host.querySelector('.horoscope-reading')).not.toBeNull());
+  const text = host.querySelector('.horoscope-reading');
+  const warning = host.querySelector('[role="status"] > strong');
+  expect(warning.textContent).toContain('非今日資料');
+  expect(warning.textContent).toContain('來源日期 2026-10-20');
+  expect(text.contains(warning)).toBe(false);
+  expect(host.textContent).toContain('快照擷取'); expect(host.textContent).toContain('網頁讀取');
+  expect(host.querySelectorAll('a[target="_blank"]')).toHaveLength(2);
+  click('展開完整運勢'); click('收合運勢');
+  expect(warning.hidden).toBe(false); expect(warning.isConnected).toBe(true);
+});
+it('resets only the preview when browsing another sign and preserves the saved default', async () => {
+  boot(); click('儲存我的星座');
+  await vi.waitFor(() => expect(host.querySelector('.horoscope-reading')).not.toBeNull());
+  click('展開完整運勢'); select('leo');
+  expect(host.querySelector('[aria-expanded]').getAttribute('aria-expanded')).toBe('false');
+  expect(loadDefaultSign().defaultSign).toBe('aries');
+  click('回到我的星座'); expect(host.querySelector('select').value).toBe('aries');
+});
+it('does not offer a reading toggle when no reading is available', async () => {
+  boot({ store: { load: async () => ({ data: { ...data(), readings: [] }, readAt: Date.now() }) } });
+  await vi.waitFor(() => expect(host.textContent).toContain('目前沒有可用'));
+  expect(host.querySelector('[aria-expanded]')).toBeNull();
+});
 it('first use, skip and temporary browsing never write storage', async () => { boot(); expect(host.querySelectorAll('option')).toHaveLength(12); click('略過設定'); select('pisces'); await vi.waitFor(() => expect(host.textContent).toContain('Test only pisces')); expect(localStorage.length).toBe(0); expect(host.textContent).toContain('已略過'); });
 it('saves default explicitly, browses others, returns, changes default and restores on reload', async () => {
   boot(); select('leo'); click('儲存我的星座'); expect(loadDefaultSign().defaultSign).toBe('leo'); select('taurus'); expect(loadDefaultSign().defaultSign).toBe('leo'); click('回到我的星座'); expect(host.querySelector('select').value).toBe('leo'); select('cancer'); click('設為預設星座'); expect(loadDefaultSign().defaultSign).toBe('cancer'); select('virgo'); dispose(); boot(); expect(host.querySelector('select').value).toBe('cancer');

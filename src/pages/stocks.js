@@ -188,7 +188,10 @@ export function mountStocks(host, { quotes = quoteStore } = {}) {
     container.append(element('p', `找到 ${matches.length} 筆 · 第 ${page + 1} / ${Math.ceil(matches.length / PAGE_SIZE)} 頁 · 加入目前群組：${active()?.name ?? '請先建立群組'}`, 'stock-help'));
     const results = element('ul', '', 'stock-results');
     matches.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).forEach(stock => {
-      const row = element('li'); row.append(element('strong', stock.code, 'stock-code'), element('span', stock.name, 'stock-result-name'), element('span', STOCK_TYPES[stock.type], 'badge'));
+      const row = element('li');
+      const details = button('', () => openQuoteDetails(host, stock, quoteIndex.get(stock.code), snapshot), { label: `查看 ${stock.code} ${stock.name} 詳細資訊`, className: 'stock-detail-link stock-result-link' });
+      details.append(element('strong', stock.code, 'stock-code'), element('span', stock.name, 'stock-result-name'));
+      row.append(details, element('span', STOCK_TYPES[stock.type], 'badge'));
       const exists = active()?.stocks.some(s => s.code === stock.code);
       row.append(button(exists ? '已加入' : '＋ 加入', () => commit({ type: 'add', stock }, `${stock.code} 已加入「${active().name}」。`), { disabled: loaded.locked || !active() || exists, label: `${exists ? '已加入' : '加入'} ${stock.name}（${stock.code}）` })); results.append(row);
     }); container.append(results);

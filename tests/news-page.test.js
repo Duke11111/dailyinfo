@@ -20,6 +20,22 @@ it('shows source, categories, publication/fetch times and safe external article 
   expect(document.querySelector('article h2 a').rel).toContain('noopener'); expect(document.querySelector('article h2 a').target).toBe('_blank');
   expect(document.querySelector('.news-status-card').textContent).toContain('不會更新外部 RSS');
 });
+it('retains stale warnings and source times when filters hide all articles or refreshing fails', async () => {
+  const store = { peek: () => null, load: vi.fn(async () => ({ data: newsFixture(), readAt: Date.parse(fetchedAt) })) };
+  dispose = mountNews(document.querySelector('#host'), { store, now: () => Date.parse(fetchedAt) + 25 * 3600000 });
+  await settle();
+  const status = document.querySelector('.news-status-card');
+  expect(status.querySelector('.news-stale').textContent).toContain('可能過期');
+  const input = document.querySelector('input[type="search"]'); input.value = '不存在的新聞'; input.dispatchEvent(new Event('input'));
+  expect(document.querySelector('.news-empty')).not.toBeNull();
+  expect(status.querySelector('.news-stale').hidden).toBe(false);
+  expect(status.textContent).toContain('資料擷取時間');
+  expect(status.querySelector('a').href).toBe('https://www.cna.com.tw/about/rss.aspx');
+  store.load.mockRejectedValueOnce(Error('offline')); click('重新讀取快照');
+  await vi.waitFor(() => expect(status.querySelector('[role="alert"]').textContent).toContain('offline'));
+  expect(status.querySelector('.news-stale').textContent).toContain('可能過期');
+  expect(status.textContent).toContain('中央通訊社');
+});
 it('filters categories/search, clears query, sorts and shows no results', async () => {
   boot(); await settle(); click('財經'); expect(document.querySelectorAll('article')).toHaveLength(1); click('全部');
   const input = document.querySelector('input[type=search]'); input.value = '不存在'; input.dispatchEvent(new Event('input'));

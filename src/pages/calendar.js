@@ -67,9 +67,10 @@ export function mountCalendar(host, { loader = loadCalendar, storage, hash = win
     if (existing) {
       const confirmation = document.createElement('div'); confirmation.className = 'calendar-delete-confirm'; confirmation.hidden = true;
       const warning = document.createElement('p'); warning.textContent = '確定刪除此行程？此操作無法復原。'; warning.setAttribute('role', 'alert');
-      const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = '確認刪除';
+      const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = '確認刪除'; remove.className = 'calendar-delete';
       const keep = document.createElement('button'); keep.type = 'button'; keep.textContent = '保留行程';
       const startDelete = button('刪除行程', () => { confirmation.hidden = false; keep.focus(); });
+      startDelete.classList.add('calendar-delete');
       keep.addEventListener('click', () => { confirmation.hidden = true; startDelete.focus(); });
       remove.addEventListener('click', () => {
         try { persist(saved.data.events.filter(event => event.id !== existing.id)); close(); }
@@ -108,7 +109,7 @@ export function mountCalendar(host, { loader = loadCalendar, storage, hash = win
       eventClick: info => { const value = saved.data.events.find(event => event.id === info.event.id); if (value) edit(value.startDate, value); },
       eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false }, displayEventEnd: true,
       eventContent: info => {
-        const node = document.createElement('span'); node.textContent = `${info.timeText ? info.timeText + ' ' : ''}${info.event.title}`;
+        const node = document.createElement('span'); node.className = 'calendar-event-preview'; node.textContent = `${info.timeText ? info.timeText + ' ' : ''}${info.event.title}`;
         return { domNodes: [node] };
       },
     });

@@ -35,6 +35,12 @@ describe('actual application navigation', () => {
     await vi.waitFor(() => expect(fetch.mock.calls.length).toBe(calls + 1));
     await vi.waitFor(() => expect(document.querySelector('[role="alert"]')).not.toBeNull());
   });
+  it('uses public-facing platform labels without an obsolete phase or release badge', () => {
+    expect(document.querySelector('.sidebar-bottom').textContent).toContain('每日資訊整合平台');
+    expect(document.querySelector('footer').textContent).toContain('每日生活資訊工作台');
+    expect(document.querySelector('.sidebar-bottom').textContent).not.toMatch(/PHASE\s*\d|v\d+\.\d+/i);
+    expect(document.querySelector('footer').textContent).not.toMatch(/Phase\s*\d/i);
+  });
   it('keeps stock navigation working without a retired finance link or bank request', async () => {
     document.querySelector('[data-route="stocks"]').click();
     await vi.waitFor(() => expect(document.querySelector('.stocks-page')).not.toBeNull());

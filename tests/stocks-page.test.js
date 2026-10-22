@@ -32,7 +32,7 @@ it('renders user names as text and shows invalid-name errors', async () => {
 it('searches, adds once, clears and reports no results without fabricated prices', async () => {
   await boot(); input('#stock-search', '2330'); click('＋ 加入');
   expect(find('tbody tr').dataset.code).toBe('2330'); expect([...host.querySelectorAll('.stock-unavailable')].every(td => td.textContent === '暫無行情')).toBe(true);
-  expect(find('.stock-results button').disabled).toBe(true); expect(loadWatchlists().data.groups[0].stocks).toHaveLength(1);
+  expect(find('.stock-results button[aria-label^="已加入"]').disabled).toBe(true); expect(loadWatchlists().data.groups[0].stocks).toHaveLength(1);
   click('清空搜尋'); expect(find('#stock-search').value).toBe(''); input('#stock-search', '不存在'); expect(find('#stock-search-results').textContent).toContain('查無');
 });
 it('copies/moves using a target selector and removes only the active membership', async () => {

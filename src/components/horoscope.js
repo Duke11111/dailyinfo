@@ -3,7 +3,7 @@ const el = (tag, text = '', cls = '') => { const node = document.createElement(t
 export function mountHoroscope(host, { store = horoscopeStore, storage, now = Date.now } = {}) {
   let alive = true, generation = 0, snapshot, readAt, loading = false, error = '';
   const saved = loadDefaultSign(storage);
-  let defaultSign = saved.defaultSign, viewSign = defaultSign ?? 'aries', skipped = false;
+  let defaultSign = saved.defaultSign, viewSign = defaultSign ?? 'aries', skipped = false, expanded = false;
   const card = el('section', '', 'card horoscope-card'); card.setAttribute('aria-label', '每日星座運勢'); host.replaceChildren(card);
   function action(text, handler) { const button = el('button', text, 'overview-refresh'); button.type = 'button'; button.addEventListener('click', handler); return button; }
   function persist() {
@@ -20,13 +20,13 @@ export function mountHoroscope(host, { store = horoscopeStore, storage, now = Da
     controls.append(heading);
     const label = el('label', '查看星座'), select = el('select'); select.setAttribute('aria-label', '查看星座');
     SIGNS.forEach(item => select.add(new Option(`${item.symbol} ${item.name}`, item.code))); select.value = viewSign;
-    select.addEventListener('change', () => { if (validSign(select.value)) viewSign = select.value; render(); }); label.append(select); controls.append(label);
+    select.addEventListener('change', () => { if (validSign(select.value)) { viewSign = select.value; expanded = false; } render(); }); label.append(select); controls.append(label);
     const actions = el('div', '', 'horoscope-actions');
     if (!defaultSign) {
       actions.append(action('儲存我的星座', persist));
       if (!skipped) actions.append(action('略過設定', () => { skipped = true; render(); }));
     } else {
-      const back = action('回到我的星座', () => { viewSign = defaultSign; render(); }); back.disabled = viewSign === defaultSign;
+      const back = action('回到我的星座', () => { viewSign = defaultSign; expanded = false; render(); }); back.disabled = viewSign === defaultSign;
       const save = action('設為預設星座', persist); save.disabled = viewSign === defaultSign; actions.append(back, save);
     }
     controls.append(actions); card.append(controls);
@@ -38,7 +38,15 @@ export function mountHoroscope(host, { store = horoscopeStore, storage, now = Da
     if (reading) {
       const current = reading.date === today;
       body.append(el('strong', `${current ? '今日運勢' : '非今日資料，請勿視為今日運勢'} · 來源日期 ${reading.date} · 臺灣今天 ${today}`));
-      const text = el('p', reading.text, 'horoscope-reading'); text.lang = 'en'; body.append(text);
+      const text = el('p', reading.text, 'horoscope-reading'); text.lang = 'en'; text.id = `horoscope-reading-${viewSign}`;
+      const toggle = action('', () => { expanded = !expanded; updatePreview(); });
+      toggle.setAttribute('aria-controls', text.id);
+      function updatePreview() {
+        text.classList.toggle('is-collapsed', !expanded);
+        toggle.setAttribute('aria-expanded', String(expanded));
+        toggle.textContent = expanded ? '收合運勢' : '展開完整運勢';
+      }
+      updatePreview(); body.append(text, toggle);
       body.append(el('p', `快照擷取：${new Date(snapshot.fetchedAt).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false })} · 網頁讀取：${new Date(readAt).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false })}（臺灣時間）`, 'horoscope-meta'));
     } else if (!loading) body.append(el('p', '目前沒有可用的運勢資料；其他每日資訊仍可正常使用。'));
     card.append(body);

@@ -24,8 +24,9 @@ it('creates safely, navigates months, restores on remount, edits and confirms de
   expect(host.querySelector('.fc-event').textContent).toContain('已修改');
   host.querySelector('.fc-event').click(); const remove = [...host.querySelectorAll('dialog button')].find(b => b.textContent === '刪除行程');
   remove.click(); expect(host.querySelector('.fc-event')).not.toBeNull();
+  expect(document.activeElement.textContent).toBe('保留行程');
   [...host.querySelectorAll('dialog button')].find(b => b.textContent === '保留行程').click();
-  expect(host.querySelector('.calendar-delete-confirm').hidden).toBe(true); remove.click();
+  expect(host.querySelector('.calendar-delete-confirm').hidden).toBe(true); expect(document.activeElement).toBe(remove); remove.click();
   [...host.querySelectorAll('dialog button')].find(b => b.textContent === '確認刪除').click(); expect(host.querySelector('.fc-event')).toBeNull();
   expect(JSON.parse(map.get(CALENDAR_EVENTS_KEY)).events).toEqual([]);
 });

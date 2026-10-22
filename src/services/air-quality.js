@@ -76,10 +76,10 @@ export async function fetchAirQuality({ region = DEFAULT_REGION, signal, fetchIm
   } finally { clearTimeout(timer); signal?.removeEventListener('abort', abort); }
 }
 
-// One session shared by weather and overview; no storage schema or timers for polling.
-export function createAirQualitySession({ fetcher = fetchAirQuality, onChange = () => {}, now = Date.now, ttl = AIR_TTL } = {}) {
-  const cache = new Map(); let generation = 0, active = null, disposed = false;
-  let state = { status: 'idle', region: DEFAULT_REGION, data: null, error: null, cached: false, readAt: null, expiresAt: null };
+// Independent view state; callers may share successful regional cache records.
+export function createAirQualitySession({ fetcher = fetchAirQuality, onChange = () => {}, now = Date.now, ttl = AIR_TTL, cache = new Map(), initialRegion = DEFAULT_REGION } = {}) {
+  let generation = 0, active = null, disposed = false;
+  let state = { status: 'idle', region: validateCoordinates(initialRegion) ? initialRegion : DEFAULT_REGION, data: null, error: null, cached: false, readAt: null, expiresAt: null };
   const publish = next => { state = next; onChange(state); };
   return {
     get state() { return state; },
@@ -106,6 +106,6 @@ export function createAirQualitySession({ fetcher = fetchAirQuality, onChange = 
       }).finally(() => { if (token === generation) active = null; });
       active = { id: region.id, controller, promise }; return promise;
     },
-    dispose() { disposed = true; generation++; active?.controller.abort(); cache.clear(); },
+    dispose() { disposed = true; generation++; active?.controller.abort(); },
   };
 }

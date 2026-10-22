@@ -14,6 +14,7 @@ import { explorationEntries } from '../services/stock-exploration.js';
 import { renderAirQuality } from '../components/air-quality.js';
 import { mountHoroscope } from '../components/horoscope.js';
 import { mountTodayAgenda } from '../components/today-agenda.js';
+import { mountOverviewRegion } from '../components/overview-region.js';
 
 const el = (tag, text = '', className = '') => { const node = document.createElement(tag); node.textContent = text; node.className = className; return node; };
 function link(label, href, external = false) {
@@ -24,15 +25,17 @@ function link(label, href, external = false) {
 function button(label, action) { const node = el('button', label, 'overview-refresh'); node.type = 'button'; node.addEventListener('click', action); return node; }
 
 // Snapshot services perform validation and share their request/cache with full pages.
-// This view never writes preferences, watchlists, regions or favorites.
-export function mountOverview(host, { weatherState, airState, onRefreshWeather, quotes = quoteStore, news = newsStore, earthquakes = earthquakeStore, watchlists = loadWatchlists(), loadCatalog = loadStockCatalog, now = Date.now } = {}) {
+// Personal region changes are explicit and delegated to the application.
+export function mountOverview(host, { weatherState, airState, onRefreshWeather, regionSetting, onSaveRegion, quotes = quoteStore, news = newsStore, earthquakes = earthquakeStore, watchlists = loadWatchlists(), loadCatalog = loadStockCatalog, now = Date.now } = {}) {
   let alive = true;
   const jobs = [];
   const grid = el('div', '', 'overview-grid');
   const notice = el('p', '天氣直接查詢 Open-Meteo；股票、新聞與地震讀取網站已發布的資料快照。「重新讀取快照」不會更新外部 API。所有時間皆為臺灣時間。', 'overview-notice');
   const horoscopeHost = el('div');
   const agendaHost = el('div');
-  host.replaceChildren(notice, horoscopeHost, agendaHost, grid);
+  const personal = el('div', '', 'overview-personal');
+  personal.append(agendaHost, horoscopeHost);
+  host.replaceChildren(notice, personal, grid);
   jobs.push(mountTodayAgenda(agendaHost, { now }));
   jobs.push(mountHoroscope(horoscopeHost));
   function card(key, title, subtitle, sourceName, sourceUrl) {
@@ -50,7 +53,11 @@ export function mountOverview(host, { weatherState, airState, onRefreshWeather, 
   }
   const weather = card('weather', '天氣摘要', 'WEATHER / 七日展望', 'Open-Meteo', 'https://open-meteo.com/');
   const weatherRefresh = button('更新天氣預報', () => onRefreshWeather?.()); weatherRefresh.dataset.overviewWeatherRefresh = '';
-  weather.actions.append(weatherRefresh, link('更換預報地區', '#/weather'));
+  weather.actions.append(weatherRefresh, link('查詢其他地區', '#/weather'));
+  if (regionSetting && onSaveRegion) {
+    const regionHost = el('div', '', 'overview-region'); weather.node.insertBefore(regionHost, weather.status);
+    jobs.push(mountOverviewRegion(regionHost, { selection: regionSetting, onSave: onSaveRegion }));
+  }
   function updateWeather(state) {
     if (!alive || !state) return;
     weather.content.replaceChildren(); weather.error.hidden = state.status !== 'error';

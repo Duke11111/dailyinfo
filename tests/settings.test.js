@@ -11,6 +11,18 @@ describe('validated settings persistence', () => {
     expect(loadSettings()).toEqual({ mode: 'dark', accent: 'violet', fontSize: 'large' });
     expect(localStorage.getItem(SETTINGS_KEY)).not.toContain('unsafe');
   });
+  it('preserves every mode, accent and font combination without changing other personal storage', () => {
+    localStorage.setItem('dailyinfo.calendar.events.v1', 'keep-calendar');
+    localStorage.setItem('dailyinfo.news.favorites.v1', 'keep-favorites');
+    for (const mode of ['light', 'dark', 'system']) for (const accent of ['teal', 'blue', 'violet', 'rose', 'amber']) for (const fontSize of ['small', 'standard', 'large']) {
+      const settings = { mode, accent, fontSize };
+      expect(saveSettings(settings)).toBe(true); expect(loadSettings()).toEqual(settings);
+      applySettings(loadSettings(), document.documentElement, true);
+      expect(document.documentElement.dataset).toMatchObject({ theme: mode === 'light' ? 'light' : 'dark', accent, fontSize });
+    }
+    expect(localStorage.getItem('dailyinfo.calendar.events.v1')).toBe('keep-calendar');
+    expect(localStorage.getItem('dailyinfo.news.favorites.v1')).toBe('keep-favorites');
+  });
   it('recovers from corrupt JSON', () => { localStorage.setItem(SETTINGS_KEY, '{broken'); expect(loadSettings()).toEqual(DEFAULT_SETTINGS); });
   it('does not crash when storage is unavailable', () => {
     vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => { throw new DOMException('blocked'); });

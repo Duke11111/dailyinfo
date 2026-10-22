@@ -1,5 +1,49 @@
 # DailyInfo 驗收紀錄
 
+## Phase 9B-2B：首頁獨立常用天氣地區（2026/10/22，本機）
+
+- 首頁新增小型「變更地區」Dialog，重用 regions.js 的 22 縣市、368 鄉鎮市區；選擇為草稿，只有「儲存我的地區」才寫入 dailyinfo.overview.weather.region.v1，格式僅 { id }，由官方清單還原可信座標。缺少設定顯示預設臺北市大安區及尚未儲存提示；無效資料不自動覆寫，寫入失敗明確提示並保留原選擇。完整天氣頁維持 dailyinfo.region.v1 與原有搜尋／連動選單。
+- main.js 分離首頁及完整頁的天氣狀態、AQI session、取消及 generation；有效區域快取可共用，進行中的同地區請求由 regional-requests 合併。某頁取消不會中止另一頁仍需的同地區請求；全數取消才中止傳輸，無自動重試。天氣快取十五分鐘，AQI 沿用五分鐘有效快取；前景自動更新仍為天氣十五分鐘、AQI 三十分鐘，背景頁不請求，返回前景檢查過期。來源日期及 fetchedAt 不以快取讀取時間替代。
+- 新增 26 項測試，涵蓋首頁竹南鎮保存／重載、完整頁中山區與首頁大安區互不改寫、七日預報及 AQI 同區、取消草稿、損壞／拒絕儲存、官方座標、遲到回應、快速切換與跨頁同區請求合併、取消隔離、快取及前景更新。最終 npm.cmd test：49 檔、654/654 通過（20.40 秒）；保留全部既有斷言與測試，沒有略過或放寬安全驗證。
+- Vite /dailyinfo/ 正式建置成功（74 模組），verify -- --dist 及 Git diff --check 通過。Open-Meteo 天氣／AQI 的端點、資料解析、行政區清單與其他模組服務不變；無新增套件。
+- Chrome 獨立 origin 5198：首次尚未儲存提示、取消不變更、保存竹南鎮及重新載入保留、完整頁查詢中山區返回首頁仍竹南、首頁改大安後完整頁仍中山全部正常。竹南鎮真實天氣七日預報及 AQI 均成功取得並標示同區、來源與實際取得時間。最終請求合併版再次重載、往返兩頁驗證，大安／中山狀態獨立，首頁有七日及同區 AQI。
+- 1440px 桌面、834px 平板、390px 手機無整頁水平溢出；手機深色、暮光紫、大字 Dialog 約 332px 寬且無內部水平溢出，Escape 返回「變更地區」焦點正常。保留七日摘要完整寬度、星座／今日行程與其他摘要排版。測試外觀及 viewport 已恢復預設；未觸碰既有使用者網址的 localStorage。沒有宣稱實體手機或全模式組合皆已操作。
+- 保留 Phase 9B-1／9B-2／9B-2A 全部未提交功能與 DEMO-GUIDE.md。未修改 public/data JSON、Workflow、Checkpoint 或雲端／費用設定；沒有 Commit／Push、部署或付費操作。僅本機完成，等待驗收。
+
+## Phase 9B-2：功能頁面 UI 精修（2026/10/21–22，本機）
+
+- 沿用共用 ui-polish.css，沒有新增依賴、重寫頁面或修改資料服務。新聞：資料總數／來源／時間／重讀操作分層，過期警告維持獨立可見區塊，整理搜尋、分類、標題、摘要與收藏列。股票：搜尋與群組工具留白、表格數字層次、較寬詳情與獨立圖表高度。地震：統一篩選間距、地圖／詳情比例、資料欄位及表格閱讀，保留鍵盤捲動與 Leaflet 署名、標記互動。
+- 行事曆：今日日期採主題色標示、手機日期不換行，行程在手機顯示兩行預覽，完整時間與標題仍保留於 DOM、localStorage 與編輯對話框；日期表單桌面雙欄、手機單欄，刪除操作與二次確認以語意錯誤色區分，保留原本焦點及資料流程。
+- 新增新聞過期警告在無搜尋結果及重讀失敗時仍保留的回歸測試；加強既有刪除確認測試的焦點斷言。最終 npm.cmd test：44 檔、624/624 通過（19.68 秒），沒有略過測試或增加重試。Vite /dailyinfo/ 正式建置成功（70 模組），公開產物檢查通過。
+- Chrome 使用全新測試 origin http://127.0.0.1:5196/dailyinfo/，四頁於 1440／834／390px 皆無整頁水平溢出；寬表格保留區內水平捲動，平板／手機地圖與詳情採單欄。抽樣淺色、深色、跟隨系統（依目前 OS）、森林綠／海洋藍／暮光紫／玫瑰紅／琥珀棕、小／標準／大字級，包含手機深色大字四頁。未宣稱每頁全部 45 種組合或實體手機都測試。
+- 2330 真實 TWSE 歷史資料成功取得，圖表截止交易日 2026-10-19，實際五筆，不補休市資料；桌面圖表約 767×322px、390px 手機約 291×266px，詳情無水平溢出。新聞搜尋、分類、收藏／取消收藏，地震宜蘭篩選、列表定位與詳情／地圖，以及行程新增、重新載入保留、Enter 開啟、刪除取消／確認、Escape 關閉及焦點返回皆正常。Chrome 所收集錯誤日誌為空。
+- 只在獨立 origin 建立可辨識的測試行程，已透過頁面刪除，剩餘測試行程 0；測試收藏也已取消，外觀恢復預設並清除 viewport override。既有使用者網址的 localStorage 未觸碰。保留 DEMO-GUIDE.md、前階段未提交 UI 與測試穩定化；正式快照、services、scripts、Workflow、Checkpoint、依賴不變。沒有 Commit／Push、部署、GitHub 或費用操作；預覽伺服器保留供本機驗收。
+
+## Phase 9B-1B：Windows 測試穩定性（2026/10/21）
+
+- 原先失敗案例為 data-automation 的 `continues after a failed source without logging arbitrary secret-bearing errors`（failed 計數不符）與 checkpoint-migration 的 `isolates horoscope failure while retaining all four sources`。後者重現堆疊為 `atomicWrite`（scripts/lib/data-automation.mjs:74）→ `updateData`（:122）→ 遷移測試（tests/checkpoint-migration.test.js:78），在 status.json.tmp 替換 status.json 時發生 EPERM；同類失敗也會落在其他來源案例，並非固定的來源資料錯誤。
+- 原兩案例單獨 2/2 通過；原暫存路徑整檔 45/47、關閉檔案平行後 46/47，排除僅由測試檔平行造成。各案例原本已使用 mkdtemp、不共用目錄，檔案操作逐步 await，沒有測試遺留的未關閉 FileHandle。小型獨立 rename 實驗兩種目錄各 12 次皆通過，未能識別實際鎖定程序，不能斷言由防毒或某個特定程序造成。
+- 兩檔測試暫存根目錄改至 .cache/test-results/ 下，仍在本專案、仍逐案 mkdtemp 與限定本案目錄清理；Vite 預設排除 **/test-results/**，避免開發監看介入快速替換的測試 JSON。遷移與自動化整檔 47/47 通過；沒有修改正式 atomicWrite、Checkpoint、Schema、SHA-256、日期驗證、Fixture 或任何斷言。
+- 隨後預設高平行度完整測試出現獨立的 schedule-policy 100ms VM 逾時；該檔單獨 23/23 通過。本機可用平行度 12，因此只在 Windows 將 Vitest maxWorkers 設為 2，其他平台維持預設。VM 的 100ms 限制不變，不使用重試或略過測試。
+- 最終原指令 npm.cmd test：44 檔、623/623 通過（19.21 秒）。Vite /dailyinfo/ 正式建置成功（70 模組），verify -- --dist 及 Git diff --check 通過。修復驗證未再出現 EPERM，但不宣稱已定位 OS 鎖定程序或保證永不發生。
+- 本階段只修改兩檔測試、vite.config.js 的測試設定及本驗收紀錄。既有 UI、展示文件與公開 JSON 的 SHA-256 保持不變；沒有 Commit／Push、雲端、部署、付費或設定變更。本機 Phase 9B-1A 驗收可結束，等待使用者確認。
+
+## Phase 9B-1A：七日預報與首頁星座（2026/10/21）
+
+- 七日預報移除 56rem 置中上限；桌面七等欄、平板自動換列、手機在卡片內水平捲動。保留今天主題色標示及所有天氣內容，捲動區可鍵盤聚焦。
+- 首頁說明後改為今日行程／星座雙欄等高卡片；1100px 以下依序堆疊，再顯示四項摘要。星座本文預設三行，展開／收合不重新建立按鈕，保留焦點、原文與 aria-expanded／aria-controls。來源日期、非今日警告、擷取時間、原文及署名皆在收合範圍外；沒有新增儲存資料。
+- 相關測試 65/65（新增四項星座 UI 測試）。完整測試首次 621/623：自動化／遷移兩項失敗；限定重跑這兩檔為 43/47，錯誤包含 Windows EPERM 重新命名測試暫存 status.json／report.json，未修改自動化程式或放寬驗證，不能宣稱完整測試全過。
+- Vite /dailyinfo/ 建置成功（70 模組）；verify -- --dist、Git diff --check 通過。正式 public/data、services、scripts、Router、Workflow、依賴對 HEAD 無差異。DEMO-GUIDE.md 原 SHA-256 未變，既有未提交變更保留。
+- Chrome 使用獨立 5195 測試 origin，未改既有使用者儲存。1280／1440／1920px 七日等寬同列，834px 平板換列，390px 手機可水平瀏覽（鍵盤 ArrowRight 實際 scrollLeft=80），整頁無水平溢出。1440px 首頁雙卡等高；手機先今日行程、後星座、再四項摘要。展開／收合、鍵盤焦點、警告與來源保留正常。
+- 實測淺色／深色／跟隨系統、五色切換與小／標準／大字級代表情境，含手機深色大字、平板系統小字與桌面大字；未宣稱全部組合或實體手機均測試。測後重設測試 origin 外觀與 viewport。沒有 Commit／Push、部署、雲端或費用操作；完整測試的暫存檔存取失敗仍待排除。
+
+## Phase 9B-1：全站 UI／UX 視覺精修（2026/10/21）
+
+- 修正淺色 --muted／--border 自我引用循環；新增統一視覺層，沿用原有五色、三模式與三字級。首頁改為今日行程、主要摘要、完整星座，保留所有資料、來源、日期及提示。稽核、修改理由與驗收邊界見 [UI-AUDIT.md](docs/UI-AUDIT.md)。
+- 相關 59/59；完整 Vitest 44 檔 619/619 通過。Vite /dailyinfo/ 建置成功（70 模組），公開產物安全檢查與 Git diff --check 通過。
+- Chrome 獨立測試 origin：390px 淺色首頁 15 組、深色與跟隨系統設定頁 30 組皆通過溢出／抽樣對比檢查；手機大字主要六頁、月曆及真實 2330 圖表正常。1280／1440／1920px 桌面及 834px 平板首頁無水平溢出，鍵盤焦點可見。未宣稱每頁全組合、實體手機或真實 OS 切換皆已測試。
+- 保留 docs/DEMO-GUIDE.md，正式 JSON、所有 services、scripts、Workflow、Checkpoint 與依賴對 HEAD 無變更；未改原有使用者儲存。沒有 Commit／Push、雲端／費用操作；尚未部署，等待驗收。
+
 ## Phase 8F：Chart.js 股票五日走勢（2026/10/21）
 
 - 保留尚未提交的行事曆與首頁今日行程。替換股票詳情的 SVG 圖表，按需載入免費 MIT Chart.js 4.5.1（相依 @kurkle/color 0.3.4 同為 MIT），保留完整公開授權。沿用既有 TWSE 歷史服務、月資料驗證、共用請求與 30 分鐘記憶體快取，未新增資料來源或儲存機制。
@@ -586,3 +630,12 @@ Phase 1 到此停止，等待使用者驗收；股票、新聞、地震僅有頁
 ?? tests/checkpoint-migration.test.js
 ?? tests/retired-feature.test.js
 ```
+# Phase 9B-3：全站整合與發布前驗收（2026-10-22，本機）
+
+- 完整 Vitest：49 個檔案、655／655 項通過（654 項基準，加 1 項展示標示回歸）；沒有跳過或降低安全驗證。
+- `npm.cmd run build -- --base=/dailyinfo/` 成功，74 modules；`npm.cmd run verify -- --dist` 通過五份公開 JSON、隱私、子路徑與建置一致性檢查；`git diff --check` 通過。
+- 側邊欄／頁尾移除過期 PHASE 6C、v0.10.0、期中專案 Phase 字樣，改為平台與日常工作台標示。未制定正式發布版本，因此不更改 package 版本號；歷史階段文件仍保留。
+- Chrome 使用全新 `http://127.0.0.1:5200/dailyinfo/` origin：首頁與完整天氣地區雙向獨立、保存及重新載入；七日預報、AQI、星座預覽與展開；00919 Enter／Space 詳情及獨立加入；2330／0050 真實五日圖表；新聞搜尋／分類／排序／收藏；地震多條件篩選、地圖／詳情；跨午夜及全天行程編輯、持久化、取消／確認刪除；詳情 Escape 均通過。測試行程、收藏與自選已移除。
+- 1440／834／390px 主要頁面沒有整頁水平溢出；三種模式、五色、三字級抽樣正常。系統外觀變動回應、資料損壞、寫入失敗、無行情、請求競態及群組管理亦有完整自動化回歸。未宣稱人工窮舉所有外觀組合或完成全站螢幕閱讀器認證。Chrome 捕捉的 error 日誌為空。
+- 正式五份 JSON 唯讀比較均 HTTP 200：股票目錄雜湊相同；正式 quotes（10/20）、news（10/21 擷取）、earthquakes（最新事件 10/21）、horoscope（10/21）皆比本機更新。沒有下載覆寫、還原 Checkpoint 或更新外部來源快照。本機 dist 含較舊資料，不可直接發布；安全方案與比較表見 `docs/PRE-RELEASE.md`。
+- 原有 UI、獨立地區修改及 `docs/DEMO-GUIDE.md` 保留；正式 JSON、腳本、Workflow、套件及鎖檔未修改。未 Commit／Push／部署／觸發 Actions，也沒有修改雲端開關或費用設定。

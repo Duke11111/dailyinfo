@@ -1,7 +1,7 @@
 /* Semantic tokens shared by every route, including navigation and forecast text. */
 :root {
   --base-font-size:14px; --bg:#f4f6f8; --surface:#fff; --subtle:#fafbfc;
-  --text:#233346; --text-secondary:#526374; --muted:#70808e; --quiet:#b6c2ca; --border:#e6ebef;
+  --text:#233346; --text-secondary:#526374; --muted:#5f7180; --quiet:#b6c2ca; --border:#e2e8e9;
   --sidebar-bg:#111f32; --sidebar-text:#a4b3c4; --sidebar-muted:#8294a9; --sidebar-bright:#d4dce5;
   --sidebar-hover:#1a2c42; --sidebar-border:#273547; --on-accent:#fff;
   --palette-teal:#197969; --palette-blue:#2863a3; --palette-violet:#7150a4; --palette-rose:#a44268; --palette-amber:#94601e;
@@ -9,7 +9,7 @@
   --accent-soft:#f0f7f3; --sidebar-active:#23443f; --focus:var(--accent);
   --hero-muted:#b7d5cd; --hero-text:#e0efe6; --hero-ring:#ffffff0c; --hero-ring-soft:#ffffff03; --hero-border:#ffffff20; --hero-shadow:#0d3b3f55;
   --info-ink:#5685bd; --info-bg:#eff5fc; --stock-ink:#7183be; --stock-bg:#f0f1fa;
-  --news-ink:#a38456; --news-bg:#faf5ec; --quake-ink:#a0859e; --quake-bg:#f6f0f5; --error:#b0744b; --shadow:#24374708;
+  --news-ink:#a38456; --news-bg:#faf5ec; --quake-ink:#a0859e; --quake-bg:#f6f0f5; --error:#9b5a31; --shadow:#24374708;
   color-scheme:light;
 }
 :root[data-font-size="small"] { --base-font-size:12px; }
@@ -25,7 +25,7 @@
   --info-ink:#94bce9; --info-bg:#20364d; --stock-ink:#b6bde9; --stock-bg:#2c304b;
   --news-ink:#dbbf8d; --news-bg:#3e3528; --quake-ink:#d2b2d1; --quake-bg:#3b2b3c; --error:#e6ad82; --shadow:#00000030;
 }
-:root{font-family:Inter,"Noto Sans TC",system-ui,sans-serif;color:var(--text);background:var(--bg);font-synthesis:none;font-size:var(--base-font-size);line-height:1.6;font-weight:400;--muted:var(--muted);--teal:var(--accent);--border:var(--border)}
+:root{font-family:Inter,"Noto Sans TC",system-ui,sans-serif;color:var(--text);background:var(--bg);font-synthesis:none;font-size:var(--base-font-size);line-height:1.6;font-weight:400;--teal:var(--accent)}
 *{box-sizing:border-box}
 body{margin:0}
 a{color:inherit;text-decoration:none}

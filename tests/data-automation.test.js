@@ -11,7 +11,8 @@ import { SIGNS } from '../src/services/horoscope.js';
 
 const captured = '2026-10-20T01:00:00.000Z', now = () => Date.parse(captured);
 const fixture = source => ({ quotes: quoteFixture, news: newsFixture, earthquakes: eqFixture, horoscope: () => ({ version: 1, source: 'https://freehoroscopeapi.com', language: 'en', fetchedAt: captured, readings: SIGNS.map(sign => ({ sign: sign.code, date: '2026-10-20', text: 'Synthetic test only.' })) }) })[source]();
-const base = resolve('.cache/automation-tests'); let root;
+// Vite ignores **/test-results/**; keep rapidly replaced JSON outside dev watchers.
+const base = resolve('.cache/test-results/automation-tests'); let root;
 const path = source => join(root, 'public/data', `${source}.json`);
 const read = source => readFile(path(source), 'utf8');
 async function seed() { for (const source of SOURCES) await writeFile(path(source), JSON.stringify(fixture(source))); }
