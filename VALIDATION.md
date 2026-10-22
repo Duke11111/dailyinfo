@@ -1,5 +1,15 @@
 # DailyInfo 驗收紀錄
 
+## Phase 8G-D1：三時段排程與有限補跑（2026/10/22，僅本機）
+
+- 基線 ab82abb，起始工作樹乾淨。本機 cron 改為 UTC `37 2 * * *`／`43 12 * * *`／`47 14 * * *`，對應臺灣 10:37／20:43／22:47；所有既有更新、免費確認、發布與 main 安全閘門保留。沒有操作 GitHub Variables、Secrets、Budget 或觸發雲端流程。
+- 新增 source-schedule 純函式：依實際臺灣日期、固定事件 cron、上次成功／嘗試、60 分鐘冷卻及同時段一次限制判斷；非股票每天至多三次，股票週末不查、平日只有晚上兩次。延遲事件不冒充另一時段，當日成功後不無意義補跑。手動更新不受排程窗口限制，仍須人工授權。
+- `source_delayed` 只用於股票／星座缺少當期日期的有效回應；不推進當期成功時間，與 validation_failed 分開。較新且有效的既往交易日可更新舊快照但不冒稱今日；昨日星座不覆寫、日期倒退／格式錯誤仍拒絕。新聞／地震 unchanged 可屬成功檢查，但不更換原 JSON fetchedAt。
+- status.json 仍 v1，欄位不變，舊格式可讀；Checkpoint 仍 v2、六檔，SHA-256／Schema／來源 Commit／過期與舊五來源遷移機制未降低。增加的固定 code 可安全往返新版 Checkpoint；舊程式回復須配其原核准狀態。沒有修改既有 Checkpoint。
+- 新增 19 項固定 Fixture／Mock 測試；相關六檔 125 項通過（加入最後一項 code 限制後），完整 Vitest 50 檔 674／674 通過，無略過。包含早晚檢查、晚上補跑、當日成功跳過、冷卻、遲到／跨日、週末／平日來源延遲、日期倒退保護、status v1／checkpoint v2 往返與 checksum 拒絕、手動更新及摘要防注入。
+- 官方 MIT actionlint v1.7.12：下載依官方 release checksums 核對 SHA-256，僅位於本專案忽略的 `.cache/tools`；data-update.yml／pages-manual.yml YAML 與 Actions 語法檢查通過。未執行額外 ShellCheck／Pyflakes，未新增專案依賴或修改 PATH。真實 GitHub schedule、來源網路與部署仍待另行授權驗收。
+- 安全摘要使用固定來源／狀態／錯誤／跳過原因與標準時間，包含最近成功、有效來源日期、真實 fetchedAt、下次資格；update／deploy／checkpoint 結果分開，不把綠色 Workflow 當成四來源皆成功。維護文件列出漏觸發、48 小時內到期介入與 60 天無活動停用限制，不新增付費監控或自動保活 Commit。
+
 ## Phase 9B-2B：首頁獨立常用天氣地區（2026/10/22，本機）
 
 - 首頁新增小型「變更地區」Dialog，重用 regions.js 的 22 縣市、368 鄉鎮市區；選擇為草稿，只有「儲存我的地區」才寫入 dailyinfo.overview.weather.region.v1，格式僅 { id }，由官方清單還原可信座標。缺少設定顯示預設臺北市大安區及尚未儲存提示；無效資料不自動覆寫，寫入失敗明確提示並保留原選擇。完整天氣頁維持 dailyinfo.region.v1 與原有搜尋／連動選單。

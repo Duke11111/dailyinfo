@@ -8,6 +8,8 @@ import { validateQuoteSnapshot } from '../../src/services/quotes.js';
 import { validateNewsSnapshot } from '../../src/services/news.js';
 import { validateEarthquakeSnapshot } from '../../src/services/earthquakes.js';
 import { validateHoroscope, taipeiDate } from '../../src/services/horoscope.js';
+import { scheduleDecision } from './source-schedule.mjs';
+export { isDue } from './source-schedule.mjs';
 
 export const PROJECT_ROOT = fileURLToPath(new URL('../../', import.meta.url));
 export const SOURCES = Object.freeze(['quotes', 'news', 'earthquakes', 'horoscope']);
@@ -56,19 +58,10 @@ export function validateState(raw, now = Date.now()) {
   const sources = {};
   for (const name of Object.keys(raw.sources)) {
     const item = raw.sources[name];
-    if (!SOURCES.includes(name) || !iso(item?.attemptedAt) || Date.parse(item.attemptedAt) > now + 300000 || !['updated', 'unchanged', 'failed'].includes(item.status) || !['ok', 'update_failed', 'validation_failed'].includes(item.code) || item.lastSuccessAt != null && (!iso(item.lastSuccessAt) || Date.parse(item.lastSuccessAt) > Date.parse(item.attemptedAt))) throw safeFailure('state_invalid');
+    if (!SOURCES.includes(name) || !iso(item?.attemptedAt) || Date.parse(item.attemptedAt) > now + 300000 || !['updated', 'unchanged', 'failed'].includes(item.status) || !['ok', 'update_failed', 'validation_failed', 'source_delayed'].includes(item.code) || item.code === 'source_delayed' && (item.status === 'failed' || !['quotes', 'horoscope'].includes(name)) || item.lastSuccessAt != null && (!iso(item.lastSuccessAt) || Date.parse(item.lastSuccessAt) > Date.parse(item.attemptedAt))) throw safeFailure('state_invalid');
     sources[name] = { attemptedAt: item.attemptedAt, status: item.status, code: item.code, ...(item.lastSuccessAt ? { lastSuccessAt: item.lastSuccessAt } : {}) };
   }
   return { version: 1, sources };
-}
-export function isDue(source, state, now = Date.now()) {
-  if (!SOURCES.includes(source)) return false;
-  const local = new Date(now + 8 * 3600000), day = local.getUTCDay(), hour = local.getUTCHours();
-  const previous = state.sources[source]?.attemptedAt;
-  if (['news', 'earthquakes'].includes(source)) return !previous || now - Date.parse(previous) >= 60 * 60000;
-  if (source === 'quotes' && (day === 0 || day === 6)) return false;
-  const cutoff = source === 'quotes' ? 17 : 9;
-  return hour >= cutoff && (!previous || taipeiDate(previous) !== taipeiDate(now) || new Date(Date.parse(previous) + 8 * 3600000).getUTCHours() < cutoff);
 }
 async function optionalJson(file) { try { return JSON.parse(await readFile(file, 'utf8')); } catch (error) { if (error.code === 'ENOENT') return null; throw error; } }
 async function atomicWrite(file, data) { const temp = `${file}.tmp`; await writeFile(temp, `${JSON.stringify(data, null, 2)}\n`); await rename(temp, file); }
@@ -80,8 +73,9 @@ export async function runSource(source, { root, directory }) {
     await runFile(process.execPath, [join(root, 'scripts', `update-${source}.mjs`)], { cwd: root, env, timeout: 210000, maxBuffer: 1048576, windowsHide: true });
   } catch (error) { throw safeFailure('update_failed'); }
 }
-export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, scheduled = false, now = Date.now, runner = runSource } = {}) {
+export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, scheduled = false, cron, now = Date.now, runner = runSource } = {}) {
   if (!sources.length || new Set(sources).size !== sources.length || sources.some(name => !SOURCES.includes(name))) throw safeFailure('unknown_source');
+  if (scheduled) scheduleDecision(sources[0], { sources: {} }, now(), { cron });
   const base = resolve(root, '.cache/data-updates'); await mkdir(base, { recursive: true });
   const lock = join(base, 'lock');
   try { await mkdir(lock); } catch { throw safeFailure('update_locked'); }
@@ -92,29 +86,36 @@ export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, sched
     staging = await mkdtemp(join(base, 'run-'));
     const results = [], startedAt = new Date(now()).toISOString();
     for (const source of sources) {
-      if (scheduled && !isDue(source, state, now())) { results.push({ source, status: 'skipped', code: 'not_due' }); continue; }
-      const target = join(root, 'public/data', `${source}.json`), directory = join(staging, source); await mkdir(directory);
+      const target = join(root, 'public/data', `${source}.json`), directory = join(staging, source);
       let previous;
+      const oldSuccess = state.sources[source]?.lastSuccessAt;
+      const details = data => ({ lastSuccessAt: state.sources[source]?.lastSuccessAt ?? null, sourceDate: data ? sourceDate(source, data) : null, fetchedAt: data?.fetchedAt ?? null,
+        retry: scheduleDecision(source, state, now(), { cron: scheduled ? cron : undefined }) });
       try {
         try {
           const raw = await optionalJson(target); previous = raw ? validateData(source, raw, now()) : null;
         } catch (error) { throw error; }
+        const due = scheduleDecision(source, state, now(), { cron: scheduled ? cron : undefined });
+        if (scheduled && !due.due) { results.push({ source, status: 'skipped', code: 'not_due', ...details(previous) }); continue; }
+        await mkdir(directory);
         if (previous) await copyFile(target, join(directory, `${source}.json`));
         try { await runner(source, { root, directory }); } catch (error) { throw safeFailure('update_failed'); }
         const rawNext = await optionalJson(join(directory, `${source}.json`));
         const next = validateData(source, rawNext, now());
         if (previous && (sourceDate(source, next) < sourceDate(source, previous) || Date.parse(next.fetchedAt) < Date.parse(previous.fetchedAt))) throw safeFailure('validation_failed');
-        if (source === 'horoscope' && next.readings[0].date !== taipeiDate(now())) throw safeFailure('validation_failed');
+        if (source === 'horoscope' && next.readings[0].date !== taipeiDate(now())) throw safeFailure('source_delayed');
+        const delayed = source === 'quotes' && next.tradeDate < taipeiDate(now());
         const changed = !previous || contentDigest(previous) !== contentDigest(next);
         if (changed) { await mkdir(join(root, 'public/data'), { recursive: true }); await atomicWrite(target, rawNext); }
-        const item = { attemptedAt: startedAt, status: changed ? 'updated' : 'unchanged', code: 'ok', lastSuccessAt: startedAt };
+        const item = { attemptedAt: startedAt, status: changed ? 'updated' : 'unchanged', code: delayed ? 'source_delayed' : 'ok',
+          ...(!delayed ? { lastSuccessAt: startedAt } : oldSuccess ? { lastSuccessAt: oldSuccess } : {}) };
         state.sources[source] = item;
         const accepted = changed ? next : previous;
-        results.push({ source, ...item, sourceDate: sourceDate(source, accepted), fetchedAt: accepted.fetchedAt });
+        results.push({ source, ...item, ...details(accepted) });
       } catch (error) {
-        const code = error.safeCode === 'update_failed' ? error.safeCode : 'validation_failed';
-        const item = { attemptedAt: startedAt, status: 'failed', code, ...(state.sources[source]?.lastSuccessAt ? { lastSuccessAt: state.sources[source].lastSuccessAt } : {}) };
-        state.sources[source] = item; results.push({ source, ...item });
+        const code = ['update_failed', 'source_delayed'].includes(error.safeCode) ? error.safeCode : 'validation_failed';
+        const item = { attemptedAt: startedAt, status: code === 'source_delayed' ? 'unchanged' : 'failed', code, ...(oldSuccess ? { lastSuccessAt: oldSuccess } : {}) };
+        state.sources[source] = item; results.push({ source, ...item, ...details(previous) });
       }
     }
     const report = { version: 1, startedAt, changed: results.some(item => item.status === 'updated'), failed: results.filter(item => item.status === 'failed').length, results };

@@ -22,7 +22,7 @@ afterEach(async () => { vi.unstubAllEnvs(); if (!resolve(root).startsWith(base +
 
 it('scheduled core isolates a failure, preserves all valid snapshots and throttles the next attempt', async () => {
   const before = Object.fromEntries(await Promise.all(SOURCES.map(async source => [source, await read(source)])));
-  const clock = () => Date.parse('2026-10-20T10:17:00Z'), perform = runner();
+  const clock = () => Date.parse('2026-10-20T12:43:00Z'), perform = runner();
   const options = { root, sources: selectUpdateSources('core', true), scheduled: true, now: clock, runner: async (source, settings) => {
     if (source === 'news') throw Error('synthetic private failure');
     await perform(source, settings);
@@ -61,7 +61,7 @@ it.each(['invalid', 'old', 'future', 'secret'])('preserves old bytes after %s ca
 });
 it('does not overwrite a corrupt baseline and removes only its own temporary directory', async () => { await writeFile(path('quotes'), 'corrupt'); const report = await updateData({ root, sources: ['quotes'], now, runner: runner() }); expect(report.failed).toBe(1); expect(await read('quotes')).toBe('corrupt'); expect(await readdir(join(root, '.cache/data-updates'))).toEqual(expect.arrayContaining(['status.json', 'report.json'])); expect((await readdir(join(root, '.cache/data-updates'))).some(name => name.startsWith('run-') || name === 'lock')).toBe(false); });
 it('holds a local single-run lock and rejects unknown or duplicate sources', async () => { await mkdir(join(root, '.cache/data-updates/lock'), { recursive: true }); await expect(updateData({ root, now, runner: runner() })).rejects.toThrow('update_locked'); await expect(updateData({ root, sources: ['news', 'news'] })).rejects.toThrow(); await expect(updateData({ root, sources: ['../bad'] })).rejects.toThrow(); });
-it('throttles recurring sources and skips duplicate daily attempts including failures', async () => {
+it('throttles duplicate attempts and waits for the next scheduled window', async () => {
   const perform = runner(); await updateData({ root, sources: ['horoscope', 'news'], now, runner: perform }); const result = await updateData({ root, sources: ['horoscope', 'news'], scheduled: true, now, runner: perform }); expect(result.results.every(item => item.status === 'skipped')).toBe(true); expect(perform).toHaveBeenCalledTimes(2);
   expect(isDue('news', { sources: { news: { attemptedAt: captured } } }, now() + 3 * 3600000)).toBe(true);
 });

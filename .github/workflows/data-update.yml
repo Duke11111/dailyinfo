@@ -3,7 +3,9 @@ name: DailyInfo data update (disabled until approved)
 on:
   # Inert until DATA_SCHEDULE_ENABLED is explicitly true; manual runs are independent.
   schedule:
-    - cron: '17 * * * *' # Hourly; isDue uses Asia/Taipei; GitHub may delay runs.
+    - cron: '37 2 * * *' # 10:37 Asia/Taipei: news, earthquakes, horoscope.
+    - cron: '43 12 * * *' # 20:43: news, earthquakes, weekday quotes, horoscope recovery.
+    - cron: '47 14 * * *' # 22:47: recovery only; GitHub may delay or drop schedules.
   workflow_dispatch:
     inputs:
       source:
@@ -75,6 +77,7 @@ jobs:
           CWA_API_KEY: ${{ secrets.CWA_API_KEY }}
           EVENT: ${{ github.event_name }}
           SOURCE: ${{ inputs.source }}
+          SCHEDULE_CRON: ${{ github.event.schedule }}
         run: |
           set +e
           if [ "$EVENT" = "schedule" ]; then
@@ -175,3 +178,11 @@ jobs:
           path: checkpoint/
           retention-days: 7
           if-no-files-found: error
+      - name: Summarize workflow and deployment outcomes
+        if: always()
+        env:
+          UPDATE_RESULT: ${{ needs.update.result }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
+          CHECKPOINT_RESULT: ${{ job.status }}
+        run: |
+          printf '## Workflow outcomes\n\n- update: %s\n- deploy: %s\n- checkpoint job: %s\n\nSource results are listed separately; workflow success does not imply every source changed or was published.\n' "$UPDATE_RESULT" "$DEPLOY_RESULT" "$CHECKPOINT_RESULT" >> "$GITHUB_STEP_SUMMARY"

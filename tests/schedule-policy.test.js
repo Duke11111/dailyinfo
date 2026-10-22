@@ -59,8 +59,9 @@ it.each([[undefined, undefined, false], ['false', 'pages', false], ['true', unde
   values.needs.update.outputs.publish = 'false'; expect(evaluate(deployCondition, values)).toBe(false);
   expect(workflow).toContain("if: steps.decision.outputs.publish == 'true'");
 });
-it('uses exactly one hourly cron and only core --scheduled in the scheduled branch', () => {
-  expect([...workflow.matchAll(/- cron: '([^']+)'/g)].map(match => match[1])).toEqual(['17 * * * *']);
+it('uses three Taipei windows and only core --scheduled in the scheduled branch', () => {
+  expect([...workflow.matchAll(/- cron: '([^']+)'/g)].map(match => match[1])).toEqual(['37 2 * * *', '43 12 * * *', '47 14 * * *']);
+  expect(workflow).toContain('SCHEDULE_CRON: ${{ github.event.schedule }}');
   const scheduled = update.split('if [ "$EVENT" = "schedule" ]; then')[1].split('elif')[0];
   expect(scheduled.trim()).toBe('npm run update:data -- --sources=core --scheduled');
   expect(CORE_SOURCES).toEqual(['quotes', 'news', 'earthquakes', 'horoscope']);
@@ -71,9 +72,9 @@ it('uses Taiwan dates across UTC midnight, weekends and delayed runs', () => {
   const taiwanMidnight = Date.parse('2026-10-19T16:17:00Z');
   expect(isDue('quotes', state, taiwanMidnight)).toBe(false);
   expect(isDue('horoscope', state, taiwanMidnight)).toBe(false);
-  const nextEvening = Date.parse('2026-10-20T10:17:00Z');
+  const nextEvening = Date.parse('2026-10-20T12:43:00Z');
   for (const source of CORE_SOURCES) expect(isDue(source, state, nextEvening)).toBe(true);
-  const weekend = Date.parse('2026-10-24T10:17:00Z');
+  const weekend = Date.parse('2026-10-24T12:43:00Z');
   expect(isDue('quotes', state, weekend)).toBe(false);
   for (const source of ['news', 'earthquakes', 'horoscope']) expect(isDue(source, state, weekend)).toBe(true);
   const lateNight = Date.parse('2026-10-20T15:59:00Z');

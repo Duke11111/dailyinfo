@@ -19,18 +19,18 @@ it('manual updates need their own explicit publish_current approval', () => {
   expect(releaseDecision({ ...permitted, EVENT: 'push', FORCE_BUILD: 'true' }).publish).toBe(false);
 });
 it.each(['news', 'earthquakes'])('throttles %s to at least an hour, including failures and UTC rollover', source => {
-  const attemptedAt = '2026-10-20T23:45:00Z', state = { sources: { [source]: { attemptedAt, status: 'failed' } } };
+  const attemptedAt = '2026-10-20T01:37:00Z', state = { sources: { [source]: { attemptedAt, status: 'failed' } } };
   expect(isDue(source, state, Date.parse(attemptedAt) + 3599999)).toBe(false);
   expect(isDue(source, state, Date.parse(attemptedAt) + 3600000)).toBe(true);
 });
-it('daily sources respect Taipei cutoff, weekends and one attempt per date', () => {
+it('daily sources respect Taipei windows, weekends and successful daily completion', () => {
   const empty = { sources: {} };
   expect(isDue('quotes', empty, Date.parse('2026-10-20T08:59:59Z'))).toBe(false);
-  expect(isDue('quotes', empty, Date.parse('2026-10-20T09:17:00Z'))).toBe(true);
+  expect(isDue('quotes', empty, Date.parse('2026-10-20T12:43:00Z'))).toBe(true);
   expect(isDue('horoscope', empty, Date.parse('2026-10-20T00:59:59Z'))).toBe(false);
-  expect(isDue('horoscope', empty, Date.parse('2026-10-20T01:17:00Z'))).toBe(true);
+  expect(isDue('horoscope', empty, Date.parse('2026-10-20T02:37:00Z'))).toBe(true);
   expect(isDue('quotes', empty, Date.parse('2026-10-24T09:17:00Z'))).toBe(false);
-  expect(isDue('quotes', { sources: { quotes: { attemptedAt: '2026-10-20T09:17:00Z' } } }, Date.parse('2026-10-20T15:59:00Z'))).toBe(false);
+  expect(isDue('quotes', { sources: { quotes: { attemptedAt: '2026-10-20T09:17:00Z', lastSuccessAt: '2026-10-20T09:17:00Z', status: 'updated', code: 'ok' } } }, Date.parse('2026-10-20T15:59:00Z'))).toBe(false);
 });
 const item = size => ({ size_in_bytes: size, expired: false, expires_at: '2026-10-27T12:00:00Z' });
 it('reserves upload headroom, counts expired bytes and never deletes a checkpoint', () => {
