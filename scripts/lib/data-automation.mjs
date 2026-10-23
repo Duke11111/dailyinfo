@@ -59,7 +59,9 @@ export function validateState(raw, now = Date.now()) {
   for (const name of Object.keys(raw.sources)) {
     const item = raw.sources[name];
     if (!SOURCES.includes(name) || !iso(item?.attemptedAt) || Date.parse(item.attemptedAt) > now + 300000 || !['updated', 'unchanged', 'failed'].includes(item.status) || !['ok', 'update_failed', 'validation_failed', 'source_delayed'].includes(item.code) || item.code === 'source_delayed' && (item.status === 'failed' || !['quotes', 'horoscope'].includes(name)) || item.lastSuccessAt != null && (!iso(item.lastSuccessAt) || Date.parse(item.lastSuccessAt) > Date.parse(item.attemptedAt))) throw safeFailure('state_invalid');
-    sources[name] = { attemptedAt: item.attemptedAt, status: item.status, code: item.code, ...(item.lastSuccessAt ? { lastSuccessAt: item.lastSuccessAt } : {}) };
+    if (item.attemptedSlot !== undefined && !['morning', 'evening', 'recovery'].includes(item.attemptedSlot)) throw safeFailure('state_invalid');
+    sources[name] = { attemptedAt: item.attemptedAt, status: item.status, code: item.code, ...(item.lastSuccessAt ? { lastSuccessAt: item.lastSuccessAt } : {}),
+      ...(item.attemptedSlot !== undefined ? { attemptedSlot: item.attemptedSlot } : {}) };
   }
   return { version: 1, sources };
 }
@@ -92,7 +94,7 @@ export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, sched
     for (const source of sources) {
       if (deadline != null && now() >= deadline) throw safeFailure('acceptance_expired');
       const target = join(root, 'public/data', `${source}.json`), directory = join(staging, source);
-      let previous;
+      let previous, attemptedSlot;
       const oldSuccess = state.sources[source]?.lastSuccessAt;
       const details = data => ({ lastSuccessAt: state.sources[source]?.lastSuccessAt ?? null, sourceDate: data ? sourceDate(source, data) : null, fetchedAt: data?.fetchedAt ?? null,
         retry: scheduleDecision(source, state, now(), { cron: scheduled ? cron : undefined }) });
@@ -102,6 +104,7 @@ export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, sched
         } catch (error) { throw error; }
         const due = scheduleDecision(source, state, now(), { cron: scheduled ? cron : undefined });
         if (scheduled && !due.due) { results.push({ source, status: 'skipped', code: 'not_due', ...details(previous) }); continue; }
+        if (scheduled) attemptedSlot = due.slot;
         await mkdir(directory);
         if (previous) await copyFile(target, join(directory, `${source}.json`));
         if (!sourceStarted && startBy != null && now() > startBy) throw safeFailure('acceptance_expired');
@@ -116,6 +119,7 @@ export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, sched
         const changed = !previous || contentDigest(previous) !== contentDigest(next);
         if (changed) { await mkdir(join(root, 'public/data'), { recursive: true }); await atomicWrite(target, rawNext); }
         const item = { attemptedAt: startedAt, status: changed ? 'updated' : 'unchanged', code: delayed ? 'source_delayed' : 'ok',
+          ...(attemptedSlot ? { attemptedSlot } : {}),
           ...(!delayed ? { lastSuccessAt: startedAt } : oldSuccess ? { lastSuccessAt: oldSuccess } : {}) };
         state.sources[source] = item;
         const accepted = changed ? next : previous;
@@ -123,7 +127,8 @@ export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, sched
       } catch (error) {
         if (error.safeCode === 'acceptance_expired' || deadline != null && now() >= deadline) throw safeFailure('acceptance_expired');
         const code = ['update_failed', 'source_delayed'].includes(error.safeCode) ? error.safeCode : 'validation_failed';
-        const item = { attemptedAt: startedAt, status: code === 'source_delayed' ? 'unchanged' : 'failed', code, ...(oldSuccess ? { lastSuccessAt: oldSuccess } : {}) };
+        const item = { attemptedAt: startedAt, status: code === 'source_delayed' ? 'unchanged' : 'failed', code, ...(oldSuccess ? { lastSuccessAt: oldSuccess } : {}),
+          ...(attemptedSlot ? { attemptedSlot } : {}) };
         state.sources[source] = item; results.push({ source, ...item, ...details(previous) });
       }
     }

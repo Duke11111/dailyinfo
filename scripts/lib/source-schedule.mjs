@@ -1,9 +1,11 @@
 export const SCHEDULES = Object.freeze([
   { name: 'morning', cron: '37 2 * * *', minute: 10 * 60 + 37 },
-  { name: 'evening', cron: '43 12 * * *', minute: 20 * 60 + 43 },
-  { name: 'recovery', cron: '47 14 * * *', minute: 22 * 60 + 47 },
+  { name: 'evening', cron: '17 9 * * *', minute: 17 * 60 + 17 },
+  { name: 'recovery', cron: '27 10 * * *', minute: 18 * 60 + 27 },
 ]);
 export const RETRY_COOLDOWN = 60 * 60000;
+// Historical D4 admission remains separately bounded by its exact approval and deadline.
+const LEGACY_D4_SLOT = { name: 'evening', cron: '43 12 * * *', minute: 20 * 60 + 43 };
 const dayOf = time => new Date(time + 8 * 3600000).toISOString().slice(0, 10);
 const startOf = day => Date.parse(day + 'T00:00:00+08:00');
 const stamp = time => new Date(time).toISOString();
@@ -23,9 +25,10 @@ function nextWindow(time, source) {
 // Explicit cron keeps a delayed morning invocation from masquerading as the evening one.
 export function scheduleDecision(source, state, now = Date.now(), { cron } = {}) {
   if (!['quotes', 'news', 'earthquakes', 'horoscope'].includes(source) || !Number.isFinite(now)) throw Error('schedule_invalid');
-  if (cron !== undefined && !SCHEDULES.some(slot => slot.cron === cron)) throw Error('schedule_cron_invalid');
+  const explicitSlot = SCHEDULES.find(slot => slot.cron === cron) ?? (cron === LEGACY_D4_SLOT.cron ? LEGACY_D4_SLOT : undefined);
+  if (cron !== undefined && !explicitSlot) throw Error('schedule_cron_invalid');
   const day = dayOf(now), start = startOf(day), minute = (now - start) / 60000;
-  const slot = cron === undefined ? SCHEDULES.filter(item => item.minute <= minute).at(-1) : SCHEDULES.find(item => item.cron === cron);
+  const slot = cron === undefined ? SCHEDULES.filter(item => item.minute <= minute).at(-1) : explicitSlot;
   const later = () => {
     if (!slot || minute < slot.minute) return start + (slot?.minute ?? SCHEDULES[0].minute) * 60000;
     return nextWindow(now, source);
@@ -40,8 +43,13 @@ export function scheduleDecision(source, state, now = Date.now(), { cron } = {})
   if (success >= successFloor && success <= now && item?.code !== 'source_delayed') {
     return result(false, 'already_successful', daily || success >= start + SCHEDULES[1].minute * 60000 ? nextDay(now, source) : nextWindow(now, source));
   }
-  // Old status v1 needs no migration: attemptedAt itself records the last occupied window.
-  if (attempt >= start + slot.minute * 60000) return result(false, 'window_already_attempted');
+  // An evening attempt delayed beyond recovery is still an evening attempt.
+  // Keep old v1 timestamps conservative; new optional metadata prevents false recovery skips.
+  const attemptedIndex = SCHEDULES.findIndex(window => window.name === item?.attemptedSlot);
+  const slotIndex = SCHEDULES.findIndex(window => window.name === slot.name);
+  if (attempt <= now && (attemptedIndex >= 0
+    ? attempt >= start && attemptedIndex >= slotIndex
+    : attempt >= start + slot.minute * 60000)) return result(false, 'window_already_attempted');
   if (Number.isFinite(attempt) && now - attempt < RETRY_COOLDOWN) return result(false, 'cooldown', Math.max(later(), attempt + RETRY_COOLDOWN));
   return result(true, slot.name === 'recovery' ? 'recovery_due' : 'window_due', now);
 }

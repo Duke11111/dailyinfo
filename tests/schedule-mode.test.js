@@ -3,19 +3,23 @@ import { readFile } from 'node:fs/promises';
 import { scheduledMode } from '../scripts/lib/schedule-mode.mjs';
 const workflow = (await readFile('.github/workflows/data-update.yml', 'utf8')).replace(/\r\n/g, '\n');
 const env = () => ({ GITHUB_EVENT_NAME: 'schedule', GITHUB_REF: 'refs/heads/main', GITHUB_REPOSITORY: 'Duke11111/dailyinfo',
-  GITHUB_RUN_ATTEMPT: '1', AUTOMATION: 'true', SCHEDULE: 'true', FREE: 'true', SCHEDULE_MODE: 'continuous', SCHEDULE_CRON: '43 12 * * *' });
+  GITHUB_RUN_ATTEMPT: '1', AUTOMATION: 'true', SCHEDULE: 'true', FREE: 'true', SCHEDULE_MODE: 'continuous', SCHEDULE_CRON: '17 9 * * *' });
 const vars = () => ({ DATA_AUTOMATION_ENABLED: 'true', DATA_SCHEDULE_ENABLED: 'true', DATA_FREE_USAGE_CONFIRMED: 'true',
   DATA_SCHEDULE_MODE: 'continuous', DATA_AUTO_PUBLISH_ENABLED: 'true', DATA_PUBLISH_ENABLED: 'true', DATA_DEPLOY_TARGET: 'pages' });
 const github = () => ({ event_name: 'schedule', ref: 'refs/heads/main', run_attempt: 1,
-  event: { schedule: '43 12 * * *', repository: { visibility: 'public', default_branch: 'main' } } });
+  event: { schedule: '17 9 * * *', repository: { visibility: 'public', default_branch: 'main' } } });
 function gate(job, v = vars(), g = github(), needs = { update: { outputs: { publish: 'true' } } }) {
   const expression = workflow.split(`  ${job}:\n`)[1].match(/^    if: (.+)$/m)[1];
   return Boolean(Function('vars', 'github', 'needs', 'always', 'format', 'fromJSON', `return (${expression});`)(
     v, g, needs, () => true, (pattern, value) => pattern.replace('{0}', value), JSON.parse));
 }
-it.each(['37 2 * * *', '43 12 * * *', '47 14 * * *'])('continuous %s ignores stale D4 configuration and can update', cron => {
+it.each(['37 2 * * *', '17 9 * * *', '27 10 * * *'])('continuous %s ignores stale D4 configuration and can update', cron => {
   expect(scheduledMode({ ...env(), SCHEDULE_CRON: cron, D4_CONFIG: '{expired invalid D4}' })).toBe('continuous');
   expect(gate('update', { ...vars(), DATA_D4_ONCE: '{expired invalid D4}' }, { ...github(), event: { ...github().event, schedule: cron } })).toBe(true);
+});
+it.each(['43 12 * * *', '47 14 * * *'])('rejects the retired continuous cron %s at both admission layers', cron => {
+  expect(() => scheduledMode({ ...env(), SCHEDULE_CRON: cron })).toThrow('schedule_not_authorized');
+  expect(gate('update', vars(), { ...github(), event: { ...github().event, schedule: cron } })).toBe(false);
 });
 it.each([undefined, '', 'D4', 'CONTINUOUS', 'other'])('invalid/unset mode %s cannot start sources', mode => {
   expect(() => scheduledMode({ ...env(), SCHEDULE_MODE: mode })).toThrow('schedule_not_authorized');
@@ -29,10 +33,12 @@ it.each(['GITHUB_EVENT_NAME', 'GITHUB_REF', 'GITHUB_REPOSITORY', 'GITHUB_RUN_ATT
 });
 it('D4 requires evening configuration, never schedules publication, and cannot be rerun', () => {
   const v = { ...vars(), DATA_SCHEDULE_MODE: 'd4', DATA_D4_ONCE: '{}' };
-  expect(scheduledMode({ ...env(), SCHEDULE_MODE: 'd4', D4_CONFIG: '{}' })).toBe('d4');
+  expect(scheduledMode({ ...env(), SCHEDULE_MODE: 'd4', D4_CONFIG: '{}', SCHEDULE_CRON: '43 12 * * *' })).toBe('d4');
   expect(() => scheduledMode({ ...env(), SCHEDULE_MODE: 'd4' })).toThrow();
-  expect(gate('update', v)).toBe(true); expect(gate('deploy', v)).toBe(false);
-  for (const cron of ['37 2 * * *', '47 14 * * *']) {
+  const legacy = { ...github(), event: { ...github().event, schedule: '43 12 * * *' } };
+  expect(gate('update', v, legacy)).toBe(true); expect(gate('deploy', v, legacy)).toBe(false);
+  expect(gate('update', v)).toBe(false);
+  for (const cron of ['37 2 * * *', '27 10 * * *']) {
     expect(() => scheduledMode({ ...env(), SCHEDULE_MODE: 'd4', D4_CONFIG: '{}', SCHEDULE_CRON: cron })).toThrow();
     expect(gate('update', v, { ...github(), event: { ...github().event, schedule: cron } })).toBe(false);
   }
