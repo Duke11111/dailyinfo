@@ -7,7 +7,7 @@ export function startAutoRefresh(tasks, { document: page = globalThis.document, 
     if (stopped || page.visibilityState === 'hidden') return;
     for (const record of records) {
       const { task } = record;
-      if (record.busy || task.enabled?.() === false || now() - Math.max(record.at, task.lastAt?.() ?? 0) < task.interval) continue;
+      if (record.busy || task.enabled?.() === false || (now() - Math.max(record.at, task.lastAt?.() ?? 0) < task.interval && !task.due?.())) continue;
       record.at = now(); record.busy = true;
       Promise.resolve().then(() => { if (!stopped && page.visibilityState !== 'hidden') return task.run(); })
         .catch(() => { /* View loaders display errors and retain their own state. */ })

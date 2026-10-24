@@ -1,10 +1,11 @@
 import { it, expect, vi } from 'vitest';
 import { createWeatherSession, WEATHER_TTL } from '../src/services/weather-session.js';
+import { weatherDate } from '../src/services/weather.js';
 import { DEFAULT_REGION, getRegion } from '../src/services/regions.js';
 
 const zhunan = getRegion('10005040'), zhongshan = getRegion('63000040');
 const time = Date.parse('2026-10-22T00:00:00Z');
-const data = (region, stamp = time) => ({ region, temperature: 25, fetchedAt: new Date(stamp).toISOString() });
+const data = (region, stamp = time) => ({ region, temperature: 25, time: new Date(stamp).toISOString(), fetchedAt: new Date(stamp).toISOString(), forecast: [{ date: weatherDate(stamp), low: 20, high: 25, rain: 10, code: 0 }] });
 it('shares successful regional cache records without sharing either view state or original fetch time', async () => {
   const cache = new Map(), fetcher = vi.fn(async ({ region }) => data(region));
   const home = createWeatherSession({ cache, fetcher, now: () => time }), page = createWeatherSession({ cache, fetcher, now: () => time });

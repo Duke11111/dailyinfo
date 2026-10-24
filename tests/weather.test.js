@@ -1,5 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { parseWeather, fetchWeather, WeatherError, weatherCondition } from '../src/services/weather.js';
+beforeEach(() => { vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime('2026-10-19T04:01:00Z'); });
+afterEach(() => vi.useRealTimers());
 function fixture() {
   return { timezone: 'Asia/Taipei', current: { time: '2026-10-19T12:00', temperature_2m: 26.3, relative_humidity_2m: 72, weather_code: 2 },
     current_units: { temperature_2m: '°C', relative_humidity_2m: '%' },

@@ -10,6 +10,9 @@ import { eqFixture } from './fixtures/earthquakes.js';
 import { mountEarthquakes } from '../src/pages/earthquakes.js';
 import { catalogFixture } from './fixtures/stock-catalog.js';
 
+// This dashboard suite isolates unrelated HTTP; live horoscope behavior has its own tests.
+vi.mock('../src/services/horoscope-live.js', () => ({ liveHoroscopeStore: { load: async () => ({ data: { readings: [] }, readAt: 0 }) } }));
+
 let view;
 const captured = Date.parse('2026-10-19T16:00:00Z');
 const weather = () => ({ status: 'success', region: DEFAULT_REGION, data: { temperature: 26, code: 2, time: '2026-10-19T23:00:00+08:00', fetchedAt: '2026-10-19T15:30:00Z', forecast: Array.from({ length: 7 }, (_, i) => ({ date: `2026-10-${19 + i}`, high: 28, low: 22, rain: 20, code: 2 })) } });

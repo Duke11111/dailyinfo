@@ -130,7 +130,7 @@ app.addEventListener('change', event => {
 });
 const stopRouter = createRouter((route) => { currentRoute = route; render(); });
 const stopAutoRefresh = startAutoRefresh([
-  { interval: 15 * 60000, lastAt: () => activeWeather().lastAttemptAt, enabled: () => ['weather', 'overview'].includes(currentRoute), run: () => activeWeather().load(undefined, { force: true }) },
+  { interval: 15 * 60000, lastAt: () => activeWeather().lastAttemptAt, due: () => activeWeather().needsRefresh, enabled: () => ['weather', 'overview'].includes(currentRoute), run: () => activeWeather().load(undefined, { force: true }) },
   { interval: 30 * 60000, lastAt: () => Date.parse(activeAir().state.data?.fetchedAt) || 0, enabled: () => ['weather', 'overview'].includes(currentRoute), run: () => activeAir().load(activeWeather().state.region, { force: true }) },
 ]);
 export function dispose() { stopAutoRefresh(); weather.dispose(); overviewWeather.dispose(); airQuality.dispose(); overviewAir.dispose(); weatherRequests.dispose(); airRequests.dispose(); weatherCache.clear(); airCache.clear(); overviewView?.dispose(); stopRouter(); stopThemeWatcher(); disposeCalendar(); disposeStocks(); disposeNews(); disposeEarthquakes(); }

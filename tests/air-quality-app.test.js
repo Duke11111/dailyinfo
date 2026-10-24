@@ -9,6 +9,7 @@ let app, airFetch;
 const response = data => ({ ok: true, json: async () => data });
 const weather = () => ({ timezone: 'Asia/Taipei', current: { time: '2026-10-20T00:00', temperature_2m: 26, relative_humidity_2m: 70, weather_code: 2 }, current_units: { temperature_2m: '°C', relative_humidity_2m: '%' }, daily_units: { temperature_2m_max: '°C', temperature_2m_min: '°C', precipitation_probability_max: '%' }, daily: { time: Array.from({ length: 7 }, (_, i) => `2026-10-${20 + i}`), weather_code: Array(7).fill(2), temperature_2m_max: Array(7).fill(28), temperature_2m_min: Array(7).fill(22), precipitation_probability_max: Array(7).fill(20) } });
 beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime('2026-10-20T00:01:00+08:00');
   vi.resetModules(); localStorage.clear(); document.body.innerHTML = '<a class="skip-link" href="#main">跳至主要內容</a><div id="app"></div>'; history.replaceState(null, '', '#/weather');
   airFetch = vi.fn(async url => { const raw = airFixture(), query = new URL(url).searchParams; raw.latitude = Number(query.get('latitude')); raw.longitude = Number(query.get('longitude')); return response(raw); });
   vi.stubGlobal('fetch', vi.fn(async (url, options) => {
@@ -21,7 +22,7 @@ beforeEach(() => {
     throw Error('unexpected request');
   }));
 });
-afterEach(() => { app?.dispose(); vi.unstubAllGlobals(); });
+afterEach(() => { app?.dispose(); vi.unstubAllGlobals(); vi.useRealTimers(); });
 const boot = async () => { app = await import('../src/main.js'); };
 function selectRegion(county, id) {
   for (const [selector, value] of [['#county-select', county], ['#district-select', id]]) { const input = document.querySelector(selector); input.value = value; input.dispatchEvent(new Event('change')); }

@@ -4,7 +4,7 @@ import { quoteStore, QUOTE_SOURCE } from '../services/quotes.js';
 import { newsStore, NEWS_CATEGORIES, NEWS_RSS_PAGE, filterNews } from '../services/news.js';
 import { earthquakeStore, EQ_SOURCE_URL } from '../services/earthquakes.js';
 import { regionLabel } from '../services/regions.js';
-import { weatherCondition } from '../services/weather.js';
+import { weatherCondition, todayForecast, weatherDate } from '../services/weather.js';
 import { weatherIcon } from '../lib/weather-icons.js';
 import { formatTime, formatNumber, dayLabel } from '../lib/format.js';
 import { formatEarthquakeTime } from '../lib/earthquake-format.js';
@@ -67,16 +67,20 @@ export function mountOverview(host, { weatherState, airState, onRefreshWeather, 
     weather.metadata.textContent = '降雨為每日最高預報機率；缺值以「—」表示。';
     if (state.status !== 'success' || !state.data) return;
     const w = state.data, current = el('div', '', 'overview-weather-current');
+    const today = todayForecast(w, now());
+    if (!today || weatherDate(Date.parse(w.time)) !== weatherDate(now())) {
+      weather.error.hidden = false; weather.error.textContent = '非當日有效天氣，請重新取得資料；不將舊預報視為今天。';
+    }
     const symbol = el('span', '', 'overview-weather-symbol'); symbol.innerHTML = weatherIcon(w.code); // trusted, fixed SVG only
-    current.append(symbol, el('strong', `${formatNumber(w.temperature)}°C`), el('span', weatherCondition(w.code).label), el('span', `今日降雨 ${formatNumber(w.forecast[0]?.rain)}${w.forecast[0]?.rain == null ? '' : '%'}`));
+    current.append(symbol, el('strong', `${formatNumber(w.temperature)}°C`), el('span', weatherCondition(w.code).label), el('span', `今日降雨 ${formatNumber(today?.rain)}${today?.rain == null ? '' : '%'}`));
     const days = el('div', '', 'overview-days'); days.setAttribute('aria-label', '未來七日預報摘要');
     w.forecast.slice(0, 7).forEach((day, index) => {
-      const item = el('div', '', `overview-day${index === 0 ? ' overview-today' : ''}`), date = el('time', day.date.slice(5).replace('-', '/')); date.dateTime = day.date;
+      const item = el('div', '', `overview-day${day.date === weatherDate(now()) ? ' overview-today' : ''}`), date = el('time', day.date.slice(5).replace('-', '/')); date.dateTime = day.date;
       const symbol = el('span'); symbol.innerHTML = weatherIcon(day.code); symbol.setAttribute('aria-label', weatherCondition(day.code).label); symbol.setAttribute('role', 'img');
-      item.append(el('strong', dayLabel(day.date, index)), date, symbol, el('span', `${formatNumber(day.high)}° / ${formatNumber(day.low)}°`), el('small', `雨 ${formatNumber(day.rain)}${day.rain == null ? '' : '%'}`)); days.append(item);
+      item.append(el('strong', dayLabel(day.date, index, now())), date, symbol, el('span', `${formatNumber(day.high)}° / ${formatNumber(day.low)}°`), el('small', `雨 ${formatNumber(day.rain)}${day.rain == null ? '' : '%'}`)); days.append(item);
     });
     weather.content.append(current, days);
-    weather.metadata.textContent = `預報有效：${formatTime(w.time)} · 擷取：${formatTime(w.fetchedAt)}。降雨為每日最高機率；「—」為未提供。`;
+    weather.metadata.textContent = `每日預報日期：${w.forecast[0].date} ～ ${w.forecast.at(-1).date} · 預報有效：${formatTime(w.time)} · 擷取：${formatTime(w.fetchedAt)}。降雨為每日最高機率；「—」為未提供。`;
   }
   updateWeather(weatherState);
   const airHost = el('div', '', 'overview-air-host'); weather.node.insertBefore(airHost, weather.metadata.parentElement);

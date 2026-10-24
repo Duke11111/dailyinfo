@@ -16,6 +16,7 @@ const weather = () => ({ timezone: 'Asia/Taipei', current: { time: '2026-10-22T0
   daily: { time: Array.from({ length: 7 }, (_, i) => `2026-10-${22 + i}`), weather_code: Array(7).fill(2), temperature_2m_max: Array(7).fill(28), temperature_2m_min: Array(7).fill(22), precipitation_probability_max: Array(7).fill(20) } });
 function air(url, aqi = 45) { const raw = airFixture(), params = new URL(url).searchParams; raw.latitude = Number(params.get('latitude')); raw.longitude = Number(params.get('longitude')); raw.current.us_aqi = aqi; return raw; }
 beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime('2026-10-22T00:01:00+08:00');
   localStorage.clear(); weatherFetch = vi.fn(async () => response(weather())); airFetch = vi.fn(async url => response(air(url)));
   vi.stubGlobal('fetch', vi.fn(async (url, options) => {
     if (String(url).includes('air-quality-api.')) return airFetch(url, options);

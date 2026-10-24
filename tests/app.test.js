@@ -18,8 +18,8 @@ async function boot(hash = '#/weather') {
 }
 function select(id, value) { const input = document.getElementById(id); input.value = value; input.dispatchEvent(new Event('change', { bubbles: true })); }
 function submit() { document.querySelector('#region-form').dispatchEvent(new Event('submit', { cancelable: true })); }
-beforeEach(() => { localStorage.clear(); vi.stubGlobal('fetch', vi.fn().mockImplementation(async () => response())); });
-afterEach(() => { app?.dispose(); vi.unstubAllGlobals(); });
+beforeEach(() => { vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime('2026-10-19T04:01:00Z'); localStorage.clear(); vi.stubGlobal('fetch', vi.fn().mockImplementation(async () => response())); });
+afterEach(() => { app?.dispose(); vi.unstubAllGlobals(); vi.useRealTimers(); });
 
 it('persists settings through application restart and keeps them across all routes', async () => {
   await boot('#/settings');

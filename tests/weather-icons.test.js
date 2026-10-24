@@ -21,7 +21,7 @@ it('distinguishes rain, thunderstorm, cloudy and partly cloudy artwork', () => {
 });
 it('renders all seven forecast values unchanged with the matching symbols and today highlight', () => {
   const forecast = [0, 2, 3, 61, 95, 45, 71].map((code, i) => ({ date: `2026-10-${19 + i}`, code, high: 28, low: 21, rain: 30 }));
-  document.body.innerHTML = renderWeather({ status: 'success', data: { code: 2, temperature: 26, humidity: 70, time: '2026-10-19T12:00+08:00', fetchedAt: '2026-10-19T04:00:00.000Z', forecast } });
+  document.body.innerHTML = renderWeather({ status: 'success', data: { code: 2, temperature: 26, humidity: 70, time: '2026-10-19T12:00+08:00', fetchedAt: '2026-10-19T04:00:00.000Z', forecast } }, { now: Date.parse('2026-10-19T04:01:00Z') });
   expect(document.querySelector('.weather-art svg').dataset.weatherIcon).toBe('partlyCloudy');
   const days = [...document.querySelectorAll('.forecast-day')]; expect(days).toHaveLength(7); expect(days[0].classList.contains('today')).toBe(true);
   expect(days.map(day => day.querySelector('svg').dataset.weatherIcon)).toEqual(['sun', 'partlyCloudy', 'cloud', 'rain', 'thunderstorm', 'fog', 'snow']);
