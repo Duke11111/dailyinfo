@@ -13,14 +13,17 @@ export async function dispatchTick(event, env, { fetchImpl = fetch, now = Date.n
   const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 8000);
   try {
     const response = await fetchImpl(ENDPOINT, {
-      method: 'POST', redirect: 'error', signal: controller.signal,
+      method: 'POST', redirect: 'manual', signal: controller.signal,
       headers: { Authorization: 'Bearer ' + env.GITHUB_TOKEN, Accept: 'application/vnd.github+json',
         'Content-Type': 'application/json', 'User-Agent': 'DailyInfo-external-scheduler', 'X-GitHub-Api-Version': '2022-11-28' },
       body: JSON.stringify({ ref: 'main', inputs: { external_schedule: true, source: 'core',
         initialize_state: false, publish_current: false, initialize_manifest: false, checkpoint_run: '', baseline_approval: '' } }),
     });
-    await response.body?.cancel(); // Never read/log GitHub response text or headers.
-    return { code: [200, 204].includes(response.status) ? 'dispatch_accepted' : 'dispatch_rejected' };
+    const code = [200, 204].includes(response.status) ? 'dispatch_accepted' : 'dispatch_rejected';
+    // Manual redirects are rejected without following Location or forwarding credentials.
+    // Cleanup failure cannot turn a known HTTP outcome into an ambiguous dispatch.
+    try { await response.body?.cancel(); } catch { /* Never read/log response content. */ }
+    return { code };
   } catch { return { code: 'dispatch_unconfirmed' }; } // Ambiguous delivery: no POST retry.
   finally { clearTimeout(timer); }
 }

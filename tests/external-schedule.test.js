@@ -160,13 +160,13 @@ it('Worker posts once to the fixed GitHub endpoint with safe inputs, an encrypte
   expect(io.fetchImpl).toHaveBeenCalledTimes(1);
   const [url, request] = io.fetchImpl.mock.calls[0];
   expect(url).toBe('https://api.github.com/repos/Duke11111/dailyinfo/actions/workflows/data-update.yml/dispatches');
-  expect(request).toMatchObject({ method: 'POST', redirect: 'error', headers: { Authorization: 'Bearer synthetic-test-only' } });
+  expect(request).toMatchObject({ method: 'POST', redirect: 'manual', headers: { Authorization: 'Bearer synthetic-test-only' } });
   expect(JSON.parse(request.body)).toEqual({ ref: 'main', inputs: inputs() });
   expect(request.signal).toBeInstanceOf(AbortSignal);
   expect((await worker.fetch(new Request('https://example.invalid/trigger'))).status).toBe(404);
 });
-it.each([200, 204, 401, 403, 422, 429, 500])('Worker handles HTTP %i without body disclosure or retries', async status => {
-  const io = transport(); io.fetchImpl.mockResolvedValue(new Response(status === 204 ? null : 'private response text', { status }));
+it.each([200, 204, 300, 301, 302, 303, 304, 305, 307, 308, 399, 401, 403, 422, 429, 500])('Worker handles HTTP %i without body disclosure or retries', async status => {
+  const io = transport(); io.fetchImpl.mockResolvedValue(new Response([204, 304].includes(status) ? null : 'private response text', { status }));
   const result = await dispatchTick(event(), workerEnv(), io);
   expect(result.code).toBe([200, 204].includes(status) ? 'dispatch_accepted' : 'dispatch_rejected');
   expect(JSON.stringify(result)).not.toContain('private'); expect(io.fetchImpl).toHaveBeenCalledTimes(1);
@@ -174,6 +174,38 @@ it.each([200, 204, 401, 403, 422, 429, 500])('Worker handles HTTP %i without bod
 it('Worker treats ambiguous POST/network errors as unconfirmed and never retries', async () => {
   const io = transport(); io.fetchImpl.mockRejectedValue(Error('private server text'));
   expect(await dispatchTick(event(), workerEnv(), io)).toEqual({ code: 'dispatch_unconfirmed' }); expect(io.fetchImpl).toHaveBeenCalledTimes(1);
+});
+it('works with a Cloudflare-compatible transport that rejects redirect=error, without following redirects', async () => {
+  const io = transport();
+  io.fetchImpl.mockImplementation(async (_, request) => {
+    // Model the runtime restriction; Node's native fetch alone would accept error mode.
+    if (!['manual', 'follow'].includes(request.redirect)) throw TypeError('Unsupported redirect mode');
+    expect(request.redirect).toBe('manual');
+    return new Response('private redirect response', { status: 302, headers: { Location: 'https://example.invalid/private' } });
+  });
+  expect(await dispatchTick(event(), workerEnv(), io)).toEqual({ code: 'dispatch_rejected' });
+  expect(io.fetchImpl).toHaveBeenCalledTimes(1);
+});
+it.each([200, 401])('a body cleanup exception preserves the already known HTTP %i result', async status => {
+  const io = transport();
+  const cancel = vi.fn().mockRejectedValue(Error('private cleanup details'));
+  io.fetchImpl.mockResolvedValue({ status, body: { cancel } });
+  expect(await dispatchTick(event(), workerEnv(), io)).toEqual({ code: status === 200 ? 'dispatch_accepted' : 'dispatch_rejected' });
+  expect(cancel).toHaveBeenCalledTimes(1); expect(io.fetchImpl).toHaveBeenCalledTimes(1);
+});
+it('scheduled handler logs only the fixed outcome without token, HTTP body, headers or raw exceptions', async () => {
+  const log = vi.spyOn(console, 'log').mockImplementation(() => {});
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('private body', { status: 403, headers: { 'X-Private': 'private header' } })));
+  vi.spyOn(Date, 'now').mockReturnValue(event().scheduledTime + 1000);
+  try {
+    await worker.scheduled(event(), workerEnv());
+    expect(log.mock.calls).toEqual([['dispatch_rejected']]);
+    const output = JSON.stringify(log.mock.calls);
+    for (const text of ['synthetic-test-only', 'Authorization', 'private body', 'private header']) expect(output).not.toContain(text);
+    globalThis.fetch.mockRejectedValue(Error('private exception'));
+    await worker.scheduled(event(), workerEnv());
+    expect(log.mock.calls).toEqual([['dispatch_rejected'], ['dispatch_unconfirmed']]);
+  } finally { vi.unstubAllGlobals(); vi.restoreAllMocks(); }
 });
 it('Worker aborts a hanging request after eight seconds without a second POST', async () => {
   vi.useFakeTimers();
