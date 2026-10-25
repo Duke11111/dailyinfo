@@ -62,7 +62,7 @@ export function validateState(raw, now = nowMs()) {
   for (const name of Object.keys(raw.sources)) {
     const item = raw.sources[name];
     if (!SOURCES.includes(name) || !iso(item?.attemptedAt) || Date.parse(item.attemptedAt) > now + 300000 || !['updated', 'unchanged', 'failed'].includes(item.status) || !['ok', 'update_failed', 'validation_failed', 'source_delayed'].includes(item.code) || item.code === 'source_delayed' && (item.status === 'failed' || !['quotes', 'horoscope'].includes(name)) || item.lastSuccessAt != null && (!iso(item.lastSuccessAt) || Date.parse(item.lastSuccessAt) > Date.parse(item.attemptedAt))) throw safeFailure('state_invalid');
-    if (item.attemptedSlot !== undefined && !['morning', 'evening', 'recovery'].includes(item.attemptedSlot)) throw safeFailure('state_invalid');
+    if (item.attemptedSlot !== undefined && !['morning', 'evening', 'recovery', 'hourly'].includes(item.attemptedSlot)) throw safeFailure('state_invalid');
     sources[name] = { attemptedAt: item.attemptedAt, status: item.status, code: item.code, ...(item.lastSuccessAt ? { lastSuccessAt: item.lastSuccessAt } : {}),
       ...(item.attemptedSlot !== undefined ? { attemptedSlot: item.attemptedSlot } : {}) };
   }

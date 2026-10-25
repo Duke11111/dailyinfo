@@ -60,8 +60,8 @@ it.each([[undefined, undefined, false], ['false', 'pages', false], ['true', unde
   values.needs.update.outputs.publish = 'false'; expect(evaluate(deployCondition, values)).toBe(false);
   expect(workflow).toContain("if: steps.decision.outputs.publish == 'true'");
 });
-it('uses three Taipei windows and only core --scheduled in the scheduled branch', () => {
-  expect([...workflow.matchAll(/- cron: '([^']+)'/g)].map(match => match[1])).toEqual(['37 2 * * *', '17 9 * * *', '27 10 * * *']);
+it('uses one daytime hourly cron and only core --scheduled in the scheduled branch', () => {
+  expect([...workflow.matchAll(/- cron: '([^']+)'/g)].map(match => match[1])).toEqual(['17 0-15 * * *']);
   expect(workflow).toContain('SCHEDULE_CRON: ${{ github.event.schedule }}');
   const scheduled = update.split('if [ "$EVENT" = "schedule" ]; then')[1].split('elif')[0];
   expect(scheduled.trim()).toBe('npm run update:data -- --sources=core --scheduled');

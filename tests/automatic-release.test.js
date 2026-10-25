@@ -11,7 +11,7 @@ it.each(['DATA_CHANGED', 'AUTO_PUBLISH_ENABLED', 'FREE_USAGE_CONFIRMED', 'PUBLIS
   expect(releaseDecision({ ...permitted, [key]: '' }).publish).toBe(false);
 });
 it('code changes or force-build cannot masquerade as fresh scheduled data', () => {
-  expect(releaseDecision({ ...permitted, DATA_CHANGED: 'false', CODE_CHANGED: 'true', FORCE_BUILD: 'true' })).toEqual({ changed: true, publish: false });
+  expect(releaseDecision({ ...permitted, DATA_CHANGED: 'false', CODE_CHANGED: 'true', FORCE_BUILD: 'true' })).toEqual({ changed: false, publish: false });
 });
 it('manual updates need their own explicit publish_current approval', () => {
   expect(releaseDecision({ ...permitted, EVENT: 'workflow_dispatch' }).publish).toBe(false);

@@ -1,4 +1,4 @@
-import { SCHEDULES } from './source-schedule.mjs';
+import { HOURLY_CRON } from './source-schedule.mjs';
 
 // A fresh, explicit mode opt-in separates bounded D4 acceptance from long-term updates.
 export function scheduledMode(env) {
@@ -6,7 +6,7 @@ export function scheduledMode(env) {
     || env.GITHUB_REPOSITORY !== 'Duke11111/dailyinfo' || env.GITHUB_RUN_ATTEMPT !== '1'
     || env.AUTOMATION !== 'true' || env.SCHEDULE !== 'true' || env.FREE !== 'true'
     || !['d4', 'continuous'].includes(env.SCHEDULE_MODE)
-    || env.SCHEDULE_MODE === 'continuous' && !SCHEDULES.some(slot => slot.cron === env.SCHEDULE_CRON)
+    || env.SCHEDULE_MODE === 'continuous' && env.SCHEDULE_CRON !== HOURLY_CRON
     || env.SCHEDULE_MODE === 'd4' && (env.SCHEDULE_CRON !== '43 12 * * *' || !env.D4_CONFIG)) {
     throw Error('schedule_not_authorized');
   }

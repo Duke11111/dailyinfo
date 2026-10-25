@@ -3,9 +3,7 @@ name: DailyInfo data update (disabled until approved)
 on:
   # Inert until DATA_SCHEDULE_ENABLED is explicitly true; manual runs are independent.
   schedule:
-    - cron: '37 2 * * *' # 10:37 Asia/Taipei: news, earthquakes, horoscope.
-    - cron: '17 9 * * *' # 17:17: news, earthquakes, weekday quotes, horoscope recovery.
-    - cron: '27 10 * * *' # 18:27: recovery only; GitHub may delay or drop schedules.
+    - cron: '17 0-15 * * *' # 08:17–23:17 Asia/Taipei; due uses actual Taipei execution time.
   workflow_dispatch:
     inputs:
       source:
@@ -63,7 +61,7 @@ concurrency:
 jobs:
   update:
     # No cloud action runs until the user deliberately opts in on the default branch.
-    if: github.event.repository.visibility == 'public' && vars.DATA_AUTOMATION_ENABLED == 'true' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.run_attempt == 1 && github.ref == 'refs/heads/main' && vars.DATA_FREE_USAGE_CONFIRMED == 'true' && vars.DATA_SCHEDULE_ENABLED == 'true' && fromJSON(vars.DATA_SCHEDULE_ENABLED || 'false') == true && ((vars.DATA_SCHEDULE_MODE == 'd4' && github.event.schedule == '43 12 * * *' && vars.DATA_D4_ONCE != '') || (vars.DATA_SCHEDULE_MODE == 'continuous' && (github.event.schedule == '37 2 * * *' || github.event.schedule == '17 9 * * *' || github.event.schedule == '27 10 * * *')))))
+    if: github.event.repository.visibility == 'public' && vars.DATA_AUTOMATION_ENABLED == 'true' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.run_attempt == 1 && github.ref == 'refs/heads/main' && vars.DATA_FREE_USAGE_CONFIRMED == 'true' && vars.DATA_SCHEDULE_ENABLED == 'true' && fromJSON(vars.DATA_SCHEDULE_ENABLED || 'false') == true && ((vars.DATA_SCHEDULE_MODE == 'd4' && github.event.schedule == '43 12 * * *' && vars.DATA_D4_ONCE != '') || (vars.DATA_SCHEDULE_MODE == 'continuous' && github.event.schedule == '17 0-15 * * *'))))
     runs-on: ubuntu-latest
     timeout-minutes: 12
     permissions:

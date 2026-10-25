@@ -1,5 +1,7 @@
 # 零付費自動更新與發布驗收狀態
 
+2026/10/25 更新：下方「來源與時間」描述基於正式 main `882c87e` 的 hourly 本機候選，尚未 Commit／Push；早期 D4／D5 段落是歷史驗收紀錄，不代表目前雲端開關。此次未查改 Variables、Secrets 或 Billing，未執行任何雲端 Workflow。
+
 2026/10/22 驗收紀錄（依已確認的階段結果，不代表即時雲端查詢）：
 
 - Phase 8G-D2 已 Commit／Push，程式基線為 `d315796e08febc3dd6e61400a302977123f72c17`。
@@ -15,32 +17,31 @@
 新增必要的 `DATA_SCHEDULE_MODE`，未設定／未知值均拒絕排程，不能因只開啟總排程開關就意外進入長期模式：
 
 - `d4`：僅晚間 20:43，必須有有效 `DATA_D4_ONCE`；保留指定 Commit、Checkpoint、claim、21:10 最晚啟動及 21:30 截止，無論自動發布開關如何都不部署。
-- `continuous`：三個既有 cron、四來源 `isDue`、失敗隔離與 60 分鐘冷卻不變；刻意不讀取 D4 指定日期及 Checkpoint。過期甚至格式不合法的殘留 `DATA_D4_ONCE` 不會介入，但仍建議清理。
+- `continuous`：候選版使用下述單一 hourly cron、四來源 `isDue` 與失敗隔離；刻意不讀取 D4 指定日期及 Checkpoint。過期甚至格式不合法的殘留 `DATA_D4_ONCE` 不會介入，但仍建議清理。
 - 手動更新／checkpoint-only 保持獨立，不需要 schedule mode。手動發布仍需要明確 `publish_current` 及既有發布授權，不能繼承自動發布授權。
 
 Workflow gate 與來源啟動前的 Node 驗證皆檢查模式與更新授權；排程 `run_attempt` 必須為 1，不允許以重新執行原 schedule 取代新授權。同一 Workflow 與手動 Pages 共用整段 `dailyinfo-production` 互斥；每來源同一時段不重複、成功後按原規則跳過、失敗只在下一個合格時段補跑。這不是跨所有平台取消／外部操作的 exactly-once 保證：若 Run 在狀態續存前被取消，後續合格排程仍可能再次查詢來源，不能宣稱上一次已成功。
 
 ## 來源與時間
 
-本次受控排程調整僅為本機候選，尚未 Commit／Push。雲端已讀回確認 `DATA_PUBLISH_ENABLED=false`，continuous 更新仍保持啟用；重新開啟發布需另行核准。下列新 cron 須核准並提交後才會在雲端生效。
+本次僅在 `dailyinfo-hourly-schedule`／`fix/hourly-continuous-schedule` 修改與離線測試。雲端三個既有時段及開關均未改動；以下候選須另行授權提交與套用。
 
-- UTC `37 2 * * *` → 臺灣 10:37：新聞、地震、星座。
-- UTC `17 9 * * *` → 臺灣 17:17：新聞、地震、週一至週五股票，以及上午未成功的星座。
-- UTC `27 10 * * *` → 臺灣 18:27：只補救當日應更新而尚未成功的來源；全部成功則全數 skipped。
-- 晚間／補救事件延遲 4～5 小時時，分別約於 21:17～22:17／22:27～23:27 執行，降低跨日機率；仍不保證 GitHub 準點觸發。跨日到凌晨、早於該 cron 當日資格時間時維持 skipped／before_window，不補造昨日運勢或當日行情。cron 不含原始執行日期，不能承諾任意長度延遲皆可精準重播。
-- 舊 D4 的核准時段與截止驗證保持獨立；新三條 cron 不含 20:43，因此不會啟動歷史 D4。
+- 唯一 UTC cron：`17 0-15 * * *` → 臺灣每日 08:17、09:17，直到 23:17，共 16 個預定事件。選擇第 17 分鐘，避開整點常見尖峰；不新增重疊 Workflow 或外部排程平台。
+- GitHub cron 範圍內每個時段的 `event.schedule` 都是同一個字串。真正 due 判斷採執行當下 Asia/Taipei 日期與小時，不以原始名義時段冒充當前資料；延遲到 08:00 前或次日凌晨便安全 skipped。
+- 多個延遲事件擠在同一實際臺灣小時，每來源最多嘗試一次；所有失敗也記錄 attemptedAt。跨小時仍保留 45 分鐘冷卻，容許正常相鄰時段些微抖動，不會因不足原本 60 分鐘而頻繁多跳一小時。
+- 這提供每小時一次的新機會，不能消除 GitHub 全體排程延遲／漏觸發：若全部事件都延遲 4～5 小時，仍可能延遲，不能保證一小時 SLA。16 是每日預定數，不是人工觸發、跨日延遲事件或外部操作的硬上限。
+- 舊 D4 核准／截止驗證保持獨立；新 cron 不含 D4 的 `43 12 * * *`。舊三時段只保留給歷史相容函式／測試，不再被 continuous Workflow admission 接受。
 - 只執行 `core --scheduled`：quotes、news、earthquakes、horoscope。
-- `lastSuccessAt`、`attemptedAt`、來源狀態、臺灣日期與本次 cron 一起判斷。每來源每時段最多嘗試一次，失敗也占用該時段；不在同時段無限重試。四來源最多各三次，股票只有晚上兩次。兩次嘗試至少相隔 60 分鐘；延遲到相鄰時段且冷卻未滿時跳過，不新增排程。
-- 新聞／地震：早上成功仍可於晚上檢查；晚上成功後補救時段跳過。沒有新地震可為 `unchanged / ok`，`lastSuccessAt` 推進，但 JSON 的原事件時間與 fetchedAt 不變。
-- 股票：早上不執行，正常檢查只安排週一至週五收盤後，且必須晚於 17:00；驗證當日資料成功後當日不再重複。官方仍只有前一交易日，標示 `source_delayed`，不推進「當期成功時間」，可於 18:27 的補救事件再檢查一次。較新且有效的前一交易日資料可改善舊快照，但不冒充今日收盤；日期或擷取時間倒退仍為 `validation_failed` 並保留原檔。
+- 新聞／地震：每個合格小時檢查一次；來源內容未變為 `unchanged / ok`，不改事件／文章原日期，不把檢查時間寫成 fetchedAt。只有真正通過驗證的資料內容變動才令 DATA_CHANGED=true；單一來源失敗仍保留其他有效快照。
+- 股票：只於實際臺灣週一至週五 17:00 後檢查，預定機會為 17:17～23:17，最多七次。當日有效行情成功後當天跳過；失敗或來源延遲可在下一合格小時補跑，不會同一個小時重試。tradeDate 始終來自官方資料，較舊資料拒絕覆蓋；即使 fetchedAt 較新也不能倒退交易日。
 - 未內建會過期的假日表：無法單憑舊交易日區分「休市」或「尚未公布」，摘要如實顯示來源日期及 `source_delayed`，不捏造當日價格、不錯稱 schema 異常。
-- 星座：正常時段均在 09:00 之後；上午失敗或來源仍是昨天可於晚上、補救時段重查。昨日內容不覆寫有效快照，不標示今日；真正的日期倒退與資料格式錯誤仍拒絕。當日成功後跳過後續時段。
-- `github.event.schedule` 透過 SCHEDULE_CRON 傳入，僅接受上述固定 cron；延遲的早上事件不變成晚間事件，使用實際臺灣日期與時間判斷。跨到次日、但早於該 cron 的當日時段會 skipped，不假裝補做前一天。未知 cron 在來源請求前停止。手動更新仍需人工明確執行，獨立於排程到期判斷。
+- 星座：實際臺灣 09:00 後才檢查，正常 09:17 起取得當日十二星座後即跳過當天後續事件；失敗或昨日資料可在後續合格小時補跑，最多十五個機會，無單次 Run 內的自動重試，不接受昨天或未來日期冒充今天。
+- `github.event.schedule` 透過 SCHEDULE_CRON 傳入，Workflow 與 Node 雙層只接受上述 hourly continuous cron；未知 cron 在來源請求前停止。手動更新仍獨立於排程到期判斷。天氣仍只由前端 API 取得，不加入 snapshot 工作。
 - 不請求臺灣銀行，不增加資料來源或更新 API。
 
 ## 狀態與安全摘要
 
-Checkpoint 仍為 v2、六個檔案，完整驗證 Manifest、SHA-256、來源 Commit、Schema、日期、有效期限後才還原；不自動重新初始化。status.json 仍是 version 1，新增選填 `attemptedSlot`（morning／evening／recovery），以原始 cron 時段區分延遲的晚間嘗試與補救；重複或較早的時段拒絕，60 分鐘冷卻保留。舊紀錄沒有此欄位時仍保守依 attemptedAt 判斷，不推測額外重試資格；舊 Checkpoint 可直接讀取。驗證器只對 quotes／horoscope 接受固定 `source_delayed`。既有四來源與五來源遷移測試保留，沒有重寫既有 Artifact。
+Checkpoint 仍為 v2、六個檔案，Manifest、SHA-256、來源 Commit、Schema、日期與期限驗證不變，不自動重新初始化。status.json 仍為 v1，attemptedSlot 白名單新增固定值 hourly；舊 morning／evening／recovery 及缺少欄位的狀態均可讀取，新策略依 attemptedAt 的實際小時去重。舊版具日期／checksum 防護的 Checkpoint 遷移測試保留。既有 Source Summary 理由與錯誤碼不增加任意伺服器文字。
 
 來源摘要逐一列出 updated／unchanged／skipped／failed、固定 code、最近成功檢查、有效來源日期、快照擷取時間、跳過或下次補跑原因與資格時間。下次時間只代表政策資格，不保證 GitHub 準時觸發。日期保留日期；其他時間標為 UTC，可加 8 小時轉臺灣時間。摘要使用白名單及標準日期，不輸出子程序原始 stdout／stderr、Body、URL、Token 或任意錯誤文字。
 
@@ -50,10 +51,12 @@ Workflow 觸發、來源成功與正式 deploy 是不同結果：即使部分來
 
 - GitHub 的 schedule 可能延遲甚至漏掉，公開儲存庫 60 天沒有活動可能自動停用排程；無法提供永久無人維護或準點 SLA。[官方說明](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)
 - 在 GitHub 個人通知設定中自行訂閱工作流程失敗通知；不用付費監控、外部排程或為保活而自動 Commit。未觸發流程不會有通知；隔離的來源失敗亦可能只產生 warning 而 Run 整體成功，因此每週一次看四來源摘要、各來源最後成功時間與 Checkpoint 到期，並在交件前／預定批改期間做一次檢查。不能只看 Run 顏色或備份建立時間。
-- 每個安全完成的流程續存七天 Checkpoint，21 份循環備份約 2.1 MiB（依目前每份約 0.1 MiB 估計，實際以 API 為準）；候選／預覽產物維持一天。Repository 的 180 MiB 上限、24 MiB 預留及每次上傳尺寸檢查不變，仍須帳號共用額度與 US$0 封鎖；不新增付費依賴、儲存或額外監控 Workflow。
+- 每個安全完成的流程續存七天 Checkpoint；每天 16 次約保留 112 份，按目前每份約 0.1 MiB 估計約 11 MiB，加上當日候選及真正發布的 Pages 產物。沒有新資料時仍續存備份以免七天到期，但不 Build／不 Deploy。候選／預覽產物維持一天；排程不產生手動專用 site-preview。180 MiB 上限、24 MiB 預留及上傳前尺寸檢查均不變；真的接近上限就停止，不刪備份或提高額度。仍須保留帳號共享額度與 US$0／Usage blocked 保護。
 - Checkpoint 剩不到 48 小時而近期沒有成功 Run：先保持發布關閉，經授權且費用確認後，最多一次手動 core 更新續存；檢查失敗原因，不反覆重跑。已過期則 fail closed，停止並由使用者核准有效備份的復原方案，不自動初始化或刪除舊備份。
 - 若 60 天停用：使用者先檢查費用、開關及有效備份，再依 GitHub 官方流程人工恢復；本階段不啟用。原網站仍顯示最後一次已發布的真實日期與過期警告。
-- 降至三時段後，每月約 90 個 Run；每個 Run 最多一次各來源腳本，最壞補救情況每日最多 11 次腳本呼叫（股票 2、其他各 3），不是每支腳本只有一個 HTTP GET。來源內既有必要請求量不變、沒有新增自動重試。Runner 仍使用公開儲存庫免費標準 ubuntu-latest。
+- 每 30 天約 480 個預定 Run；來源腳本最壞機會為新聞 16、地震 16、股票 7（平日）、星座 15，成功的每日來源會提前停止後續請求。正常星座只需一次十二星座擷取；每支腳本仍有各自必要 GET 數量（如五類 RSS、兩份 CWA）。Runner 沿用公開儲存庫標準 ubuntu-latest，不改免費或帳務設定。
+
+排程的 releaseDecision 僅以 DATA_CHANGED 決定是否建置：CODE_CHANGED／FORCE_BUILD 不能使無新資料的 schedule 執行 Build 或 Deploy。手動 CI、checkpoint-only、明確 publish_current 授權仍沿用原本政策。所有 Publish Guard、防倒退、共用 production concurrency、最小權限與獨立發布開關保留。
 
 ## 授權與發布
 

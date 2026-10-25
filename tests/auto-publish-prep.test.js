@@ -14,7 +14,7 @@ const now = CHECKPOINT_NOW, commit = 'a'.repeat(40);
 const workflow = (await readFile('.github/workflows/data-update.yml', 'utf8')).replace(/\r\n/g, '\n');
 const permit = { EVENT: 'schedule', AUTO_PUBLISH_ENABLED: 'true', FREE_USAGE_CONFIRMED: 'true', PUBLISH_ENABLED: 'true', DEPLOY_TARGET: 'pages' };
 const vars = { DATA_SCHEDULE_MODE: 'continuous', DATA_AUTOMATION_ENABLED: 'true', DATA_SCHEDULE_ENABLED: 'true', DATA_FREE_USAGE_CONFIRMED: 'true', DATA_AUTO_PUBLISH_ENABLED: 'true', DATA_PUBLISH_ENABLED: 'true', DATA_DEPLOY_TARGET: 'pages' };
-const github = { event_name: 'schedule', run_attempt: 1, ref: 'refs/heads/main', event: { schedule: '17 9 * * *', repository: { default_branch: 'main', visibility: 'public' } } };
+const github = { event_name: 'schedule', run_attempt: 1, ref: 'refs/heads/main', event: { schedule: '17 0-15 * * *', repository: { default_branch: 'main', visibility: 'public' } } };
 let root;
 const file = source => join(root, 'public/data', `${source}.json`);
 const bytes = () => Promise.all(SOURCES.map(source => readFile(file(source), 'utf8')));
