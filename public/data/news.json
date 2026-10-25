@@ -2,45 +2,105 @@
   "version": 1,
   "source": "中央通訊社",
   "sourceUrl": "https://www.cna.com.tw/about/rss.aspx",
-  "fetchedAt": "2026-10-25T07:17:32.177Z",
+  "fetchedAt": "2026-10-25T07:46:49.003Z",
   "feeds": [
     {
       "category": "technology",
       "url": "https://feeds.feedburner.com/rsscna/technology",
-      "fetchedAt": "2026-10-25T07:17:32.095Z",
+      "fetchedAt": "2026-10-25T07:46:48.559Z",
       "count": 20,
       "sha256": "9ae896f9ca011e6430f724b69cef2c6469885426cef028640fc1ada32812b05b"
     },
     {
       "category": "finance",
       "url": "https://feeds.feedburner.com/rsscna/finance",
-      "fetchedAt": "2026-10-25T07:17:32.075Z",
+      "fetchedAt": "2026-10-25T07:46:48.680Z",
       "count": 20,
       "sha256": "f0449c120fbeef9671f6aef31bba702582170c9af55969594608418302803743"
     },
     {
       "category": "intworld",
       "url": "https://feeds.feedburner.com/rsscna/intworld",
-      "fetchedAt": "2026-10-25T07:17:32.152Z",
+      "fetchedAt": "2026-10-25T07:46:48.780Z",
       "count": 20,
-      "sha256": "b984e0054f05957be25572a5f25c6186a43e8dc9fde19e9057c66d8f4b27126c"
+      "sha256": "267381205d8224639187387a8376e51e21ecff586a60648ba8bd7a8563071455"
     },
     {
       "category": "lifehealth",
       "url": "https://feeds.feedburner.com/rsscna/lifehealth",
-      "fetchedAt": "2026-10-25T07:17:31.383Z",
+      "fetchedAt": "2026-10-25T07:46:48.889Z",
       "count": 20,
       "sha256": "796ceb5e271fb03e5e61aa56c1aafbbd894c59320507e51822f05867765ac00a"
     },
     {
       "category": "social",
       "url": "https://feeds.feedburner.com/rsscna/social",
-      "fetchedAt": "2026-10-25T07:17:31.330Z",
+      "fetchedAt": "2026-10-25T07:46:48.984Z",
       "count": 20,
       "sha256": "9d39d16d468d1463669aa514d64e8cd16ecb7048593102fc42d2d2586c7cb897"
     }
   ],
   "articles": [
+    {
+      "id": "https://www.cna.com.tw/news/acul/202610250095.aspx",
+      "url": "https://www.cna.com.tw/news/acul/202610250095.aspx",
+      "title": "馬來西亞花踪文學獎頒獎 台灣作家盼深化兩地文學交流",
+      "summary": "（中央社記者黃自強吉隆坡25日專電）馬來西亞星洲日報第18屆花踪文學獎昨晚頒獎，參與馬華文學評審的台灣作家強調，馬華作品擁有多元題材與獨特角度，期待透過文學研討會及作家聚會等方式，深化台灣與馬華文壇交流。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-25T07:17:41.000Z",
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610250089.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610250089.aspx",
+      "title": "比利時民眾再上街要求改善教育體系 示威者與警方爆衝突",
+      "summary": "（中央社布魯塞爾24日綜合外電報導）根據路透社記者目擊與比利時媒體的報導，比利時警方今天在首都布魯塞爾動用催淚瓦斯和胡椒噴劑，與要求改善教育體系條件的反政府示威者發生衝突。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-25T06:44:28.000Z",
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610250087.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610250087.aspx",
+      "title": "「決勝時刻」新作以北韓入侵南韓為背景 上市即登銷售榜首",
+      "summary": "（中央社首爾25日綜合外電報導）知名電玩「決勝時刻」（Call of Duty）系列最新作以北韓全面入侵南韓為故事背景，即便現實中兩韓邊境緊張局勢不斷升溫，這款遊戲在南韓仍高居銷售排行榜榜首。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-25T06:37:24.000Z",
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610250085.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610250085.aspx",
+      "title": "日本放寬外籍家屬打工限制 柏青哥店等場所開放",
+      "summary": "（中央社東京25日綜合外電報導）日本出入國在留管理廳24日向共同社表示，外國人取得「資格外活動許可」後，可從事居留資格範圍以外的工作，其中受「風俗營業法」規範的部分行業現已開放。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-25T06:28:19.000Z",
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
+    },
+    {
+      "id": "https://www.cna.com.tw/news/aopl/202610250082.aspx",
+      "url": "https://www.cna.com.tw/news/aopl/202610250082.aspx",
+      "title": "塞爾維亞提前大選登場 學生陣營力拚終結武契奇執政",
+      "summary": "（中央社貝爾格勒25日綜合外電報導）塞爾維亞今天舉行提前國會大選。學生發起的大規模示威力圖拉下先後擔任總理與總統、掌權逾10年的民粹主義總統武契奇（Aleksandar Vucic）。",
+      "categories": [
+        "intworld"
+      ],
+      "source": "中央通訊社",
+      "publishedAt": "2026-10-25T06:14:13.000Z",
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
+    },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610250072.aspx",
       "url": "https://www.cna.com.tw/news/ahel/202610250072.aspx",
@@ -51,7 +111,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T05:16:50.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610250071.aspx",
@@ -63,7 +123,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T05:14:48.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610250070.aspx",
@@ -75,7 +135,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T04:59:44.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610250068.aspx",
@@ -87,7 +147,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T04:46:39.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610250064.aspx",
@@ -99,7 +159,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T04:41:31.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ait/202610250062.aspx",
@@ -111,7 +171,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T04:30:26.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610250061.aspx",
@@ -123,7 +183,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T04:27:24.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610250059.aspx",
@@ -135,7 +195,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T04:24:20.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610250058.aspx",
@@ -147,7 +207,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T04:11:17.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610250057.aspx",
@@ -159,7 +219,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T04:02:15.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610250055.aspx",
@@ -171,7 +231,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T03:47:11.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610250054.aspx",
@@ -183,7 +243,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T03:24:08.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610250053.aspx",
@@ -195,7 +255,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T03:17:06.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610250051.aspx",
@@ -207,7 +267,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T03:11:02.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610250050.aspx",
@@ -220,7 +280,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T03:06:59.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610250040.aspx",
@@ -232,7 +292,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T03:04:39.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610250039.aspx",
@@ -244,7 +304,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T03:01:36.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
     },
     {
       "id": "https://www.cna.com.tw/news/afe/202610250038.aspx",
@@ -256,7 +316,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T02:49:34.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.680Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610250036.aspx",
@@ -268,7 +328,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T02:40:30.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610250035.aspx",
@@ -280,7 +340,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T02:37:27.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610250030.aspx",
@@ -292,7 +352,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T02:23:17.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610250027.aspx",
@@ -304,7 +364,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T01:57:10.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/afe/202610250026.aspx",
@@ -316,7 +376,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T01:52:07.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.680Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610250024.aspx",
@@ -328,7 +388,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T01:41:03.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
     },
     {
       "id": "https://www.cna.com.tw/news/afe/202610250023.aspx",
@@ -340,7 +400,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T01:41:01.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.680Z"
     },
     {
       "id": "https://www.cna.com.tw/news/afe/202610250022.aspx",
@@ -352,7 +412,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T01:34:59.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.680Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610250020.aspx",
@@ -364,7 +424,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T01:22:54.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610250019.aspx",
@@ -376,7 +436,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T01:18:52.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/afe/202610250018.aspx",
@@ -388,7 +448,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T01:16:50.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.680Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610250017.aspx",
@@ -400,7 +460,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T01:00:47.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610250015.aspx",
@@ -412,7 +472,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T00:45:43.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610250014.aspx",
@@ -424,7 +484,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T00:41:41.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610250010.aspx",
@@ -436,67 +496,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-25T00:01:31.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
-    },
-    {
-      "id": "https://www.cna.com.tw/news/aopl/202610250009.aspx",
-      "url": "https://www.cna.com.tw/news/aopl/202610250009.aspx",
-      "title": "義大利連兩週末示威 警方逮9人另短暫拘留371人",
-      "summary": "（中央社羅馬24日綜合外電報導）義大利上週末爆發暴力衝突後，當局今天加強維安部署，因應數千名民眾上街示威。警方在8個城市逮捕9人，另短暫拘留371人，其中包括110名未成年人。",
-      "categories": [
-        "intworld"
-      ],
-      "source": "中央通訊社",
-      "publishedAt": "2026-10-25T00:00:29.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
-    },
-    {
-      "id": "https://www.cna.com.tw/news/aopl/202610250008.aspx",
-      "url": "https://www.cna.com.tw/news/aopl/202610250008.aspx",
-      "title": "法國41萬人示威相對平和 訴苦物價上漲不得不走上街頭",
-      "summary": "（中央社記者曾依璇巴黎24日專電）繼上週末示威演變成嚴重暴力後，法國群眾今天再次抗議生活成本高漲。在政府增派警力的情況下，巴黎遊行相對平和落幕；示威者說，生活難過，工作難找，不得不走上街頭。",
-      "categories": [
-        "intworld"
-      ],
-      "source": "中央通訊社",
-      "publishedAt": "2026-10-24T23:39:27.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
-    },
-    {
-      "id": "https://www.cna.com.tw/news/aopl/202610250007.aspx",
-      "url": "https://www.cna.com.tw/news/aopl/202610250007.aspx",
-      "title": "川普證實和馬斯克談烏克蘭情勢 但不願透露細節",
-      "summary": "（中央社記者侯姿瑩華盛頓24日專電）烏克蘭政府稍早表示，其使用的星鏈（Starlink）網路已恢復穩定連線後，美國總統川普（Donald Trump）今天證實，他有和星鏈母公司太空探索科技公司（SpaceX）執行長馬斯克（Elon Musk）談烏克蘭情勢，但不願透露細節。",
-      "categories": [
-        "intworld"
-      ],
-      "source": "中央通訊社",
-      "publishedAt": "2026-10-24T22:19:21.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
-    },
-    {
-      "id": "https://www.cna.com.tw/news/aopl/202610250006.aspx",
-      "url": "https://www.cna.com.tw/news/aopl/202610250006.aspx",
-      "title": "美期中選舉將登場 川普回家鄉佛州提前投票",
-      "summary": "（中央社佛州西棕櫚灘24日綜合外電報導）美國期中選舉將於11月3日舉行，總統川普（Donald Trump）今天在家鄉佛羅里達州提前投票。在這次選舉中，他所屬的共和黨正努力維持國會主導權。",
-      "categories": [
-        "intworld"
-      ],
-      "source": "中央通訊社",
-      "publishedAt": "2026-10-24T22:07:19.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
-    },
-    {
-      "id": "https://www.cna.com.tw/news/aopl/202610250005.aspx",
-      "url": "https://www.cna.com.tw/news/aopl/202610250005.aspx",
-      "title": "烏克蘭星鏈恢復穩定連線 馬斯克承認曾限速",
-      "summary": "（中央社基輔24日綜合外電報導）馬斯克（Elon Musk）今天表示，他創辦的太空探索科技公司（SpaceX）曾在烏克蘭限縮了星鏈（Starlink）衛星網路服務，影響烏克蘭用來抵禦俄羅斯的重要作戰通訊。",
-      "categories": [
-        "intworld"
-      ],
-      "source": "中央通訊社",
-      "publishedAt": "2026-10-24T21:19:16.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.152Z"
+      "fetchedAt": "2026-10-25T07:46:48.780Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610240206.aspx",
@@ -509,7 +509,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T14:05:43.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610240203.aspx",
@@ -521,7 +521,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T13:37:36.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610240200.aspx",
@@ -533,7 +533,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T13:23:27.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610240199.aspx",
@@ -545,7 +545,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T13:19:25.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610240195.aspx",
@@ -558,7 +558,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T12:44:16.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610240194.aspx",
@@ -570,7 +570,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T12:10:13.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610240193.aspx",
@@ -582,7 +582,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T12:10:11.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.680Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610240189.aspx",
@@ -594,7 +594,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T11:47:02.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610240188.aspx",
@@ -606,7 +606,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T11:40:00.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610240185.aspx",
@@ -618,7 +618,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T11:22:53.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610240184.aspx",
@@ -630,7 +630,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T11:11:51.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.680Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610240180.aspx",
@@ -642,7 +642,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T10:51:42.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610240179.aspx",
@@ -654,7 +654,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T10:45:40.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610240178.aspx",
@@ -666,7 +666,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T10:42:38.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.383Z"
+      "fetchedAt": "2026-10-25T07:46:48.889Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610240170.aspx",
@@ -678,7 +678,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T10:06:20.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610240145.aspx",
@@ -690,7 +690,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T09:18:24.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.680Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610240134.aspx",
@@ -702,7 +702,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T08:40:59.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/afe/202610240131.aspx",
@@ -714,7 +714,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T08:12:52.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.680Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610240126.aspx",
@@ -726,7 +726,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T07:44:41.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.680Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610240123.aspx",
@@ -738,7 +738,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T07:39:34.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610240122.aspx",
@@ -750,7 +750,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T07:32:32.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610240121.aspx",
@@ -762,7 +762,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T07:31:30.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.680Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610240120.aspx",
@@ -774,7 +774,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T07:31:28.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610240110.aspx",
@@ -786,7 +786,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T07:09:06.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610240109.aspx",
@@ -798,7 +798,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T07:07:04.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.680Z"
     },
     {
       "id": "https://www.cna.com.tw/news/afe/202610240107.aspx",
@@ -810,7 +810,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T06:48:59.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.680Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610240098.aspx",
@@ -822,7 +822,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T06:21:40.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610240093.aspx",
@@ -834,7 +834,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T06:00:29.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ahel/202610240091.aspx",
@@ -846,7 +846,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T05:50:24.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.680Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610240088.aspx",
@@ -858,7 +858,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T05:30:18.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610240086.aspx",
@@ -870,7 +870,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T05:23:11.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610240072.aspx",
@@ -882,7 +882,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T04:30:41.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/afe/202610240065.aspx",
@@ -894,7 +894,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T03:38:25.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.680Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610240048.aspx",
@@ -906,7 +906,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T03:10:49.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610240047.aspx",
@@ -918,7 +918,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T02:56:47.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610240044.aspx",
@@ -930,7 +930,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T02:47:40.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/afe/202610240041.aspx",
@@ -942,7 +942,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T02:38:34.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.680Z"
     },
     {
       "id": "https://www.cna.com.tw/news/afe/202610240034.aspx",
@@ -954,7 +954,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-24T01:48:18.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.075Z"
+      "fetchedAt": "2026-10-25T07:46:48.680Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610240012.aspx",
@@ -966,7 +966,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-23T21:06:24.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610230277.aspx",
@@ -978,7 +978,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-23T14:18:32.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/asoc/202610230205.aspx",
@@ -990,7 +990,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-23T10:19:53.000Z",
-      "fetchedAt": "2026-10-25T07:17:31.330Z"
+      "fetchedAt": "2026-10-25T07:46:48.984Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ait/202610230138.aspx",
@@ -1002,7 +1002,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-23T07:23:25.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ait/202610230081.aspx",
@@ -1014,7 +1014,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-23T03:55:19.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610230032.aspx",
@@ -1026,7 +1026,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-23T01:30:33.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ait/202610230012.aspx",
@@ -1038,7 +1038,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-22T21:40:44.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ait/202610230009.aspx",
@@ -1050,7 +1050,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-22T19:55:36.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ait/202610220412.aspx",
@@ -1062,7 +1062,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-22T13:22:06.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610220355.aspx",
@@ -1074,7 +1074,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-22T11:23:03.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/aopl/202610220354.aspx",
@@ -1086,7 +1086,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-22T11:21:01.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ait/202610220271.aspx",
@@ -1098,7 +1098,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-22T09:37:03.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ait/202610220268.aspx",
@@ -1110,7 +1110,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-22T09:29:56.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ait/202610220169.aspx",
@@ -1122,7 +1122,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-22T06:08:20.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ait/202610220084.aspx",
@@ -1134,7 +1134,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-22T03:13:15.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ait/202610220064.aspx",
@@ -1146,7 +1146,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-22T02:49:33.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ait/202610220056.aspx",
@@ -1158,7 +1158,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-22T02:25:16.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ait/202610220049.aspx",
@@ -1170,7 +1170,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-22T02:13:01.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ait/202610220038.aspx",
@@ -1182,7 +1182,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-22T01:23:37.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ait/202610220021.aspx",
@@ -1194,7 +1194,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-22T00:28:00.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     },
     {
       "id": "https://www.cna.com.tw/news/ait/202610220002.aspx",
@@ -1206,7 +1206,7 @@
       ],
       "source": "中央通訊社",
       "publishedAt": "2026-10-21T16:17:10.000Z",
-      "fetchedAt": "2026-10-25T07:17:32.095Z"
+      "fetchedAt": "2026-10-25T07:46:48.559Z"
     }
   ]
 }
