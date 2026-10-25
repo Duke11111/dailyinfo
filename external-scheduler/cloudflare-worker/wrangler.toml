@@ -1,0 +1,13 @@
+name = "dailyinfo-external-scheduler"
+main = "worker.mjs"
+compatibility_date = "2026-10-25"
+workers_dev = false
+preview_urls = false
+
+[triggers]
+crons = ["17 0-15 * * *"] # UTC; Taipei 08:17..23:17 (16 nominal ticks/day)
+
+[vars]
+ENABLED = "false" # Explicit later approval required; sample never starts dispatching by default.
+FREE_USAGE_CONFIRMED = "false"
+# GITHUB_TOKEN must ONLY be configured as a Cloudflare encrypted Secret.

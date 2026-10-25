@@ -1,7 +1,12 @@
+import { assertExternalScheduleInputs } from './external-schedule.mjs';
+import { scheduledMode } from './schedule-mode.mjs';
 export function releaseDecision(env) {
+  const external = assertExternalScheduleInputs(env);
+  if (external) scheduledMode(env);
+  const automatic = env.EVENT === 'schedule' || external;
   const dataChanged = env.DATA_CHANGED === 'true';
-  const changed = env.EVENT === 'schedule' ? dataChanged : dataChanged || env.CODE_CHANGED === 'true' || env.FORCE_BUILD === 'true';
-  const authorized = env.EVENT === 'schedule'
+  const changed = automatic ? dataChanged : dataChanged || env.CODE_CHANGED === 'true' || env.FORCE_BUILD === 'true';
+  const authorized = automatic
     ? dataChanged && env.AUTO_PUBLISH_ENABLED === 'true' && env.FREE_USAGE_CONFIRMED === 'true'
     : env.EVENT === 'workflow_dispatch' && env.FORCE_BUILD === 'true';
   return { changed, publish: changed && authorized && env.PUBLISH_ENABLED === 'true' && env.DEPLOY_TARGET === 'pages' };

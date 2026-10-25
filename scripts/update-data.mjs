@@ -2,12 +2,14 @@ import { appendFile } from 'node:fs/promises';
 import { selectUpdateSources, updateData } from './lib/data-automation.mjs';
 import { updateSummary } from './lib/update-summary.mjs';
 import { d4Config } from './lib/d4-acceptance.mjs';
+import { externalScheduleRequested } from './lib/external-schedule.mjs';
 import { scheduledMode } from './lib/schedule-mode.mjs';
 try {
   const args = process.argv.slice(2);
   if (args.some(arg => arg !== '--scheduled' && !arg.startsWith('--sources='))) throw Error('Invalid arguments');
   const selected = args.find(arg => arg.startsWith('--sources='));
-  const scheduled = args.includes('--scheduled');
+  if (externalScheduleRequested(process.env) && selected && selected !== '--sources=core') throw Error('external_schedule_invalid');
+  const scheduled = args.includes('--scheduled') || externalScheduleRequested(process.env);
   const mode = scheduled ? scheduledMode(process.env) : null;
   const deadline = mode === 'd4' ? Date.parse(d4Config(process.env.D4_CONFIG).deadline) : undefined;
   const startBy = deadline == null ? undefined : deadline - 20 * 60000;

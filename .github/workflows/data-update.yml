@@ -6,6 +6,10 @@ on:
     - cron: '17 0-15 * * *' # 08:17–23:17 Asia/Taipei; due uses actual Taipei execution time.
   workflow_dispatch:
     inputs:
+      external_schedule:
+        description: Hourly automation tick (core only, due checks and all schedule gates apply)
+        type: boolean
+        default: false
       source:
         description: Source to update (four sources; manual runs bypass due checks)
         type: choice
@@ -39,7 +43,9 @@ permissions:
 env:
   SCHEDULE_MODE: ${{ vars.DATA_SCHEDULE_MODE }}
   D4_CONFIG: ${{ vars.DATA_SCHEDULE_MODE == 'd4' && vars.DATA_D4_ONCE || '' }}
-  SCHEDULE_CRON: ${{ github.event.schedule }}
+  SCHEDULE_CRON: ${{ inputs.external_schedule == true && '17 0-15 * * *' || github.event.schedule }}
+  EXTERNAL_SCHEDULE: ${{ inputs.external_schedule }}
+  SOURCE: ${{ inputs.source }}
   AUTOMATION: ${{ vars.DATA_AUTOMATION_ENABLED }}
   SCHEDULE: ${{ vars.DATA_SCHEDULE_ENABLED }}
   FREE: ${{ vars.DATA_FREE_USAGE_CONFIRMED }}
@@ -61,7 +67,7 @@ concurrency:
 jobs:
   update:
     # No cloud action runs until the user deliberately opts in on the default branch.
-    if: github.event.repository.visibility == 'public' && vars.DATA_AUTOMATION_ENABLED == 'true' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.run_attempt == 1 && github.ref == 'refs/heads/main' && vars.DATA_FREE_USAGE_CONFIRMED == 'true' && vars.DATA_SCHEDULE_ENABLED == 'true' && fromJSON(vars.DATA_SCHEDULE_ENABLED || 'false') == true && ((vars.DATA_SCHEDULE_MODE == 'd4' && github.event.schedule == '43 12 * * *' && vars.DATA_D4_ONCE != '') || (vars.DATA_SCHEDULE_MODE == 'continuous' && github.event.schedule == '17 0-15 * * *'))))
+    if: github.event.repository.visibility == 'public' && vars.DATA_AUTOMATION_ENABLED == 'true' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && ((github.event_name == 'workflow_dispatch' && inputs.external_schedule != true) || (github.event_name == 'workflow_dispatch' && inputs.external_schedule == true && github.run_attempt == 1 && github.ref == 'refs/heads/main' && vars.DATA_SCHEDULE_MODE == 'continuous' && vars.DATA_FREE_USAGE_CONFIRMED == 'true' && vars.DATA_SCHEDULE_ENABLED == 'true' && fromJSON(vars.DATA_SCHEDULE_ENABLED || 'false') == true && inputs.source == 'core' && inputs.initialize_state != true && inputs.initialize_manifest != true && inputs.publish_current != true && inputs.checkpoint_run == '' && inputs.baseline_approval == '') || (github.event_name == 'schedule' && github.run_attempt == 1 && github.ref == 'refs/heads/main' && vars.DATA_FREE_USAGE_CONFIRMED == 'true' && vars.DATA_SCHEDULE_ENABLED == 'true' && fromJSON(vars.DATA_SCHEDULE_ENABLED || 'false') == true && ((vars.DATA_SCHEDULE_MODE == 'd4' && github.event.schedule == '43 12 * * *' && vars.DATA_D4_ONCE != '') || (vars.DATA_SCHEDULE_MODE == 'continuous' && github.event.schedule == '17 0-15 * * *'))))
     runs-on: ubuntu-latest
     timeout-minutes: 12
     permissions:
@@ -78,6 +84,8 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4; official ref verified 2026-10-20
         with:
           node-version: '24'
+      - name: Validate external tick before API or source requests
+        run: node scripts/authorize-external-schedule.mjs
       - run: npm ci --ignore-scripts
       - name: Check free storage headroom before any source request
         run: node scripts/artifact-budget.mjs
@@ -123,10 +131,11 @@ jobs:
           CWA_API_KEY: ${{ secrets.CWA_API_KEY }}
           EVENT: ${{ github.event_name }}
           SOURCE: ${{ inputs.source }}
-          SCHEDULE_CRON: ${{ github.event.schedule }}
         run: |
           set +e
-          if [ "$EVENT" = "schedule" ]; then
+          if [ "$EXTERNAL_SCHEDULE" = "true" ]; then
+            npm run update:data -- --sources=core --scheduled
+          elif [ "$EVENT" = "schedule" ]; then
             npm run update:data -- --sources=core --scheduled
           elif [ "$SOURCE" = "all" ]; then
             npm run update:data
@@ -196,7 +205,7 @@ jobs:
           retention-days: 1
           if-no-files-found: error
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4; official ref verified 2026-10-20
-        if: steps.decision.outputs.changed == 'true' && github.event_name == 'workflow_dispatch'
+        if: steps.decision.outputs.changed == 'true' && github.event_name == 'workflow_dispatch' && inputs.external_schedule != true
         with:
           name: dailyinfo-site-preview
           path: dist/
@@ -210,7 +219,7 @@ jobs:
 
   deploy:
     needs: update
-    if: (github.event_name != 'schedule' || (vars.DATA_SCHEDULE_MODE == 'continuous' && vars.DATA_AUTOMATION_ENABLED == 'true' && vars.DATA_SCHEDULE_ENABLED == 'true' && vars.DATA_FREE_USAGE_CONFIRMED == 'true' && vars.DATA_AUTO_PUBLISH_ENABLED == 'true')) && needs.update.outputs.publish == 'true' && vars.DATA_PUBLISH_ENABLED == 'true' && vars.DATA_DEPLOY_TARGET == 'pages'
+    if: ((github.event_name != 'schedule' && inputs.external_schedule != true) || (vars.DATA_SCHEDULE_MODE == 'continuous' && vars.DATA_AUTOMATION_ENABLED == 'true' && vars.DATA_SCHEDULE_ENABLED == 'true' && vars.DATA_FREE_USAGE_CONFIRMED == 'true' && vars.DATA_AUTO_PUBLISH_ENABLED == 'true')) && needs.update.outputs.publish == 'true' && vars.DATA_PUBLISH_ENABLED == 'true' && vars.DATA_DEPLOY_TARGET == 'pages'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:

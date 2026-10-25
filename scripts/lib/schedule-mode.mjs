@@ -1,8 +1,10 @@
+import { assertExternalScheduleInputs } from './external-schedule.mjs';
 import { HOURLY_CRON } from './source-schedule.mjs';
 
 // A fresh, explicit mode opt-in separates bounded D4 acceptance from long-term updates.
 export function scheduledMode(env) {
-  if (env.GITHUB_EVENT_NAME !== 'schedule' || env.GITHUB_REF !== 'refs/heads/main'
+  const external = assertExternalScheduleInputs(env);
+  if ((!external && env.GITHUB_EVENT_NAME !== 'schedule') || external && env.SCHEDULE_MODE !== 'continuous' || env.GITHUB_REF !== 'refs/heads/main'
     || env.GITHUB_REPOSITORY !== 'Duke11111/dailyinfo' || env.GITHUB_RUN_ATTEMPT !== '1'
     || env.AUTOMATION !== 'true' || env.SCHEDULE !== 'true' || env.FREE !== 'true'
     || !['d4', 'continuous'].includes(env.SCHEDULE_MODE)

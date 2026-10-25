@@ -7,6 +7,7 @@ import { PROJECT_ROOT, verifySnapshots } from './lib/data-automation.mjs';
 import { exportState, restoreState } from './lib/update-state.mjs';
 import { assertCheckpointPublish, selectCheckpoint } from './lib/checkpoint-policy.mjs';
 import { d4Config, assertD4Checkpoint } from './lib/d4-acceptance.mjs';
+import { externalScheduleRequested } from './lib/external-schedule.mjs';
 import { scheduledMode } from './lib/schedule-mode.mjs';
 const exec = promisify(execFile);
 async function gh(args) { const result = await exec('gh', args, { cwd: PROJECT_ROOT, timeout: 30000, maxBuffer: 2097152, windowsHide: true }); return result.stdout; }
@@ -17,7 +18,7 @@ try {
     await exportState(PROJECT_ROOT, join(PROJECT_ROOT, '.cache/data-state'), process.env.GITHUB_SHA || '');
     console.log('Validated data checkpoint prepared.');
   } else if (mode === 'restore') {
-    const schedule = process.env.GITHUB_EVENT_NAME === 'schedule' ? scheduledMode(process.env) : null;
+    const schedule = process.env.GITHUB_EVENT_NAME === 'schedule' || externalScheduleRequested(process.env) ? scheduledMode(process.env) : null;
     assertCheckpointPublish(process.env);
     const exact = process.env.CHECKPOINT_ONLY === 'true';
     const repository = process.env.GITHUB_REPOSITORY, branch = process.env.DEFAULT_BRANCH;

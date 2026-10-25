@@ -15,7 +15,7 @@ const context = (event = 'schedule', variables = {}, inputs = {}) => ({
 // Evaluate the actual workflow condition, not a duplicate policy implementation.
 function evaluate(expression, values) {
   // GitHub string equality ignores case; model that explicitly for the schedule switch.
-  const githubExpression = expression.replace("vars.DATA_SCHEDULE_ENABLED == 'true'", "String(vars.DATA_SCHEDULE_ENABLED).toLowerCase() == 'true'");
+  const githubExpression = expression.replaceAll("vars.DATA_SCHEDULE_ENABLED == 'true'", "String(vars.DATA_SCHEDULE_ENABLED).toLowerCase() == 'true'");
   return runInNewContext(githubExpression, values, { timeout: 100 });
 }
 const updateCondition = update.match(/^    if: (.+)$/m)[1];
@@ -54,7 +54,7 @@ it.each(['skipped', 'failure', 'cancelled'])('does not save a checkpoint after a
   expect(evaluate(condition, { always: () => true, needs: { update: { result }, deploy: { result: 'skipped' } } })).toBe(false);
 });
 it.each([[undefined, undefined, false], ['false', 'pages', false], ['true', undefined, false], ['true', 'other', false], ['true', 'pages', true]])('gates Pages on explicit publish %s and target %s', (enabled, target, expected) => {
-  const values = { github: { event_name: 'workflow_dispatch' }, vars: { DATA_PUBLISH_ENABLED: enabled, DATA_DEPLOY_TARGET: target }, needs: { update: { outputs: { publish: 'true' } } } };
+  const values = { inputs: {}, github: { event_name: 'workflow_dispatch' }, vars: { DATA_PUBLISH_ENABLED: enabled, DATA_DEPLOY_TARGET: target }, needs: { update: { outputs: { publish: 'true' } } } };
   expect(evaluate(deployCondition, values)).toBe(expected);
   expect(evaluate(deployCondition, { ...values, github: { event_name: 'schedule' } })).toBe(false);
   values.needs.update.outputs.publish = 'false'; expect(evaluate(deployCondition, values)).toBe(false);
@@ -62,7 +62,7 @@ it.each([[undefined, undefined, false], ['false', 'pages', false], ['true', unde
 });
 it('uses one daytime hourly cron and only core --scheduled in the scheduled branch', () => {
   expect([...workflow.matchAll(/- cron: '([^']+)'/g)].map(match => match[1])).toEqual(['17 0-15 * * *']);
-  expect(workflow).toContain('SCHEDULE_CRON: ${{ github.event.schedule }}');
+  expect(workflow).toContain("SCHEDULE_CRON: "+"$"+"{{ inputs.external_schedule == true && '17 0-15 * * *' || github.event.schedule }}");
   const scheduled = update.split('if [ "$EVENT" = "schedule" ]; then')[1].split('elif')[0];
   expect(scheduled.trim()).toBe('npm run update:data -- --sources=core --scheduled');
   expect(CORE_SOURCES).toEqual(['quotes', 'news', 'earthquakes', 'horoscope']);

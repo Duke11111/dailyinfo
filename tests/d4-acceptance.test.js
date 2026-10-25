@@ -172,7 +172,7 @@ it('CLI errors cannot leak raw config/errors and do not invoke GitHub when confi
 it('workflow keeps manual behavior, persists a claim before requests, and cannot deploy the schedule', async () => {
   const workflow = (await readFile('.github/workflows/data-update.yml', 'utf8')).replace(/\r\n/g, '\n');
   const condition = workflow.split('  update:\n')[1].match(/^    if: (.+)$/m)[1];
-  const gate = (event, vars, cron = D4_CRON, visibility = 'public') => Function('vars', 'github', 'format', 'fromJSON', `return (${condition});`)(vars,
+  const gate = (event, vars, cron = D4_CRON, visibility = 'public') => Function('inputs', 'vars', 'github', 'format', 'fromJSON', `return (${condition});`)({}, vars,
     { ref: 'refs/heads/main', event_name: event, run_attempt: 1, event: { schedule: cron, repository: { default_branch: 'main', visibility } } }, (pattern, value) => pattern.replace('{0}', value), JSON.parse);
   const vars = { DATA_SCHEDULE_MODE: 'd4', DATA_AUTOMATION_ENABLED: 'true', DATA_SCHEDULE_ENABLED: 'true', DATA_FREE_USAGE_CONFIRMED: 'true', DATA_D4_ONCE: '{}' };
   expect(gate('schedule', vars)).toBe(true);
@@ -184,7 +184,7 @@ it('workflow keeps manual behavior, persists a claim before requests, and cannot
   expect(gate('schedule', vars, '37 2 * * *')).toBe(false);
   expect(gate('workflow_dispatch', { DATA_AUTOMATION_ENABLED: 'true' })).toBe(true);
   expect(workflow.indexOf('name: Persist single-use claim')).toBeLessThan(workflow.indexOf('name: Isolated source updates'));
-  expect(workflow).toContain("github.event_name != 'schedule' || (vars.DATA_SCHEDULE_MODE == 'continuous'");
+  expect(workflow).toContain("github.event_name != 'schedule' && inputs.external_schedule != true) || (vars.DATA_SCHEDULE_MODE == 'continuous'");
   expect(workflow).toContain("vars.DATA_SCHEDULE_MODE == 'continuous' && vars.DATA_AUTO_PUBLISH_ENABLED || 'false'");
   expect(workflow).toContain('needs: [update, deploy, checkpoint]');
   expect(workflow).not.toMatch(/actions: write|gh variable|initialize_state: true/);

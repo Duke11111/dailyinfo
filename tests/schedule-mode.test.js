@@ -10,8 +10,8 @@ const github = () => ({ event_name: 'schedule', ref: 'refs/heads/main', run_atte
   event: { schedule: '17 0-15 * * *', repository: { visibility: 'public', default_branch: 'main' } } });
 function gate(job, v = vars(), g = github(), needs = { update: { outputs: { publish: 'true' } } }) {
   const expression = workflow.split(`  ${job}:\n`)[1].match(/^    if: (.+)$/m)[1];
-  return Boolean(Function('vars', 'github', 'needs', 'always', 'format', 'fromJSON', `return (${expression});`)(
-    v, g, needs, () => true, (pattern, value) => pattern.replace('{0}', value), JSON.parse));
+  return Boolean(Function('inputs', 'vars', 'github', 'needs', 'always', 'format', 'fromJSON', `return (${expression});`)(
+    {}, v, g, needs, () => true, (pattern, value) => pattern.replace('{0}', value), JSON.parse));
 }
 it.each(['17 0-15 * * *'])('continuous %s ignores stale D4 configuration and can update', cron => {
   expect(scheduledMode({ ...env(), SCHEDULE_CRON: cron, D4_CONFIG: '{expired invalid D4}' })).toBe('continuous');

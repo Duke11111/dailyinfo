@@ -21,8 +21,8 @@ const bytes = () => Promise.all(SOURCES.map(source => readFile(file(source), 'ut
 // Evaluate the actual tracked job expressions, not a separately reimplemented gate.
 function gate(job, context = {}) {
   const expression = workflow.split(`  ${job}:\n`)[1].match(/^    if: (.+)$/m)[1];
-  return Boolean(Function('vars', 'github', 'needs', 'always', 'format', 'fromJSON', `return (${expression});`)(
-    context.vars ?? vars, context.github ?? github, context.needs ?? {}, () => true,
+  return Boolean(Function('inputs', 'vars', 'github', 'needs', 'always', 'format', 'fromJSON', `return (${expression});`)(
+    context.inputs ?? {}, context.vars ?? vars, context.github ?? github, context.needs ?? {}, () => true,
     (pattern, value) => pattern.replace('{0}', value), JSON.parse));
 }
 function canDeploy(decision, updateResult = 'success') {
