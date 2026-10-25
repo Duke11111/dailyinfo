@@ -2,20 +2,238 @@
   "version": 1,
   "source": "中央氣象署",
   "sourceUrl": "https://opendata.cwa.gov.tw/",
-  "fetchedAt": "2026-10-19T15:22:52.676Z",
+  "fetchedAt": "2026-10-24T07:33:45.718Z",
   "feeds": [
     {
       "dataset": "E-A0015-001",
       "count": 16,
-      "fetchedAt": "2026-10-19T15:22:52.610Z"
+      "fetchedAt": "2026-10-24T07:33:45.499Z"
     },
     {
       "dataset": "E-A0016-001",
       "count": 16,
-      "fetchedAt": "2026-10-19T15:22:52.672Z"
+      "fetchedAt": "2026-10-24T07:33:45.712Z"
     }
   ],
   "events": [
+    {
+      "id": "2026-10-24T01:25:57.000Z_23.180_120.740",
+      "originTime": "2026-10-24T01:25:57.000Z",
+      "reportTime": "2026-10-24T01:30:13.000Z",
+      "location": "高雄市政府東北方  75.7  公里 (位於高雄市桃源區)",
+      "latitude": 23.18,
+      "longitude": 120.74,
+      "magnitude": 4,
+      "magnitudeType": "芮氏規模",
+      "depth": 5,
+      "maxIntensity": "4級",
+      "areas": [
+        {
+          "county": "高雄市",
+          "intensity": "4級"
+        },
+        {
+          "county": "嘉義縣",
+          "intensity": "2級"
+        },
+        {
+          "county": "臺南市",
+          "intensity": "2級"
+        },
+        {
+          "county": "南投縣",
+          "intensity": "1級"
+        },
+        {
+          "county": "雲林縣",
+          "intensity": "1級"
+        },
+        {
+          "county": "嘉義市",
+          "intensity": "1級"
+        },
+        {
+          "county": "屏東縣",
+          "intensity": "1級"
+        }
+      ],
+      "reports": [
+        {
+          "dataset": "E-A0015-001",
+          "number": 115072,
+          "url": "https://scweb.cwa.gov.tw/zh-tw/earthquake/details/2026072",
+          "issuedAt": "2026-10-24T01:30:13.000Z"
+        }
+      ]
+    },
+    {
+      "id": "2026-10-23T20:58:03.000Z_23.890_121.900",
+      "originTime": "2026-10-23T20:58:03.000Z",
+      "reportTime": "2026-10-23T21:02:20.000Z",
+      "location": "花蓮縣政府東南東方  30.4  公里 (位於臺灣東部海域)",
+      "latitude": 23.89,
+      "longitude": 121.9,
+      "magnitude": 4.8,
+      "magnitudeType": "芮氏規模",
+      "depth": 16.8,
+      "maxIntensity": "3級",
+      "areas": [
+        {
+          "county": "花蓮縣",
+          "intensity": "3級"
+        },
+        {
+          "county": "南投縣",
+          "intensity": "3級"
+        },
+        {
+          "county": "宜蘭縣",
+          "intensity": "2級"
+        },
+        {
+          "county": "臺中市",
+          "intensity": "1級"
+        },
+        {
+          "county": "臺東縣",
+          "intensity": "1級"
+        }
+      ],
+      "reports": [
+        {
+          "dataset": "E-A0015-001",
+          "number": 115071,
+          "url": "https://scweb.cwa.gov.tw/zh-tw/earthquake/details/2026071",
+          "issuedAt": "2026-10-23T21:02:20.000Z"
+        }
+      ]
+    },
+    {
+      "id": "2026-10-23T20:48:17.000Z_23.880_121.900",
+      "originTime": "2026-10-23T20:48:17.000Z",
+      "reportTime": "2026-10-23T20:52:49.000Z",
+      "location": "花蓮縣政府東南東方  31.2  公里 (位於臺灣東部海域)",
+      "latitude": 23.88,
+      "longitude": 121.9,
+      "magnitude": 5,
+      "magnitudeType": "芮氏規模",
+      "depth": 15.4,
+      "maxIntensity": "3級",
+      "areas": [
+        {
+          "county": "花蓮縣",
+          "intensity": "3級"
+        },
+        {
+          "county": "宜蘭縣",
+          "intensity": "2級"
+        },
+        {
+          "county": "南投縣",
+          "intensity": "2級"
+        },
+        {
+          "county": "臺東縣",
+          "intensity": "1級"
+        },
+        {
+          "county": "臺中市",
+          "intensity": "1級"
+        },
+        {
+          "county": "嘉義縣",
+          "intensity": "1級"
+        },
+        {
+          "county": "新竹縣",
+          "intensity": "1級"
+        },
+        {
+          "county": "新北市",
+          "intensity": "1級"
+        },
+        {
+          "county": "彰化縣",
+          "intensity": "1級"
+        },
+        {
+          "county": "苗栗縣",
+          "intensity": "1級"
+        },
+        {
+          "county": "雲林縣",
+          "intensity": "1級"
+        }
+      ],
+      "reports": [
+        {
+          "dataset": "E-A0015-001",
+          "number": 115070,
+          "url": "https://scweb.cwa.gov.tw/zh-tw/earthquake/details/2026070",
+          "issuedAt": "2026-10-23T20:52:49.000Z"
+        }
+      ]
+    },
+    {
+      "id": "2026-10-21T06:51:20.000Z_22.680_121.060",
+      "originTime": "2026-10-21T06:51:20.000Z",
+      "reportTime": "2026-10-21T06:54:01.000Z",
+      "location": "臺東縣政府西南方  12.7  公里 (位於臺東縣近海)",
+      "latitude": 22.68,
+      "longitude": 121.06,
+      "magnitude": 3.9,
+      "magnitudeType": "芮氏規模",
+      "depth": 8.2,
+      "maxIntensity": "2級",
+      "areas": [
+        {
+          "county": "臺東縣",
+          "intensity": "2級"
+        },
+        {
+          "county": "屏東縣",
+          "intensity": "1級"
+        }
+      ],
+      "reports": [
+        {
+          "dataset": "E-A0016-001",
+          "number": 115000,
+          "url": "https://scweb.cwa.gov.tw/zh-tw/earthquake/details/2026102114512039",
+          "issuedAt": "2026-10-21T06:54:01.000Z"
+        }
+      ]
+    },
+    {
+      "id": "2026-10-20T20:03:19.000Z_24.040_121.700",
+      "originTime": "2026-10-20T20:03:19.000Z",
+      "reportTime": "2026-10-20T20:05:48.000Z",
+      "location": "花蓮縣政府東北東方  9.9  公里 (位於花蓮縣近海)",
+      "latitude": 24.04,
+      "longitude": 121.7,
+      "magnitude": 3.4,
+      "magnitudeType": "芮氏規模",
+      "depth": 18.2,
+      "maxIntensity": "2級",
+      "areas": [
+        {
+          "county": "花蓮縣",
+          "intensity": "2級"
+        },
+        {
+          "county": "宜蘭縣",
+          "intensity": "1級"
+        }
+      ],
+      "reports": [
+        {
+          "dataset": "E-A0016-001",
+          "number": 115000,
+          "url": "https://scweb.cwa.gov.tw/zh-tw/earthquake/details/2026102104031934",
+          "issuedAt": "2026-10-20T20:05:48.000Z"
+        }
+      ]
+    },
     {
       "id": "2026-10-17T03:13:19.000Z_24.520_121.760",
       "originTime": "2026-10-17T03:13:19.000Z",
@@ -937,66 +1155,6 @@
       ]
     },
     {
-      "id": "2026-09-18T20:14:07.000Z_23.960_121.620",
-      "originTime": "2026-09-18T20:14:07.000Z",
-      "reportTime": "2026-09-18T20:16:19.000Z",
-      "location": "花蓮縣政府南方  3.2  公里 (位於花蓮縣近海)",
-      "latitude": 23.96,
-      "longitude": 121.62,
-      "magnitude": 3.7,
-      "magnitudeType": "芮氏規模",
-      "depth": 24.3,
-      "maxIntensity": "2級",
-      "areas": [
-        {
-          "county": "花蓮縣",
-          "intensity": "2級"
-        },
-        {
-          "county": "南投縣",
-          "intensity": "1級"
-        }
-      ],
-      "reports": [
-        {
-          "dataset": "E-A0016-001",
-          "number": 115000,
-          "url": "https://scweb.cwa.gov.tw/zh-tw/earthquake/details/2026091904140737",
-          "issuedAt": "2026-09-18T20:16:19.000Z"
-        }
-      ]
-    },
-    {
-      "id": "2026-09-17T09:45:19.000Z_23.450_121.880",
-      "originTime": "2026-09-17T09:45:19.000Z",
-      "reportTime": "2026-09-17T09:48:36.000Z",
-      "location": "花蓮縣政府南南東方  65.1  公里 (位於臺灣東部海域)",
-      "latitude": 23.45,
-      "longitude": 121.88,
-      "magnitude": 4.3,
-      "magnitudeType": "芮氏規模",
-      "depth": 15.9,
-      "maxIntensity": "2級",
-      "areas": [
-        {
-          "county": "臺東縣",
-          "intensity": "2級"
-        },
-        {
-          "county": "花蓮縣",
-          "intensity": "1級"
-        }
-      ],
-      "reports": [
-        {
-          "dataset": "E-A0016-001",
-          "number": 115000,
-          "url": "https://scweb.cwa.gov.tw/zh-tw/earthquake/details/2026091717451943",
-          "issuedAt": "2026-09-17T09:48:36.000Z"
-        }
-      ]
-    },
-    {
       "id": "2026-09-13T22:44:41.000Z_22.630_121.550",
       "originTime": "2026-09-13T22:44:41.000Z",
       "reportTime": "2026-09-13T22:49:45.000Z",
@@ -1451,212 +1609,6 @@
           "number": 115057,
           "url": "https://scweb.cwa.gov.tw/zh-tw/earthquake/details/2026057",
           "issuedAt": "2026-08-25T07:05:16.000Z"
-        }
-      ]
-    },
-    {
-      "id": "2026-08-22T03:40:15.000Z_24.420_121.990",
-      "originTime": "2026-08-22T03:40:15.000Z",
-      "reportTime": "2026-08-22T03:44:27.000Z",
-      "location": "宜蘭縣政府東南方  41.7  公里 (位於臺灣東部海域)",
-      "latitude": 24.42,
-      "longitude": 121.99,
-      "magnitude": 5.1,
-      "magnitudeType": "芮氏規模",
-      "depth": 27.8,
-      "maxIntensity": "3級",
-      "areas": [
-        {
-          "county": "宜蘭縣",
-          "intensity": "3級"
-        },
-        {
-          "county": "花蓮縣",
-          "intensity": "3級"
-        },
-        {
-          "county": "新北市",
-          "intensity": "2級"
-        },
-        {
-          "county": "桃園市",
-          "intensity": "2級"
-        },
-        {
-          "county": "臺中市",
-          "intensity": "2級"
-        },
-        {
-          "county": "南投縣",
-          "intensity": "2級"
-        },
-        {
-          "county": "新竹縣",
-          "intensity": "2級"
-        },
-        {
-          "county": "臺北市",
-          "intensity": "2級"
-        },
-        {
-          "county": "彰化縣",
-          "intensity": "2級"
-        },
-        {
-          "county": "基隆市",
-          "intensity": "1級"
-        },
-        {
-          "county": "苗栗縣",
-          "intensity": "1級"
-        },
-        {
-          "county": "新竹市",
-          "intensity": "1級"
-        },
-        {
-          "county": "嘉義縣",
-          "intensity": "1級"
-        },
-        {
-          "county": "雲林縣",
-          "intensity": "1級"
-        },
-        {
-          "county": "嘉義市",
-          "intensity": "1級"
-        }
-      ],
-      "reports": [
-        {
-          "dataset": "E-A0015-001",
-          "number": 115056,
-          "url": "https://scweb.cwa.gov.tw/zh-tw/earthquake/details/2026056",
-          "issuedAt": "2026-08-22T03:44:27.000Z"
-        }
-      ]
-    },
-    {
-      "id": "2026-08-15T11:30:16.000Z_24.500_122.220",
-      "originTime": "2026-08-15T11:30:16.000Z",
-      "reportTime": "2026-08-15T11:34:53.000Z",
-      "location": "宜蘭縣政府東南東方  52.8  公里 (位於臺灣東部海域)",
-      "latitude": 24.5,
-      "longitude": 122.22,
-      "magnitude": 5.2,
-      "magnitudeType": "芮氏規模",
-      "depth": 66.6,
-      "maxIntensity": "3級",
-      "areas": [
-        {
-          "county": "宜蘭縣",
-          "intensity": "3級"
-        },
-        {
-          "county": "新北市",
-          "intensity": "3級"
-        },
-        {
-          "county": "花蓮縣",
-          "intensity": "2級"
-        },
-        {
-          "county": "臺北市",
-          "intensity": "2級"
-        },
-        {
-          "county": "臺中市",
-          "intensity": "2級"
-        },
-        {
-          "county": "基隆市",
-          "intensity": "1級"
-        },
-        {
-          "county": "桃園市",
-          "intensity": "1級"
-        },
-        {
-          "county": "南投縣",
-          "intensity": "1級"
-        },
-        {
-          "county": "新竹縣",
-          "intensity": "1級"
-        },
-        {
-          "county": "苗栗縣",
-          "intensity": "1級"
-        },
-        {
-          "county": "臺東縣",
-          "intensity": "1級"
-        },
-        {
-          "county": "彰化縣",
-          "intensity": "1級"
-        },
-        {
-          "county": "雲林縣",
-          "intensity": "1級"
-        },
-        {
-          "county": "嘉義縣",
-          "intensity": "1級"
-        },
-        {
-          "county": "嘉義市",
-          "intensity": "1級"
-        }
-      ],
-      "reports": [
-        {
-          "dataset": "E-A0015-001",
-          "number": 115055,
-          "url": "https://scweb.cwa.gov.tw/zh-tw/earthquake/details/2026055",
-          "issuedAt": "2026-08-15T11:34:53.000Z"
-        }
-      ]
-    },
-    {
-      "id": "2026-08-12T19:54:22.000Z_21.880_120.710",
-      "originTime": "2026-08-12T19:54:22.000Z",
-      "reportTime": "2026-08-12T19:58:42.000Z",
-      "location": "屏東縣政府南南東方  91.7  公里 (位於屏東縣近海)",
-      "latitude": 21.88,
-      "longitude": 120.71,
-      "magnitude": 4.4,
-      "magnitudeType": "芮氏規模",
-      "depth": 40.2,
-      "maxIntensity": "3級",
-      "areas": [
-        {
-          "county": "屏東縣",
-          "intensity": "3級"
-        },
-        {
-          "county": "臺東縣",
-          "intensity": "1級"
-        },
-        {
-          "county": "臺南市",
-          "intensity": "1級"
-        },
-        {
-          "county": "雲林縣",
-          "intensity": "1級"
-        },
-        {
-          "county": "彰化縣",
-          "intensity": "1級"
-        }
-      ],
-      "reports": [
-        {
-          "dataset": "E-A0015-001",
-          "number": 115054,
-          "url": "https://scweb.cwa.gov.tw/zh-tw/earthquake/details/2026054",
-          "issuedAt": "2026-08-12T19:58:42.000Z"
         }
       ]
     }

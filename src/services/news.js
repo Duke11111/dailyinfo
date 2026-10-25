@@ -1,3 +1,8 @@
+import { olderThan } from '../lib/time.js';
+import { isoInstant, nowMs } from '../lib/time.js';
+import { optionalUpdatedAt } from '../lib/time.js';
+import { createSnapshotStore, browserCacheStorage } from './snapshot-store.js';
+import { CACHE_POLICY } from './cache-policy.js';
 export const NEWS_SOURCE = '中央通訊社';
 export const NEWS_RSS_PAGE = 'https://www.cna.com.tw/about/rss.aspx';
 export const NEWS_CATEGORIES = Object.freeze({ technology: '科技', finance: '財經', intworld: '國際', lifehealth: '生活', social: '社會' });
@@ -12,7 +17,7 @@ export function newsUrl(raw) {
   return url.href;
 }
 export function newsTime(raw) {
-  if (typeof raw !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(raw) || !Number.isFinite(Date.parse(raw)) || new Date(raw).toISOString() !== raw || raw < '2000') throw new Error('新聞時間格式異常。');
+  if (typeof raw !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(raw) || !Number.isFinite(Date.parse(raw)) || isoInstant(raw) !== raw || raw < '2000') throw new Error('新聞時間格式異常。');
   return raw;
 }
 function text(value, max, empty = false) {
@@ -43,7 +48,7 @@ export function validateNewsSnapshot(data) {
     ids.add(article.id); return article;
   });
   if (feeds.reduce((sum, feed) => sum + feed.count, 0) < articles.length) throw new Error('新聞來源數量不一致。');
-  return { version: 1, source: NEWS_SOURCE, sourceUrl: NEWS_RSS_PAGE, fetchedAt, feeds, articles };
+  return { version: 1, source: NEWS_SOURCE, sourceUrl: NEWS_RSS_PAGE, fetchedAt, ...optionalUpdatedAt(data), feeds, articles };
 }
 const normalize = value => value.normalize('NFKC').toLocaleLowerCase('zh-TW').replaceAll('台', '臺').trim();
 export function filterNews(articles, { category = 'all', query = '', order = 'newest' } = {}) {
@@ -51,8 +56,8 @@ export function filterNews(articles, { category = 'all', query = '', order = 'ne
   return articles.filter(item => (category === 'all' || item.categories.includes(category)) && terms.every(term => normalize(`${item.title} ${item.summary}`).includes(term)))
     .sort((a, b) => (order === 'oldest' ? 1 : -1) * a.publishedAt.localeCompare(b.publishedAt) || a.id.localeCompare(b.id));
 }
-export const isNewsStale = (snapshot, now = Date.now()) => now - Date.parse(snapshot.fetchedAt) > 86400000;
-export async function fetchNewsSnapshot({ fetchImpl = (...args) => fetch(...args), timeout = 12000 } = {}) {
+export const isNewsStale = (snapshot, now = nowMs()) => olderThan(snapshot.fetchedAt, CACHE_POLICY.snapshotWarning, now);
+export async function fetchNewsSnapshot({ fetchImpl = (...args) => fetch(...args), timeout = CACHE_POLICY.timeout } = {}) {
   const controller = new AbortController(), timer = setTimeout(() => controller.abort(), timeout);
   try {
     const response = await fetchImpl(`${import.meta.env?.BASE_URL ?? '/'}data/news.json`, { signal: controller.signal, cache: 'no-store' });
@@ -61,21 +66,7 @@ export async function fetchNewsSnapshot({ fetchImpl = (...args) => fetch(...args
   } catch (error) { throw new Error(error.name === 'AbortError' ? '新聞讀取逾時，請稍後重試。' : error.message || '新聞讀取失敗，請檢查網路。'); }
   finally { clearTimeout(timer); }
 }
-export function createNewsStore({ fetcher = fetchNewsSnapshot, now = Date.now } = {}) {
-  let data = null, readAt = 0, attemptedAt = -Infinity, pending = null;
-  return {
-    peek: () => data,
-    load({ force = false } = {}) {
-      if (pending) return pending;
-      if (data && ((!force && now() - readAt < 300000) || now() - attemptedAt < 10000)) return Promise.resolve({ data, readAt, cached: true });
-      if (!data && now() - attemptedAt < 10000) return Promise.reject(new Error('請稍候 10 秒再讀取新聞。'));
-      attemptedAt = now();
-      pending = Promise.resolve().then(fetcher).then(next => {
-        if (data && next.fetchedAt < data.fetchedAt) throw new Error('網站回傳較舊新聞快照，已保留原有資料。');
-        data = next; readAt = now(); return { data, readAt, cached: false };
-      }).finally(() => { pending = null; });
-      return pending;
-    },
-  };
+export function createNewsStore({ fetcher = fetchNewsSnapshot, now = nowMs, ttl = CACHE_POLICY.news, cooldown = CACHE_POLICY.cooldown, storage = null } = {}) {
+  return createSnapshotStore({ name: 'news', fetcher, now, ttl, cooldown, storage, validate: validateNewsSnapshot, sourceDay: value => value.articles.map(a => a.publishedAt).sort().at(-1) ?? value.fetchedAt });
 }
-export const newsStore = createNewsStore();
+export const newsStore = createNewsStore({ storage: browserCacheStorage() });

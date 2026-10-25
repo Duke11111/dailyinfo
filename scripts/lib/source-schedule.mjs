@@ -1,3 +1,5 @@
+import { nowMs } from '../../src/lib/time.js';
+import { taipeiDate, taipeiStartOfDay, isoInstant, calendarWeekday } from '../../src/lib/time.js';
 export const SCHEDULES = Object.freeze([
   { name: 'morning', cron: '37 2 * * *', minute: 10 * 60 + 37 },
   { name: 'evening', cron: '17 9 * * *', minute: 17 * 60 + 17 },
@@ -6,10 +8,10 @@ export const SCHEDULES = Object.freeze([
 export const RETRY_COOLDOWN = 60 * 60000;
 // Historical D4 admission remains separately bounded by its exact approval and deadline.
 const LEGACY_D4_SLOT = { name: 'evening', cron: '43 12 * * *', minute: 20 * 60 + 43 };
-const dayOf = time => new Date(time + 8 * 3600000).toISOString().slice(0, 10);
-const startOf = day => Date.parse(day + 'T00:00:00+08:00');
-const stamp = time => new Date(time).toISOString();
-const weekday = day => ![0, 6].includes(new Date(day + 'T12:00:00Z').getUTCDay());
+const dayOf = taipeiDate;
+const startOf = taipeiStartOfDay;
+const stamp = isoInstant;
+const weekday = day => ![0, 6].includes(calendarWeekday(day));
 function nextDay(time, source) {
   let day = dayOf(time + 86400000);
   while (source === 'quotes' && !weekday(day)) day = dayOf(startOf(day) + 86400000);
@@ -23,7 +25,7 @@ function nextWindow(time, source) {
 
 // One attempt per named window, even after failures. No timers or automatic retries.
 // Explicit cron keeps a delayed morning invocation from masquerading as the evening one.
-export function scheduleDecision(source, state, now = Date.now(), { cron } = {}) {
+export function scheduleDecision(source, state, now = nowMs(), { cron } = {}) {
   if (!['quotes', 'news', 'earthquakes', 'horoscope'].includes(source) || !Number.isFinite(now)) throw Error('schedule_invalid');
   const explicitSlot = SCHEDULES.find(slot => slot.cron === cron) ?? (cron === LEGACY_D4_SLOT.cron ? LEGACY_D4_SLOT : undefined);
   if (cron !== undefined && !explicitSlot) throw Error('schedule_cron_invalid');

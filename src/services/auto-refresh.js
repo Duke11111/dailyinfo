@@ -1,5 +1,6 @@
+import { nowMs } from '../lib/time.js';
 // Only mounted views poll published snapshots; hidden tabs never start a request.
-export function startAutoRefresh(tasks, { document: page = globalThis.document, now = Date.now,
+export function startAutoRefresh(tasks, { document: page = globalThis.document, now = nowMs,
   setTimer = setInterval, clearTimer = clearInterval } = {}) {
   let stopped = false;
   const records = tasks.map(task => ({ task, at: now(), busy: false }));

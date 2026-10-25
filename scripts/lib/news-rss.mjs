@@ -1,3 +1,4 @@
+import { isoInstant } from '../../src/lib/time.js';
 import { JSDOM } from 'jsdom';
 import { NEWS_SOURCE, validateArticle } from '../../src/services/news.js';
 
@@ -10,7 +11,7 @@ function publicationTime(raw) {
   const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(month);
   const clock = new Date(Date.UTC(+year, monthIndex, +day, +hour, +minute, +second));
   if (monthIndex < 0 || clock.getUTCFullYear() !== +year || clock.getUTCMonth() !== monthIndex || clock.getUTCDate() !== +day || +hour > 23 || +minute > 59 || +second > 59 || +offsetHour > 14 || +offsetMinute > 59 || (+offsetHour === 14 && +offsetMinute !== 0)) throw new Error('RSS 發布時間異常。');
-  return new Date(clock.getTime() - (sign === '+' ? 1 : -1) * (+offsetHour * 60 + +offsetMinute) * 60000).toISOString();
+  return isoInstant(clock.getTime() - (sign === '+' ? 1 : -1) * (+offsetHour * 60 + +offsetMinute) * 60000);
 }
 function plain(raw) {
   const document = new Parser().parseFromString(raw, 'text/html');

@@ -1,7 +1,6 @@
+import { taipeiDate, validDateOnly, addCalendarDays } from '../lib/time.js';
 export const CALENDAR_EVENTS_KEY = 'dailyinfo.calendar.events.v1';
-export const taipeiCalendarDay = (date = new Date()) => new Intl.DateTimeFormat('en-CA', {
-  timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit',
-}).format(date);
+export const taipeiCalendarDay = taipeiDate;
 
 // Timed event ends are exclusive; an event ending at midnight belongs to the preceding day.
 export function todayCalendarEvents(events, date = new Date()) {
@@ -16,7 +15,7 @@ export function todayCalendarEvents(events, date = new Date()) {
 export const EVENT_COLORS = Object.freeze({ teal: '#197969', blue: '#2863a3', violet: '#7150a4', rose: '#a44268', amber: '#94601e' });
 export function validCalendarDate(value) {
   return typeof value === 'string' && /^(?:19|20|21)\d{2}-\d{2}-\d{2}$/.test(value)
-    && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
+    && validDateOnly(value);
 }
 const validTime = value => typeof value === 'string' && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(value);
 export function validateCalendarEvent(raw) {
@@ -64,7 +63,7 @@ export function saveCalendarEvents(events, expectedRaw, storage) {
 }
 export function calendarEventInput(value) {
   const event = validateCalendarEvent(value);
-  const end = event.allDay ? new Date(Date.parse(event.endDate) + 86400000).toISOString().slice(0, 10) : `${event.endDate}T${event.endTime}`;
+  const end = event.allDay ? addCalendarDays(event.endDate, 1) : `${event.endDate}T${event.endTime}`;
   return { id: event.id, title: event.title, allDay: event.allDay,
     start: event.allDay ? event.startDate : `${event.startDate}T${event.startTime}`, end,
     backgroundColor: EVENT_COLORS[event.color], borderColor: EVENT_COLORS[event.color], textColor: '#ffffff' };

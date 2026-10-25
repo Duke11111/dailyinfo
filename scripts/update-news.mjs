@@ -1,3 +1,6 @@
+import { CACHE_POLICY } from '../src/services/cache-policy.js';
+import { compareSnapshots } from '../src/lib/snapshot-freshness.js';
+import { isoInstant } from '../src/lib/time.js';
 import { readFile, writeFile, rename } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { snapshotTarget } from './lib/snapshot-target.mjs';
@@ -6,23 +9,24 @@ import { parseNewsRss, mergeNewsArticles } from './lib/news-rss.mjs';
 
 const target = snapshotTarget('news');
 try {
-  const batches = [], feeds = [];
   // Only the five allowlisted RSS endpoints, once each; no full articles or images.
-  for (const category of Object.keys(NEWS_CATEGORIES)) {
+  const settled = await Promise.allSettled(Object.keys(NEWS_CATEGORIES).map(async category => {
     const url = feedUrl(category);
-    const response = await fetch(url, { signal: AbortSignal.timeout(15000), redirect: 'error' });
+    const response = await fetch(url, { signal: AbortSignal.timeout(CACHE_POLICY.timeout), redirect: 'error' });
     if (!response.ok) throw new Error(`${category} HTTP ${response.status}`);
     if (!/\b(?:text|application)\/(?:rss\+xml|xml)\b/i.test(response.headers.get('content-type') ?? '')) throw new Error(`${category} 並非 XML`);
-    const xml = await response.text(), fetchedAt = new Date().toISOString();
+    const xml = await response.text(), fetchedAt = isoInstant();
     const articles = parseNewsRss(xml, category, fetchedAt);
     if (!articles.length) throw new Error(`${category} 沒有新聞，保留舊快照`);
-    batches.push(articles); feeds.push({ category, url, fetchedAt, count: articles.length, sha256: createHash('sha256').update(xml).digest('hex') });
-  }
-  const snapshot = validateNewsSnapshot({ version: 1, source: NEWS_SOURCE, sourceUrl: NEWS_RSS_PAGE, fetchedAt: new Date().toISOString(), feeds, articles: mergeNewsArticles(batches) });
+    return { articles, feed: { category, url, fetchedAt, count: articles.length, sha256: createHash('sha256').update(xml).digest('hex') } };
+  }));
+  const failure = settled.find(result => result.status === 'rejected'); if (failure) throw failure.reason;
+  const batches = settled.map(result => result.value.articles), feeds = settled.map(result => result.value.feed);
+  const snapshot = validateNewsSnapshot({ version: 1, source: NEWS_SOURCE, sourceUrl: NEWS_RSS_PAGE, fetchedAt: isoInstant(), feeds, articles: mergeNewsArticles(batches) });
   let previous;
   try { previous = validateNewsSnapshot(JSON.parse(await readFile(target, 'utf8'))); }
   catch (error) { if (error.code !== 'ENOENT') throw error; }
-  if (previous && previous.fetchedAt > snapshot.fetchedAt) throw new Error('拒絕以較舊快照覆寫');
+  if (previous && compareSnapshots('news', snapshot, previous) < 0) throw new Error('拒絕以較舊快照覆寫');
   // All categories succeed and validate before replacing the existing file.
   const temporary = `${target}.tmp`;
   await writeFile(temporary, JSON.stringify(snapshot, null, 2) + '\n'); await rename(temporary, target);

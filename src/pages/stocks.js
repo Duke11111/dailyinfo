@@ -1,3 +1,4 @@
+import { isoInstant, nowMs } from '../lib/time.js';
 import { loadStockCatalog, searchStocks, STOCK_TYPES } from '../services/stock-catalog.js';
 import { loadWatchlists, persistWatchlists, updateWatchlists, emptyWatchlists, sortedStocks, SORTS } from '../services/watchlists.js';
 import { formatTime } from '../lib/format.js';
@@ -21,7 +22,7 @@ function field(label, input) { const node = element('label', label, 'stock-field
 
 export function mountStocks(host, { quotes = quoteStore } = {}) {
   let loaded = loadWatchlists(), data = loaded.data;
-  let catalog = null, catalogError = '', loading = true, catalogIndex = new Map();
+  let catalog = loadStockCatalog.peek?.() ?? null, catalogError = '', loading = !catalog, catalogIndex = new Map(catalog?.stocks.map(s => [s.code, s]) ?? []);
   let query = '', type = 'all', page = 0, alive = true, request = 0, controller;
   let snapshot = quotes.peek(), quoteIndex = new Map(snapshot?.quotes.map(q => [q.code, q]) ?? []), quoteLoading = false, quoteError = '', quoteReadAt = null, quoteCached = false, quoteSort = null;
   let quoteRequest = 0;
@@ -254,7 +255,7 @@ export function mountStocks(host, { quotes = quoteStore } = {}) {
     status.append(element('strong', snapshot ? `交易日期 ${snapshot.tradeDate} · 盤後快照` : '盤後行情尚未載入'));
     if (snapshot) {
       status.append(element('p', `來源：TWSE STOCK_DAY_ALL · 來源擷取時間：${formatTime(snapshot.fetchedAt)}（臺灣時間）`, 'stock-help'));
-      if (snapshot.tradeDate < taipeiDate(new Date().toISOString())) status.append(element('p', '非當日行情：可能為休市、來源尚未發布或網站尚未更新；以標示交易日為準。', 'stock-help'));
+      if (snapshot.tradeDate < taipeiDate(isoInstant())) status.append(element('p', '非當日行情：可能為休市、來源尚未發布或網站尚未更新；以標示交易日為準。', 'stock-help'));
     }
     if (quoteReadAt) status.append(element('p', `網頁讀取時間：${formatTime(quoteReadAt)}${quoteCached ? ' · 使用共用快取' : ''}`, 'stock-help'));
     if (quoteLoading) status.append(element('p', '正在讀取行情…'));
@@ -266,7 +267,7 @@ export function mountStocks(host, { quotes = quoteStore } = {}) {
     try {
       const result = await quotes.load({ force });
       if (!alive || id !== quoteRequest) return;
-      snapshot = result.data; quoteReadAt = result.readAt; quoteCached = result.cached;
+      snapshot = result.data; quoteReadAt = result.pageReadAt ?? nowMs(); quoteCached = result.cached;
       quoteIndex = new Map(snapshot.quotes.map(q => [q.code, q]));
     } catch (error) { if (alive && id === quoteRequest) quoteError = error.message; }
     finally { if (alive && id === quoteRequest) { quoteLoading = false; renderQuoteStatus(); renderWatchlist(); renderSearch(); } }

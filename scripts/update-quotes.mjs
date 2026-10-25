@@ -1,9 +1,11 @@
+import { CACHE_POLICY } from '../src/services/cache-policy.js';
+import { compareSnapshots } from '../src/lib/snapshot-freshness.js';
 import { readFile, writeFile, rename, mkdir } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { snapshotTarget } from './lib/snapshot-target.mjs';
 import { parseQuoteRows, validateQuoteSnapshot, QUOTE_SOURCE } from '../src/services/quotes.js';
 
-const response = await fetch(QUOTE_SOURCE, { headers: { Origin: 'http://127.0.0.1:5173' }, signal: AbortSignal.timeout(20000) });
+const response = await fetch(QUOTE_SOURCE, { headers: { Origin: 'http://127.0.0.1:5173' }, signal: AbortSignal.timeout(CACHE_POLICY.timeout) });
 if (!response.ok) throw new Error(`TWSE HTTP ${response.status}; existing snapshot preserved`);
 const raw = await response.text();
 const data = parseQuoteRows(JSON.parse(raw));
@@ -13,7 +15,7 @@ const target = snapshotTarget('quotes');
 let previous = null;
 try { previous = validateQuoteSnapshot(JSON.parse(await readFile(target, 'utf8'))); }
 catch (error) { if (error.code !== 'ENOENT') throw new Error('Existing snapshot cannot be validated; inspect it before replacing.'); }
-if (previous && data.tradeDate < previous.tradeDate) throw new Error('Refusing older trading date; existing snapshot preserved');
+if (previous && compareSnapshots('quotes', data, previous) < 0) throw new Error('Refusing older trading date; existing snapshot preserved');
 await mkdir('public/data', { recursive: true });
 await writeFile(`${target}.tmp`, JSON.stringify(data, null, 2) + '\n');
 await rename(`${target}.tmp`, target);

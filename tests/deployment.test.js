@@ -5,7 +5,8 @@ import config from '../vite.config.js';
 import { assertPublishableText, builtAssetPath } from '../scripts/lib/deployment-check.mjs';
 
 it('uses the Pages subpath and rejects root-relative or escaping assets', () => {
-  expect(config.base).toBe('/dailyinfo/');
+  const resolved = typeof config === 'function' ? config({ mode: 'production' }) : config;
+  expect(resolved.base).toBe('/dailyinfo/');
   expect(builtAssetPath('/dailyinfo/assets/app.js', 'dist')).toBe(resolve('dist/assets/app.js'));
   for (const url of ['/assets/app.js', '/dailyinfo/../private', '/dailyinfo/%2e%2e/private']) expect(() => builtAssetPath(url, 'dist')).toThrow();
 });

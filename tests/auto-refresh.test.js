@@ -1,3 +1,4 @@
+import { CACHE_POLICY } from '../src/services/cache-policy.js';
 // @vitest-environment jsdom
 import { afterEach, it, expect, vi } from 'vitest';
 import { readFile } from 'node:fs/promises';
@@ -36,7 +37,8 @@ it('isolates failure and in-flight requests, and throttles failures', async () =
 });
 it.each(['news', 'earthquakes'])('wires %s automatic reads into the existing view loader and disposes them', async name => {
   const source = await readFile(`src/pages/${name}.js`, 'utf8');
-  expect(source).toContain('interval: 5 * 60000, run: () => load(true)');
+  expect(source).toContain(`interval: CACHE_POLICY.${name}, run: () => load(true)`);
+  expect(CACHE_POLICY[name]).toBe(300000);
   expect(source).toContain('stopRefresh(); alive = false');
 });
 it('updates the mounted news view without remounting controls or writing storage', async () => {

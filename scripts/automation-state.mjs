@@ -1,3 +1,4 @@
+import { nowMs } from '../src/lib/time.js';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { appendFile } from 'node:fs/promises';
@@ -32,7 +33,7 @@ try {
     } else {
       const directory = join(PROJECT_ROOT, '.cache/restored-state');
       await gh(['run', 'download', String(selected.workflow_run.id), '--repo', repository, '--name', 'dailyinfo-data-state', '--dir', directory]);
-      const manifest = await restoreState(PROJECT_ROOT, directory, Date.now(), { exact, expectedCommit: selected.verifiedHeadSha });
+      const manifest = await restoreState(PROJECT_ROOT, directory, nowMs(), { exact, expectedCommit: selected.verifiedHeadSha });
       await output('code_changed', manifest.commit !== process.env.GITHUB_SHA);
       console.log('Last successful validated checkpoint restored.');
       if (exact) console.log('Approved checkpoint restored exactly; no source update or initialization.');

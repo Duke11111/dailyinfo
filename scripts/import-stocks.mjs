@@ -1,3 +1,4 @@
+import { isoInstant } from '../src/lib/time.js';
 // Explicit maintenance command; normal builds and user searches do not call TWSE.
 import { mkdir, writeFile, rename } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
@@ -29,7 +30,7 @@ for (const def of definitions) {
   });
   stocks.push(...rows.map(row => ({ code: row[def.code]?.trim(), name: row[def.name]?.trim(), fullName: row[def.fullName]?.trim(), type: def.type })));
 }
-const data = validateCatalog({ version: 1, fetchedAt: new Date().toISOString(), sources, stocks: stocks.sort((a, b) => a.code.localeCompare(b.code)) });
+const data = validateCatalog({ version: 1, fetchedAt: isoInstant(), sources, stocks: stocks.sort((a, b) => a.code.localeCompare(b.code)) });
 await mkdir('public/data', { recursive: true });
 // Validate both complete responses first, then replace a single snapshot atomically.
 await writeFile('public/data/stocks.json.tmp', JSON.stringify(data, null, 2) + '\n');

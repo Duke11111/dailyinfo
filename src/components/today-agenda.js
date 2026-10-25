@@ -1,10 +1,11 @@
+import { nowMs } from '../lib/time.js';
 import { loadCalendarEvents, todayCalendarEvents, taipeiCalendarDay, EVENT_COLORS } from '../services/calendar-events.js';
 
 const el = (tag, text, className = '') => {
   const node = document.createElement(tag); node.textContent = text; node.className = className; return node;
 };
 const link = (text, href) => { const node = el('a', text); node.href = href; return node; };
-export function mountTodayAgenda(host, { storage, now = Date.now } = {}) {
+export function mountTodayAgenda(host, { storage, now = nowMs } = {}) {
   const section = el('section', '', 'card today-agenda');
   section.setAttribute('aria-labelledby', 'today-agenda-title');
   const heading = el('h2', '今日行程'); heading.id = 'today-agenda-title';

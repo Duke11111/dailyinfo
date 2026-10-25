@@ -1,3 +1,5 @@
+import { isoInstant } from '../src/lib/time.js';
+import { compareSnapshots } from '../src/lib/snapshot-freshness.js';
 import { readFile, writeFile, rename } from 'node:fs/promises';
 import { snapshotTarget } from './lib/snapshot-target.mjs';
 import { fetchCwaEarthquakes } from './lib/cwa-earthquake.mjs';
@@ -8,10 +10,10 @@ try {
   const responses = await fetchCwaEarthquakes();
   const batches = responses.map(({ data, dataset, fetchedAt }) => parseEarthquakeResponse(data, dataset, fetchedAt));
   if (batches.some(events => !events.length)) throw new Error('其中一類來源無資料，保留既有快照。');
-  const snapshot = validateEarthquakeSnapshot({ version: 1, source: EQ_SOURCE, sourceUrl: EQ_SOURCE_URL, fetchedAt: new Date().toISOString(), feeds: responses.map((response, i) => ({ dataset: response.dataset, fetchedAt: response.fetchedAt, count: batches[i].length })), events: mergeEarthquakes(batches) });
+  const snapshot = validateEarthquakeSnapshot({ version: 1, source: EQ_SOURCE, sourceUrl: EQ_SOURCE_URL, fetchedAt: isoInstant(), feeds: responses.map((response, i) => ({ dataset: response.dataset, fetchedAt: response.fetchedAt, count: batches[i].length })), events: mergeEarthquakes(batches) });
   let previous;
   try { previous = validateEarthquakeSnapshot(JSON.parse(await readFile(target, 'utf8'))); } catch (error) { if (error.code !== 'ENOENT') throw new Error('既有快照無法驗證，拒絕覆寫。'); }
-  if (previous && snapshot.fetchedAt < previous.fetchedAt) throw new Error('拒絕以較舊快照覆寫。');
+  if (previous && compareSnapshots('earthquakes', snapshot, previous) < 0) throw new Error('拒絕以較舊快照覆寫。');
   const output = JSON.stringify(snapshot, null, 2) + '\n';
   if (/CWA-[a-z0-9-]{20,}|Authorization|api[_-]?key/i.test(output)) throw new Error('公開輸出包含禁止的授權欄位，停止更新。');
   const temporary = `${target}.tmp`;

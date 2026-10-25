@@ -1,3 +1,8 @@
+import { nowMs } from '../lib/time.js';
+import { CACHE_POLICY } from './cache-policy.js';
+import { createSnapshotStore, browserCacheStorage } from './snapshot-store.js';
+import { taipeiDate, validDateOnly, optionalUpdatedAt } from '../lib/time.js';
+export { taipeiDate } from '../lib/time.js';
 export const HOROSCOPE_SOURCE = 'https://freehoroscopeapi.com';
 export const HOROSCOPE_KEY = 'dailyinfo.horoscope.v1';
 export const SIGNS = Object.freeze([
@@ -8,10 +13,8 @@ export const SIGNS = Object.freeze([
 ].map(([code, name, symbol]) => Object.freeze({ code, name, symbol })));
 export const validSign = sign => typeof sign === 'string' && SIGNS.some(item => item.code === sign);
 export const readingUrl = sign => { if (!validSign(sign)) throw Error('無效星座代碼'); return `${HOROSCOPE_SOURCE}/api/v1/get-horoscope/daily?sign=${sign}`; };
-export function taipeiDate(now = Date.now()) {
-  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(now));
-}
-function validDate(date) { return typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(Date.parse(date)) && new Date(date).toISOString().slice(0, 10) === date; }
+
+const validDate = validDateOnly;
 export function parseReading(raw, sign) {
   const data = raw?.data;
   if (!validSign(sign) || typeof data?.sign !== 'string' || data.sign.toLowerCase() !== sign || data.period !== 'daily' || !validDate(data.date) || typeof data.horoscope !== 'string' || !data.horoscope.trim() || data.horoscope.length > 20000) throw Error('運勢資料格式異常');
@@ -26,7 +29,7 @@ export function validateHoroscope(raw) {
     return parseReading({ data: { sign: code, date: item.date, period: 'daily', horoscope: item.text } }, code);
   });
   if (new Set(readings.map(item => item.date)).size !== 1) throw Error('星座來源日期不一致');
-  return { version: 1, source: HOROSCOPE_SOURCE, language: 'en', fetchedAt: raw.fetchedAt, readings };
+  return { version: 1, source: HOROSCOPE_SOURCE, language: 'en', fetchedAt: raw.fetchedAt, ...optionalUpdatedAt(raw), readings };
 }
 export function loadDefaultSign(storage) {
   try {
@@ -43,18 +46,14 @@ export function saveDefaultSign(sign, storage) {
   try { (storage ?? globalThis.localStorage).setItem(HOROSCOPE_KEY, JSON.stringify({ version: 1, defaultSign: sign })); }
   catch { throw Error('星座設定儲存失敗，請檢查瀏覽器儲存空間或權限。'); }
 }
-export function createHoroscopeStore({ fetchImpl = globalThis.fetch, now = Date.now } = {}) {
-  let cached, pending;
-  return { async load() {
-    if (cached && now() - cached.readAt < 300000) return cached;
-    if (pending) return pending;
-    pending = (async () => {
-      const response = await fetchImpl(`${import.meta.env?.BASE_URL ?? '/'}data/horoscope.json`, { signal: AbortSignal.timeout(12000), cache: 'no-cache' });
+export function createHoroscopeStore({ fetchImpl = globalThis.fetch, now = nowMs, storage = null } = {}) {
+  return createSnapshotStore({ name: 'horoscope', now, storage, cooldown: 0, validate: validateHoroscope, sourceDay: value => value.readings[0].date,
+    fetcher: async () => {
+      const response = await fetchImpl(`${import.meta.env?.BASE_URL ?? '/'}data/horoscope.json`, { signal: AbortSignal.timeout(CACHE_POLICY.timeout), cache: 'no-cache' });
       if (!response.ok) throw Error('尚無可用運勢快照，請由維護者執行 update:horoscope。');
       const data = validateHoroscope(await response.json());
-      cached = { data, readAt: now() }; return cached;
-    })();
-    try { return await pending; } finally { pending = null; }
-  } };
+      return data;
+    },
+  });
 }
-export const horoscopeStore = createHoroscopeStore();
+export const horoscopeStore = createHoroscopeStore({ storage: browserCacheStorage() });

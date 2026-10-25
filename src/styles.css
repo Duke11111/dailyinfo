@@ -90,6 +90,8 @@ h1{font-size:2.1429rem;font-weight:700;letter-spacing:-1px;margin:5px 0 7px;line
 .hero-bottom{border-top:1px solid var(--hero-border);display:flex;justify-content:space-between;font-size:0.6429rem;padding:15px 0;color:var(--hero-muted)}
 .hero-bottom strong{color:var(--hero-text);font-size:0.7857rem;font-weight:500;padding-left:10px}
 .weather-metrics{display:grid;gap:16px}
+.weather-update-status{min-height:2.8em;margin:8px 0 0;font-size:.75rem;line-height:1.4;color:var(--hero-text)}
+.weather-date-warning{font-size:.75rem;color:var(--hero-text)}
 .metric{display:flex;align-items:center;padding:20px 24px;gap:18px}
 .metric-icon{padding:12px;border-radius:10px;display:grid;place-items:center}
 .blue{color:var(--info-ink);background:var(--info-bg)}

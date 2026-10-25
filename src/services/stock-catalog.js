@@ -1,3 +1,6 @@
+import { validDateOnly } from '../lib/time.js';
+import { CACHE_POLICY } from './cache-policy.js';
+import { createSnapshotStore, browserCacheStorage } from './snapshot-store.js';
 export const STOCK_TYPES = Object.freeze({ stock: '上市股票', etf: '上市 ETF' });
 export const validCode = code => typeof code === 'string' && /^[0-9A-Z]{4,6}$/.test(code);
 export const validText = (value, max = 160) => typeof value === 'string' && value.trim().length > 0 && value.length <= max && !/[\u0000-\u001f\u007f]/.test(value);
@@ -5,7 +8,7 @@ export function validateStock(stock) {
   return stock && typeof stock === 'object' && validCode(stock.code) && validText(stock.name) && typeof stock.type === 'string' && Object.hasOwn(STOCK_TYPES, stock.type);
 }
 export function validateCatalog(data) {
-  const validDate = date => typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date) && Number.isFinite(Date.parse(date)) && new Date(date).toISOString().slice(0, 10) === date;
+  const validDate = validDateOnly;
   if (!data || data.version !== 1 || !Array.isArray(data.stocks) || !data.stocks.length
     || !data.stocks.every(s => validateStock(s) && validText(s.fullName))
     || new Set(data.stocks.map(s => s.code)).size !== data.stocks.length
@@ -18,7 +21,7 @@ export function validateCatalog(data) {
     || typeof data.fetchedAt !== 'string' || !Number.isFinite(Date.parse(data.fetchedAt))) throw new Error('股票目錄格式異常，請重試或重新匯入正式資料。');
   return data;
 }
-export async function loadStockCatalog({ fetchImpl = fetch, signal, timeout = 10000 } = {}) {
+async function fetchStockCatalog({ fetchImpl = fetch, signal, timeout = CACHE_POLICY.timeout } = {}) {
   const controller = new AbortController();
   const abort = () => controller.abort();
   signal?.addEventListener('abort', abort, { once: true });
@@ -34,6 +37,27 @@ export async function loadStockCatalog({ fetchImpl = fetch, signal, timeout = 10
     throw new Error(error?.message || '無法讀取股票目錄，請確認網路後重試。');
   } finally { clearTimeout(timer); signal?.removeEventListener('abort', abort); }
 }
+let catalogStore, transport;
+function sharedCatalog() {
+  // A replaced transport is a distinct dependency-injection scope.
+  if (transport !== globalThis.fetch || !catalogStore) {
+    transport = globalThis.fetch;
+    catalogStore = createSnapshotStore({ name: 'catalog', fetcher: () => fetchStockCatalog({ fetchImpl: transport }), validate: validateCatalog, storage: browserCacheStorage(), cooldown: 0 });
+  }
+  return catalogStore;
+}
+export function loadStockCatalog(options = {}) {
+  if (options.fetchImpl || options.timeout) return fetchStockCatalog(options);
+  if (options.signal?.aborted) return Promise.reject(new DOMException('目錄查詢已取消。', 'AbortError'));
+  const pending = sharedCatalog().load();
+  if (!options.signal) return pending.then(result => result.data);
+  return new Promise((resolve, reject) => {
+    const abort = () => reject(new DOMException('目錄查詢已取消。', 'AbortError'));
+    options.signal.addEventListener('abort', abort, { once: true });
+    pending.then(result => resolve(result.data), reject).finally(() => options.signal.removeEventListener('abort', abort));
+  });
+}
+loadStockCatalog.peek = () => sharedCatalog().peek();
 const normalize = text => text.normalize('NFKC').replace(/臺/g, '台').replace(/\s/g, '').toLowerCase();
 export function searchStocks(stocks, query, type = 'all') {
   if (!Array.isArray(stocks) || typeof query !== 'string' || query.length > 80 || !['all', 'stock', 'etf'].includes(type)) throw new Error('搜尋條件無效，請重新輸入。');

@@ -1,3 +1,6 @@
+import { isoInstant, nowMs } from '../lib/time.js';
+import { addCalendarDays, shiftCalendarMonth } from '../lib/time.js';
+import { CACHE_POLICY } from './cache-policy.js';
 import { validCode } from './stock-catalog.js';
 import { parseTradingDate, parseFinancialNumber } from './quotes.js';
 
@@ -19,19 +22,19 @@ export function parseHistory(data, month) {
     return { date, close: value === 0 ? null : value };
   }).sort((a, b) => a.date.localeCompare(b.date));
 }
-export function createHistoryService({ fetchImpl = (...args) => fetch(...args), now = Date.now, ttl = 1800000 } = {}) {
+export function createHistoryService({ fetchImpl = (...args) => fetch(...args), now = nowMs, ttl = CACHE_POLICY.history } = {}) {
   const cache = new Map(), pending = new Map();
   async function monthData(code, month) {
     const key = `${code}:${month}`;
     if (pending.has(key)) return pending.get(key);
     if (cache.has(key) && now() - cache.get(key).at < ttl) return cache.get(key).value;
     const request = (async () => {
-      const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 12000);
+      const controller = new AbortController(), timer = setTimeout(() => controller.abort(), CACHE_POLICY.timeout);
       try {
         const response = await fetchImpl(historyUrl(code, month), { signal: controller.signal });
         if (!response.ok) throw new Error(`歷史資料連線失敗（HTTP ${response.status}）。`);
         const points = parseHistory(await response.json(), month);
-        const value = { points, fetchedAt: new Date(now()).toISOString(), source: historyUrl(code, month) };
+        const value = { points, fetchedAt: isoInstant(now()), source: historyUrl(code, month) };
         cache.set(key, { at: now(), value });
         // Bound a cache of market data, not the user's watchlist/group count.
         if (cache.size > 60) cache.delete(cache.keys().next().value);
@@ -43,23 +46,15 @@ export function createHistoryService({ fetchImpl = (...args) => fetch(...args), 
   }
   return {
     async load(code, endDate) {
-      const end = parseTradingDate(endDate), startObject = new Date(`${end}T12:00:00Z`);
-      startObject.setUTCDate(startObject.getUTCDate() - 30);
-      const start = startObject.toISOString().slice(0, 10);
-      const months = [], cursor = new Date(`${end.slice(0, 7)}-01T12:00:00Z`);
-      while (cursor.toISOString().slice(0, 7) >= start.slice(0, 7)) {
-        months.push(cursor.toISOString().slice(0, 7)); cursor.setUTCMonth(cursor.getUTCMonth() - 1);
-      }
+      const end = parseTradingDate(endDate), start = addCalendarDays(end, -30);
+      const months = []; let cursor = end.slice(0, 7);
+      while (cursor >= start.slice(0, 7)) { months.push(cursor); cursor = shiftCalendarMonth(cursor, -1); }
       const results = [], warnings = [];
       // A 30-day window normally spans two months, but can span three around February.
-      for (const month of months) {
+      await Promise.allSettled(months.map(async month => {
         try { results.push(await monthData(code, month)); }
-        catch (error) {
-          const last = cache.get(`${code}:${month}`);
-          if (last) results.push(last.value);
-          warnings.push(`${month}：${error.message}${last ? ' 顯示最後有效快取，非最新資料。' : ''}`);
-        }
-      }
+        catch (error) { const last = cache.get(`${code}:${month}`); if (last) results.push(last.value); warnings.push(`${month}：${error.message}${last ? ' 顯示最後有效快取，非最新資料。' : ''}`); }
+      }));
       if (!results.length) throw new Error(warnings.join('；'));
       return { points: results.flatMap(r => r.points).filter(p => p.date >= start && p.date <= end).sort((a, b) => a.date.localeCompare(b.date)), start, end, warnings, sources: results.map(r => r.source), fetchedAt: results.map(r => r.fetchedAt).sort().at(-1) };
     },

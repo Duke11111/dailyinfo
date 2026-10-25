@@ -1,3 +1,4 @@
+import { isoInstant } from '../../src/lib/time.js';
 import { SOURCES, assertPublicSafe } from './data-automation.mjs';
 
 const reasons = ['before_window', 'before_market_close', 'weekend', 'already_successful', 'window_already_attempted', 'cooldown', 'window_due', 'recovery_due'];
@@ -6,7 +7,7 @@ function time(value) {
   if (value == null) return 'not available';
   if (typeof value !== 'string' || !Number.isFinite(Date.parse(value))) throw Error('summary_invalid');
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
-  return new Date(value).toISOString();
+  return isoInstant(value);
 }
 export function updateSummary(report) {
   const rows = report.results.map(item => {

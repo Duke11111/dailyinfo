@@ -1,3 +1,5 @@
+import { nowMs } from '../../src/lib/time.js';
+import { compareSnapshots } from '../../src/lib/snapshot-freshness.js';
 import { readFile, writeFile, readdir, mkdir, lstat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -19,7 +21,7 @@ export async function exportState(root, directory, commit = '') {
   for (const [name, text] of Object.entries(files)) await writeFile(join(directory, name), text);
   await writeFile(join(directory, 'manifest.json'), JSON.stringify({ version: 2, commit, hashes: Object.fromEntries(names.map(name => [name, digest(files[name])])) }));
 }
-export async function restoreState(root, directory, now = Date.now(), { exact = false, expectedCommit } = {}) {
+export async function restoreState(root, directory, now = nowMs(), { exact = false, expectedCommit } = {}) {
   const entries = await readdir(directory);
   const legacy = entries.includes('exchange.json');
   const expectedNames = legacy ? [...names, 'exchange.json'] : names;
@@ -42,7 +44,7 @@ export async function restoreState(root, directory, now = Date.now(), { exact = 
     let previous;
     try { previous = validateData(source, JSON.parse(await readFile(join(root, 'public/data', name), 'utf8')), now); } catch (error) { if (error.code !== 'ENOENT') throw error; }
     // A manually committed fresher snapshot always wins over the older CI checkpoint.
-    if (!previous || sourceDate(source, data) >= sourceDate(source, previous) && Date.parse(data.fetchedAt) >= Date.parse(previous.fetchedAt)) incoming[name] = text;
+    if (!previous || compareSnapshots(source, data, previous) >= 0) incoming[name] = text;
   }
   // No writes until every file and checksum has passed.
   await mkdir(join(root, '.cache/data-updates'), { recursive: true });

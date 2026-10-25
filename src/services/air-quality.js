@@ -1,7 +1,9 @@
+import { isoInstant, nowMs } from '../lib/time.js';
+import { CACHE_POLICY } from './cache-policy.js';
 import { DEFAULT_REGION, validateCoordinates } from './regions.js';
 
 export const AIR_SOURCE = 'https://open-meteo.com/en/docs/air-quality-api';
-export const AIR_TTL = 300000;
+export const AIR_TTL = CACHE_POLICY.air;
 export class AirQualityError extends Error {
   constructor(kind, message) { super(message); this.name = 'AirQualityError'; this.kind = kind; }
 }
@@ -33,7 +35,7 @@ function number(value) {
   if (!numeric(value)) throw new AirQualityError('data', '空氣品質數值格式異常。');
   return value;
 }
-export function parseAirQuality(raw, { region = DEFAULT_REGION, fetchedAt = new Date().toISOString() } = {}) {
+export function parseAirQuality(raw, { region = DEFAULT_REGION, fetchedAt = isoInstant() } = {}) {
   buildAirQualityUrl(region);
   if (!raw || raw.timezone !== 'Asia/Taipei' || raw.utc_offset_seconds !== 28800 || !raw.current || !Number.isFinite(Date.parse(fetchedAt))
     || !Number.isFinite(raw.latitude) || !Number.isFinite(raw.longitude) || Math.abs(raw.latitude - region.latitude) > .6 || Math.abs(raw.longitude - region.longitude) > .6) throw new AirQualityError('data', '空氣品質來源、時區或網格座標異常。');
@@ -60,7 +62,7 @@ export function parseAirQuality(raw, { region = DEFAULT_REGION, fetchedAt = new 
   } catch { points = []; warnings.push('來源未提供可用的逐時趨勢；目前數值仍可查看。'); }
   return { region, aqi: values[0], pm25: values[1], pm10: values[2], time, fetchedAt, points, warnings, grid: { latitude: raw.latitude, longitude: raw.longitude } };
 }
-export async function fetchAirQuality({ region = DEFAULT_REGION, signal, fetchImpl = (...args) => fetch(...args), timeout = 12000, now = Date.now } = {}) {
+export async function fetchAirQuality({ region = DEFAULT_REGION, signal, fetchImpl = (...args) => fetch(...args), timeout = CACHE_POLICY.timeout, now = nowMs } = {}) {
   const url = buildAirQualityUrl(region), controller = new AbortController();
   const abort = () => controller.abort(); signal?.addEventListener('abort', abort, { once: true }); if (signal?.aborted) abort();
   const timer = setTimeout(abort, timeout);
@@ -69,7 +71,7 @@ export async function fetchAirQuality({ region = DEFAULT_REGION, signal, fetchIm
     if (!response.ok) throw new AirQualityError('network', `空氣品質服務請求失敗（HTTP ${response.status}）。`);
     let raw;
     try { raw = await response.json(); } catch (error) { if (error.name === 'AbortError') throw error; throw new AirQualityError('data', '空氣品質回應不是有效 JSON。'); }
-    return parseAirQuality(raw, { region, fetchedAt: new Date(now()).toISOString() });
+    return parseAirQuality(raw, { region, fetchedAt: isoInstant(now()) });
   } catch (error) {
     if (error instanceof AirQualityError) throw error;
     throw new AirQualityError('network', error.name === 'AbortError' ? '空氣品質請求逾時或已取消，請重試。' : '無法連線至空氣品質服務，天氣預報不受影響。');
@@ -77,7 +79,7 @@ export async function fetchAirQuality({ region = DEFAULT_REGION, signal, fetchIm
 }
 
 // Independent view state; callers may share successful regional cache records.
-export function createAirQualitySession({ fetcher = fetchAirQuality, onChange = () => {}, now = Date.now, ttl = AIR_TTL, cache = new Map(), initialRegion = DEFAULT_REGION } = {}) {
+export function createAirQualitySession({ fetcher = fetchAirQuality, onChange = () => {}, now = nowMs, ttl = AIR_TTL, cache = new Map(), initialRegion = DEFAULT_REGION } = {}) {
   let generation = 0, active = null, disposed = false;
   let state = { status: 'idle', region: validateCoordinates(initialRegion) ? initialRegion : DEFAULT_REGION, data: null, error: null, cached: false, readAt: null, expiresAt: null };
   const publish = next => { state = next; onChange(state); };

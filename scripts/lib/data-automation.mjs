@@ -1,3 +1,5 @@
+import { isoInstant, nowMs } from '../../src/lib/time.js';
+import { compareSnapshots } from '../../src/lib/snapshot-freshness.js';
 import { readFile, writeFile, rename, mkdir, mkdtemp, copyFile, rm } from 'node:fs/promises';
 import { resolve, join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -33,18 +35,19 @@ export function assertPublicSafe(content, secrets = [process.env.CWA_API_KEY]) {
 }
 function canonical(value) {
   if (Array.isArray(value)) return value.map(canonical);
-  if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().filter(key => !['fetchedAt', 'sha256', 'evidence', 'responseHeaders'].includes(key)).map(key => [key, canonical(value[key])]));
+  if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().filter(key => !['fetchedAt', 'updatedAt', 'sha256', 'evidence', 'responseHeaders'].includes(key)).map(key => [key, canonical(value[key])]));
   return value;
 }
 export const contentDigest = data => hash(JSON.stringify(canonical(data)));
-export function validateData(source, value, now = Date.now()) {
+export function validateData(source, value, now = nowMs()) {
   if (!SOURCES.includes(source)) throw safeFailure('unknown_source');
   assertPublicSafe(value);
   const data = validators[source](value);
+  if (data.updatedAt !== undefined && (!iso(data.updatedAt) || Date.parse(data.updatedAt) > now + 300000)) throw safeFailure('future_snapshot');
   if (!iso(data.fetchedAt) || Date.parse(data.fetchedAt) > now + 300000) throw safeFailure('future_snapshot');
   if (source === 'news' && !data.articles.length || source === 'earthquakes' && !data.events.length) throw safeFailure('empty_snapshot');
   const date = sourceDate(source, data);
-  if (!date || date.slice(0, 10) > taipeiDate(now)) throw safeFailure('future_source_date');
+  if (!date || (date.includes('T') ? taipeiDate(date) : date) > taipeiDate(now)) throw safeFailure('future_source_date');
   return data;
 }
 export function sourceDate(source, data) {
@@ -53,7 +56,7 @@ export function sourceDate(source, data) {
   if (source === 'news') return [...data.articles].map(item => item.publishedAt).sort().at(-1);
   return [...data.events].map(item => item.originTime).sort().at(-1);
 }
-export function validateState(raw, now = Date.now()) {
+export function validateState(raw, now = nowMs()) {
   if (raw?.version !== 1 || !raw.sources || typeof raw.sources !== 'object' || Array.isArray(raw.sources)) throw safeFailure('state_invalid');
   const sources = {};
   for (const name of Object.keys(raw.sources)) {
@@ -72,12 +75,12 @@ export async function runSource(source, { root, directory, deadline }) {
     // Never forward child stdout/stderr, URLs, arbitrary exceptions or authenticated bodies.
     const env = { ...process.env, DAILYINFO_DATA_DIR: directory };
     if (source !== 'earthquakes') delete env.CWA_API_KEY;
-    const timeout = deadline == null ? 210000 : Math.min(210000, deadline - Date.now());
+    const timeout = deadline == null ? 210000 : Math.min(210000, deadline - nowMs());
     if (!Number.isFinite(timeout) || timeout <= 0) throw Error();
     await runFile(process.execPath, [join(root, 'scripts', `update-${source}.mjs`)], { cwd: root, env, timeout, maxBuffer: 1048576, windowsHide: true });
   } catch (error) { throw safeFailure('update_failed'); }
 }
-export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, scheduled = false, cron, now = Date.now, runner = runSource, deadline, startBy } = {}) {
+export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, scheduled = false, cron, now = nowMs, runner = runSource, deadline, startBy } = {}) {
   if (startBy != null && (!Number.isFinite(startBy) || now() > startBy)) throw safeFailure('acceptance_expired');
   if (deadline != null && (!Number.isFinite(deadline) || now() >= deadline)) throw safeFailure('acceptance_expired');
   if (!sources.length || new Set(sources).size !== sources.length || sources.some(name => !SOURCES.includes(name))) throw safeFailure('unknown_source');
@@ -90,7 +93,7 @@ export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, sched
     const statePath = join(base, 'status.json');
     const old = await optionalJson(statePath), state = old ? validateState(old, now()) : { version: 1, sources: {} };
     staging = await mkdtemp(join(base, 'run-'));
-    const results = [], startedAt = new Date(now()).toISOString();
+    const results = [], startedAt = isoInstant(now());
     for (const source of sources) {
       if (deadline != null && now() >= deadline) throw safeFailure('acceptance_expired');
       const target = join(root, 'public/data', `${source}.json`), directory = join(staging, source);
@@ -113,11 +116,11 @@ export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, sched
         if (deadline != null && now() >= deadline) throw safeFailure('acceptance_expired');
         const rawNext = await optionalJson(join(directory, `${source}.json`));
         const next = validateData(source, rawNext, now());
-        if (previous && (sourceDate(source, next) < sourceDate(source, previous) || Date.parse(next.fetchedAt) < Date.parse(previous.fetchedAt))) throw safeFailure('validation_failed');
+        if (previous && compareSnapshots(source, next, previous) < 0) throw safeFailure('validation_failed');
         if (source === 'horoscope' && next.readings[0].date !== taipeiDate(now())) throw safeFailure('source_delayed');
         const delayed = source === 'quotes' && next.tradeDate < taipeiDate(now());
         const changed = !previous || contentDigest(previous) !== contentDigest(next);
-        if (changed) { await mkdir(join(root, 'public/data'), { recursive: true }); await atomicWrite(target, rawNext); }
+        if (changed) { await mkdir(join(root, 'public/data'), { recursive: true }); rawNext.updatedAt = isoInstant(now()); validateData(source, rawNext, now()); await atomicWrite(target, rawNext); }
         const item = { attemptedAt: startedAt, status: changed ? 'updated' : 'unchanged', code: delayed ? 'source_delayed' : 'ok',
           ...(attemptedSlot ? { attemptedSlot } : {}),
           ...(!delayed ? { lastSuccessAt: startedAt } : oldSuccess ? { lastSuccessAt: oldSuccess } : {}) };
@@ -154,7 +157,7 @@ export async function verifyPublicTree(root, secrets) {
   }
   await walk(root);
 }
-export async function verifySnapshots(root = PROJECT_ROOT, now = Date.now()) {
+export async function verifySnapshots(root = PROJECT_ROOT, now = nowMs()) {
   for (const source of SOURCES) validateData(source, await optionalJson(join(root, 'public/data', `${source}.json`)), now);
   await verifyPublicTree(join(root, 'public'));
 }

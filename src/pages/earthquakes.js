@@ -1,3 +1,6 @@
+import { olderThan } from '../lib/time.js';
+import { CACHE_POLICY } from '../services/cache-policy.js';
+import { isoInstant, nowMs } from '../lib/time.js';
 import { startAutoRefresh } from '../services/auto-refresh.js';
 import { EQ_SOURCE, EQ_SOURCE_URL, EQ_TYPES, earthquakeStore, filterEarthquakes } from '../services/earthquakes.js';
 import { formatEarthquakeTime as formatTime } from '../lib/earthquake-format.js';
@@ -12,7 +15,7 @@ function reportLink(report) {
   const link = el('a', `官方報告：${EQ_TYPES[report.dataset]}`); link.href = report.url; link.target = '_blank'; link.rel = 'noopener noreferrer'; return link;
 }
 const defaultMapFactory = async (host, options) => (await import('../components/earthquake-map.js')).createEarthquakeMap(host, options);
-export function mountEarthquakes(host, { store = earthquakeStore, mapFactory = defaultMapFactory, now = Date.now, initialEventId = null } = {}) {
+export function mountEarthquakes(host, { store = earthquakeStore, mapFactory = defaultMapFactory, now = nowMs, initialEventId = null } = {}) {
   let snapshot = store.peek(), filtered = snapshot?.events ?? [], selected = null, page = 0, filters = {}, alive = true, loading = false, error = '', request = 0, readAt = null, cached = false;
   let map = null, mapStarting = false, initialSelectionApplied = false;
   const size = 8;
@@ -49,8 +52,8 @@ export function mountEarthquakes(host, { store = earthquakeStore, mapFactory = d
     if (snapshot) {
       const events = snapshot.events;
       status.append(el('p', `${events.length} 筆官方地震紀錄`, 'eq-status-title'), el('p', `發生時間範圍：${events.length ? `${time(events.at(-1).originTime)} 至 ${time(events[0].originTime)}` : '未提供'}`, 'eq-help'), el('p', `快照擷取：${time(snapshot.fetchedAt)}`, 'eq-help'));
-      if (now() - Date.parse(snapshot.fetchedAt) > 86400000) status.append(el('p', '快照已超過 24 小時，可能過期，需維護者更新及發布。', 'eq-stale'));
-      if (readAt !== null) status.append(el('p', `網頁讀取：${time(new Date(readAt).toISOString())}${cached ? ' · 共用快取' : ''}`, 'eq-help'));
+      if (olderThan(snapshot.fetchedAt, CACHE_POLICY.snapshotWarning, now())) status.append(el('p', '快照已超過 24 小時，可能過期，需維護者更新及發布。', 'eq-stale'));
+      if (readAt !== null) status.append(el('p', `網頁讀取：${time(isoInstant(readAt))}${cached ? ' · 共用快取' : ''}`, 'eq-help'));
     }
     failure.textContent = error;
   }
@@ -114,7 +117,7 @@ export function mountEarthquakes(host, { store = earthquakeStore, mapFactory = d
     try {
       const result = await store.load({ force });
       if (!alive || token !== request) return;
-      snapshot = result.data; readAt = result.readAt ?? null; cached = result.cached; applyFilters();
+      snapshot = result.data; readAt = result.pageReadAt ?? now(); cached = result.cached; applyFilters();
       if (!initialSelectionApplied) {
         initialSelectionApplied = true;
         const target = filtered.find(event => event.id === initialEventId);
@@ -129,6 +132,6 @@ export function mountEarthquakes(host, { store = earthquakeStore, mapFactory = d
     finally { if (alive && token === request) { loading = false; renderStatus(); renderTable(); } }
   }
   load();
-  const stopRefresh = startAutoRefresh([{ interval: 5 * 60000, run: () => load(true) }]);
+  const stopRefresh = startAutoRefresh([{ interval: CACHE_POLICY.earthquakes, run: () => load(true) }]);
   return () => { stopRefresh(); alive = false; request++; map?.destroy(); };
 }

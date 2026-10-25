@@ -1,3 +1,5 @@
+import { CACHE_POLICY } from '../services/cache-policy.js';
+import { isoInstant, nowMs } from '../lib/time.js';
 import { startAutoRefresh } from '../services/auto-refresh.js';
 import { NEWS_CATEGORIES, NEWS_RSS_PAGE, newsStore, filterNews, isNewsStale } from '../services/news.js';
 import { loadNewsFavorites, toggleNewsFavorite } from '../services/news-favorites.js';
@@ -5,7 +7,7 @@ import { formatTime } from '../lib/format.js';
 
 const node = (tag, text = '', className = '') => { const element = document.createElement(tag); element.textContent = text; element.className = className; return element; };
 function button(text, action, label = text) { const element = node('button', text, 'news-button'); element.type = 'button'; element.setAttribute('aria-label', label); element.addEventListener('click', action); return element; }
-export function mountNews(host, { store = newsStore, storage, now = Date.now } = {}) {
+export function mountNews(host, { store = newsStore, storage, now = nowMs } = {}) {
   let favorites = loadNewsFavorites(storage), snapshot = store.peek(), loading = false, error = '', alive = true, request = 0;
   let category = 'all', query = '', order = 'newest', onlySaved = false, page = 0, readAt = null, cached = false;
   const size = 12;
@@ -46,7 +48,7 @@ export function mountNews(host, { store = newsStore, storage, now = Date.now } =
     if (snapshot) {
       status.append(node('p', `${snapshot.articles.length} 則新聞 · 來源：中央通訊社`, 'news-status-title'), node('p', `資料擷取時間：${formatTime(snapshot.fetchedAt)}（臺灣時間）`, 'news-help'));
       if (isNewsStale(snapshot, now())) status.append(node('p', '快照已超過 24 小時，可能過期；請依新聞發布時間判讀，需維護者更新及發布。', 'news-stale'));
-      if (readAt !== null) status.append(node('p', `網頁讀取時間：${formatTime(new Date(readAt).toISOString())}${cached ? ' · 共用快取' : ''}`, 'news-help'));
+      if (readAt !== null) status.append(node('p', `網頁讀取時間：${formatTime(isoInstant(readAt))}${cached ? ' · 共用快取' : ''}`, 'news-help'));
     }
     failure.textContent = error;
   }
@@ -94,11 +96,11 @@ export function mountNews(host, { store = newsStore, storage, now = Date.now } =
   }
   async function load(force = false) {
     const token = ++request; loading = true; error = ''; renderStatus(); renderResults();
-    try { const result = await store.load({ force }); if (!alive || token !== request) return; snapshot = result.data; readAt = result.readAt; cached = result.cached; }
+    try { const result = await store.load({ force }); if (!alive || token !== request) return; snapshot = result.data; readAt = result.pageReadAt ?? now(); cached = result.cached; }
     catch (failure) { if (!alive || token !== request) return; error = `${failure.message} 原有收藏與已載入新聞均保留。`; }
     finally { if (alive && token === request) { loading = false; renderStatus(); renderResults(); } }
   }
   load();
-  const stopRefresh = startAutoRefresh([{ interval: 5 * 60000, run: () => load(true) }]);
+  const stopRefresh = startAutoRefresh([{ interval: CACHE_POLICY.news, run: () => load(true) }]);
   return () => { stopRefresh(); alive = false; request++; };
 }

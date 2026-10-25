@@ -1,3 +1,6 @@
+import { isoInstant, nowMs } from '../lib/time.js';
+import { taipeiDate, validDateOnly } from '../lib/time.js';
+import { CACHE_POLICY } from './cache-policy.js';
 import { DEFAULT_REGION, validateCoordinates } from './regions.js';
 
 export function buildWeatherUrl(region = DEFAULT_REGION) {
@@ -15,17 +18,17 @@ export class WeatherError extends Error {
 }
 const finite = (v) => typeof v === 'number' && Number.isFinite(v);
 const percent = (v) => v === null || (finite(v) && v >= 0 && v <= 100);
-const validDate = (v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && Number.isFinite(Date.parse(v)) && new Date(v).toISOString().slice(0, 10) === v;
-export const weatherDate = (now = Date.now()) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(now));
-export const todayForecast = (data, now = Date.now()) => data?.forecast?.find(day => day.date === weatherDate(now));
-export function assertCurrentWeather(data, now = Date.now()) {
+const validDate = validDateOnly;
+export const weatherDate = taipeiDate;
+export const todayForecast = (data, now = nowMs()) => data?.forecast?.find(day => day.date === weatherDate(now));
+export function assertCurrentWeather(data, now = nowMs()) {
   if (!todayForecast(data, now) || !Number.isFinite(Date.parse(data?.time)) || weatherDate(Date.parse(data.time)) !== weatherDate(now)
     || !Number.isFinite(Date.parse(data?.fetchedAt)) || Date.parse(data.fetchedAt) > now + 300000) {
     throw new WeatherError('date', '來源未提供臺灣當日有效天氣，未將舊資料標為今天；請稍後重新查詢。');
   }
   return data;
 }
-export function parseWeather(data, fetchedAt = new Date().toISOString()) {
+export function parseWeather(data, fetchedAt = isoInstant()) {
   const c = data?.current, d = data?.daily;
   const fields = ['weather_code', 'temperature_2m_max', 'temperature_2m_min', 'precipitation_probability_max'];
   if (!c || !d || !finite(c.temperature_2m) || !finite(c.relative_humidity_2m) || !percent(c.relative_humidity_2m) || !finite(c.weather_code)
@@ -45,7 +48,14 @@ export function parseWeather(data, fetchedAt = new Date().toISOString()) {
   });
   return { temperature: c.temperature_2m, humidity: c.relative_humidity_2m, code: c.weather_code, time: `${c.time}+08:00`, fetchedAt, forecast };
 }
-export async function fetchWeather({ region = DEFAULT_REGION, fetchImpl = fetch, timeout = 12000, signal, now = Date.now } = {}) {
+export function validateCachedWeather(data, region) {
+  if (data?.region?.id !== region.id || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}\+08:00$/.test(data.time ?? '') || !Array.isArray(data.forecast)) throw Error('Invalid weather cache');
+  const parsed = parseWeather({ timezone: 'Asia/Taipei', current: { time: data.time.slice(0, 16), temperature_2m: data.temperature, relative_humidity_2m: data.humidity, weather_code: data.code },
+    current_units: { temperature_2m: '°C', relative_humidity_2m: '%' }, daily_units: { temperature_2m_max: '°C', temperature_2m_min: '°C', precipitation_probability_max: '%' },
+    daily: { time: data.forecast.map(d => d.date), weather_code: data.forecast.map(d => d.code), temperature_2m_max: data.forecast.map(d => d.high), temperature_2m_min: data.forecast.map(d => d.low), precipitation_probability_max: data.forecast.map(d => d.rain) } }, data.fetchedAt);
+  return { ...parsed, region }; // Coordinates always come from the official region registry.
+}
+export async function fetchWeather({ region = DEFAULT_REGION, fetchImpl = fetch, timeout = CACHE_POLICY.timeout, signal, now = nowMs } = {}) {
   const url = buildWeatherUrl(region);
   const controller = new AbortController();
   const abort = () => controller.abort();
@@ -62,7 +72,7 @@ export async function fetchWeather({ region = DEFAULT_REGION, fetchImpl = fetch,
       throw new WeatherError('data', '天氣服務回傳無法解析的資料。');
     }
     const stamp = now();
-    return { ...assertCurrentWeather(parseWeather(data, new Date(stamp).toISOString()), stamp), region };
+    return { ...assertCurrentWeather(parseWeather(data, isoInstant(stamp)), stamp), region };
   } catch (error) {
     if (error instanceof WeatherError) throw error;
     throw new WeatherError('network', error.name === 'AbortError' ? '連線逾時，請確認網路後重試。' : '無法連線至天氣服務，請確認網路後重試。');

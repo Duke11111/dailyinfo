@@ -1,3 +1,8 @@
+import { formatTaipeiDateLabel, taipeiDate, taipeiStartOfDay, DAY_MS, nowMs } from './lib/time.js';
+import { CACHE_POLICY } from './services/cache-policy.js';
+import { browserCacheStorage } from './services/snapshot-store.js';
+import { startTiming } from './lib/timing.js';
+const endPageInit = startTiming('page-init');
 import { startAutoRefresh } from './services/auto-refresh.js';
 import './styles.css';
 import './preferences.css';
@@ -31,10 +36,10 @@ import './ui-polish.css';
 
 const weatherCache = new Map(), airCache = new Map();
 const weatherRequests = createRegionalRequests(fetchWeather), airRequests = createRegionalRequests(fetchAirQuality);
-const weather = createWeatherSession({ region: loadRegion(), cache: weatherCache, fetcher: weatherRequests.load, onChange: next => { state = next; updateWeatherContent(); } });
+const weather = createWeatherSession({ region: loadRegion(), cache: weatherCache, storage: browserCacheStorage(), fetcher: weatherRequests.load, onChange: next => { state = next; updateWeatherContent(); } });
 let state = weather.state;
 let overviewRegion = loadOverviewRegion();
-const overviewWeather = createWeatherSession({ region: overviewRegion.region, cache: weatherCache, fetcher: weatherRequests.load, onChange: next => overviewView?.updateWeather(next) });
+const overviewWeather = createWeatherSession({ region: overviewRegion.region, cache: weatherCache, storage: browserCacheStorage(), fetcher: weatherRequests.load, onChange: next => overviewView?.updateWeather(next) });
 let settings = loadSettings();
 let settingsSaved = true;
 let regionSaved = true;
@@ -48,7 +53,7 @@ const stopThemeWatcher = watchSystemTheme(() => settings);
 let currentRoute = 'overview';
 const app = document.querySelector('#app');
 app.innerHTML = `<aside class="sidebar"><a class="brand" href="#/overview" aria-label="DailyInfo 首頁"><span class="brand-mark">D<span>•</span></span><span>DailyInfo<small>每日資訊整合平台</small></span></a><div class="nav-caption">WORKSPACE / 工作台</div><nav aria-label="主要導覽">${Object.entries(routes).map(([key, route]) => `<a class="nav-item" data-route="${key}" href="#/${key}">${icon(route.icon)}<span>${route.title}</span>${key === 'overview' ? '<span class="nav-point"></span>' : ''}</a>`).join('')}</nav><div class="sidebar-bottom"><div class="phase-label"><span></span>每日資訊整合平台</div><strong>從每天的資訊開始</strong><p>一個入口，掌握生活脈動。</p><div class="version">DailyInfo <span>讓每一天更有條理</span></div></div></aside>
-<div class="workspace"><header class="topbar"><span class="breadcrumb">工作台 <span>/</span> <strong id="breadcrumb-title">每日總覽</strong></span><time class="today-date">${new Intl.DateTimeFormat('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }).format(new Date())}</time></header><main id="main" tabindex="-1"></main><footer>DailyInfo<span>每日資訊，清楚呈現。</span><span>每日生活資訊工作台</span></footer></div>`;
+<div class="workspace"><header class="topbar"><span class="breadcrumb">工作台 <span>/</span> <strong id="breadcrumb-title">每日總覽</strong></span><time class="today-date">${formatTaipeiDateLabel(undefined, { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}</time></header><main id="main" tabindex="-1"></main><footer>DailyInfo<span>每日資訊，清楚呈現。</span><span>每日生活資訊工作台</span></footer></div>`;
 const main = document.querySelector('#main');
 const airQuality = createAirQualitySession({ onChange: updateAirQualityContent, cache: airCache, initialRegion: state.region, fetcher: airRequests.load });
 const overviewAir = createAirQualitySession({ onChange: next => overviewView?.updateAirQuality(next), cache: airCache, initialRegion: overviewRegion.region, fetcher: airRequests.load });
@@ -129,9 +134,20 @@ app.addEventListener('change', event => {
   main.querySelector('#settings-status').textContent = settingsSaved ? '設定已儲存，重新載入仍有效。' : '無法寫入瀏覽器儲存空間；目前設定僅在本次使用期間有效。';
 });
 const stopRouter = createRouter((route) => { currentRoute = route; render(); });
+let dateTimer;
+function refreshDateHeader() {
+  const header = document.querySelector('.today-date');
+  if (header) header.textContent = formatTaipeiDateLabel(undefined, { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+  clearTimeout(dateTimer);
+  dateTimer = setTimeout(refreshDateHeader, taipeiStartOfDay(taipeiDate()) + DAY_MS - nowMs() + 100);
+}
+refreshDateHeader();
+document.addEventListener('visibilitychange', refreshDateHeader);
 const stopAutoRefresh = startAutoRefresh([
-  { interval: 15 * 60000, lastAt: () => activeWeather().lastAttemptAt, due: () => activeWeather().needsRefresh, enabled: () => ['weather', 'overview'].includes(currentRoute), run: () => activeWeather().load(undefined, { force: true }) },
-  { interval: 30 * 60000, lastAt: () => Date.parse(activeAir().state.data?.fetchedAt) || 0, enabled: () => ['weather', 'overview'].includes(currentRoute), run: () => activeAir().load(activeWeather().state.region, { force: true }) },
+  { interval: CACHE_POLICY.weather, lastAt: () => activeWeather().lastAttemptAt, due: () => activeWeather().needsRefresh, enabled: () => ['weather', 'overview'].includes(currentRoute), run: () => activeWeather().load(undefined, { force: true }) },
+  { interval: CACHE_POLICY.airRefresh, lastAt: () => Date.parse(activeAir().state.data?.fetchedAt) || 0, enabled: () => ['weather', 'overview'].includes(currentRoute), run: () => activeAir().load(activeWeather().state.region, { force: true }) },
 ]);
-export function dispose() { stopAutoRefresh(); weather.dispose(); overviewWeather.dispose(); airQuality.dispose(); overviewAir.dispose(); weatherRequests.dispose(); airRequests.dispose(); weatherCache.clear(); airCache.clear(); overviewView?.dispose(); stopRouter(); stopThemeWatcher(); disposeCalendar(); disposeStocks(); disposeNews(); disposeEarthquakes(); }
+export function dispose() { clearTimeout(dateTimer); document.removeEventListener('visibilitychange', refreshDateHeader); stopAutoRefresh(); weather.dispose(); overviewWeather.dispose(); airQuality.dispose(); overviewAir.dispose(); weatherRequests.dispose(); airRequests.dispose(); weatherCache.clear(); airCache.clear(); overviewView?.dispose(); stopRouter(); stopThemeWatcher(); disposeCalendar(); disposeStocks(); disposeNews(); disposeEarthquakes(); }
 if (import.meta.hot) import.meta.hot.dispose(dispose);
+
+endPageInit();

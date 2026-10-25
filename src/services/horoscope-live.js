@@ -1,9 +1,11 @@
+import { isoInstant, nowMs } from '../lib/time.js';
+import { CACHE_POLICY } from './cache-policy.js';
 // Browser-only current-sign reads. Published snapshots and their updater stay independent.
 import { horoscopeStore, HOROSCOPE_SOURCE, parseReading, readingUrl, taipeiDate, validSign, validateHoroscope } from './horoscope.js';
 
-export const HOROSCOPE_LIVE_TTL = 5 * 60000;
+export const HOROSCOPE_LIVE_TTL = CACHE_POLICY.horoscope;
 const cancelled = () => new DOMException('Request cancelled', 'AbortError');
-export function createLiveHoroscopeStore({ baseline = horoscopeStore, fetchImpl = (...args) => globalThis.fetch(...args), now = Date.now, timeout = 12000 } = {}) {
+export function createLiveHoroscopeStore({ baseline = horoscopeStore, fetchImpl = (...args) => globalThis.fetch(...args), now = nowMs, timeout = CACHE_POLICY.timeout } = {}) {
   const cache = new Map(), failures = new Map(), pending = new Map();
   const interval = HOROSCOPE_LIVE_TTL;
   function subscribe(entry, key, signal) {
@@ -66,7 +68,7 @@ export function createLiveHoroscopeStore({ baseline = horoscopeStore, fetchImpl 
           if (entry.controller.signal.aborted) throw cancelled();
           code = 'live_date_mismatch';
           if (taipeiDate(now()) !== today || reading.date !== today) throw Error();
-          const result = { reading, fetchedAt: new Date(now()).toISOString(), readAt: now(), source: HOROSCOPE_SOURCE, mode: 'live', problem: '' };
+          const result = { reading, fetchedAt: isoInstant(now()), readAt: now(), source: HOROSCOPE_SOURCE, mode: 'live', problem: '' };
           cache.set(sign, result); failures.delete(sign); return result;
         } catch {
           if (entry.controller.signal.aborted && !timedOut) throw cancelled();

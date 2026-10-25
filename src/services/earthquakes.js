@@ -1,3 +1,7 @@
+import { isoInstant, nowMs } from '../lib/time.js';
+import { taipeiDate, optionalUpdatedAt } from '../lib/time.js';
+import { createSnapshotStore, browserCacheStorage } from './snapshot-store.js';
+import { CACHE_POLICY } from './cache-policy.js';
 export const EQ_SOURCE = '中央氣象署';
 export const EQ_TYPES = Object.freeze({ 'E-A0015-001': '顯著有感', 'E-A0016-001': '小區域有感' });
 export const EQ_SOURCE_URL = 'https://opendata.cwa.gov.tw/';
@@ -25,9 +29,9 @@ export function quakeTime(raw, optional = false) {
   if (!Number.isFinite(timestamp)) throw new Error('地震時間無效。');
   const local = new Date(timestamp + (value.endsWith('Z') ? 0 : 28800000)).toISOString();
   if (local.slice(0, 19) !== value.slice(0, 19) || value < '2000') throw new Error('地震時間無效。');
-  return new Date(timestamp).toISOString();
+  return isoInstant(timestamp);
 }
-export const quakeDay = time => new Date(Date.parse(time) + 28800000).toISOString().slice(0, 10);
+export const quakeDay = taipeiDate;
 export function quakeReportUrl(raw) {
   if (blank(raw)) return null;
   if (typeof raw !== 'string') throw new Error('地震報告連結異常。');
@@ -117,7 +121,7 @@ export function validateEarthquakeSnapshot(data) {
     ids.add(event.id); return { id: event.id, ...safe };
   });
   if (feeds.reduce((sum, feed) => sum + feed.count, 0) < events.length) throw new Error('地震來源數量與事件數量不一致。');
-  return { version: 1, source: EQ_SOURCE, sourceUrl: EQ_SOURCE_URL, fetchedAt, feeds, events: events.sort((a, b) => b.originTime.localeCompare(a.originTime) || a.id.localeCompare(b.id)) };
+  return { version: 1, source: EQ_SOURCE, sourceUrl: EQ_SOURCE_URL, fetchedAt, ...optionalUpdatedAt(data), feeds, events: events.sort((a, b) => b.originTime.localeCompare(a.originTime) || a.id.localeCompare(b.id)) };
 }
 export function filterEarthquakes(events, filters = {}) {
   const { query = '', type = 'all', minMagnitude = '', maxMagnitude = '', startDate = '', endDate = '' } = filters;
@@ -131,7 +135,7 @@ export function filterEarthquakes(events, filters = {}) {
   return events.filter(event => terms.every(term => normalize(`${event.location} ${event.areas.map(a => a.county).join(' ')}`).includes(term)) && (type === 'all' || event.reports.some(report => report.dataset === type)) && (min === null || event.magnitude !== null && event.magnitude >= min) && (max === null || event.magnitude !== null && event.magnitude <= max) && (!startDate || quakeDay(event.originTime) >= startDate) && (!endDate || quakeDay(event.originTime) <= endDate))
     .sort((a, b) => b.originTime.localeCompare(a.originTime));
 }
-export async function fetchEarthquakeSnapshot({ fetchImpl = (...args) => fetch(...args), timeout = 12000 } = {}) {
+export async function fetchEarthquakeSnapshot({ fetchImpl = (...args) => fetch(...args), timeout = CACHE_POLICY.timeout } = {}) {
   const controller = new AbortController(), timer = setTimeout(() => controller.abort(), timeout);
   try {
     const response = await fetchImpl(`${import.meta.env?.BASE_URL ?? '/'}data/earthquakes.json`, { signal: controller.signal, cache: 'no-store' });
@@ -140,15 +144,7 @@ export async function fetchEarthquakeSnapshot({ fetchImpl = (...args) => fetch(.
   } catch (error) { throw new Error(error.name === 'AbortError' ? '地震資料讀取逾時。' : error.message || '地震資料讀取失敗。'); }
   finally { clearTimeout(timer); }
 }
-export function createEarthquakeStore({ fetcher = fetchEarthquakeSnapshot, now = Date.now } = {}) {
-  let data = null, readAt = 0, attemptedAt = -Infinity, pending = null;
-  return { peek: () => data, load({ force = false } = {}) {
-    if (pending) return pending;
-    if (data && ((!force && now() - readAt < 300000) || now() - attemptedAt < 10000)) return Promise.resolve({ data, readAt, cached: true });
-    if (!data && now() - attemptedAt < 10000) return Promise.reject(new Error('請稍候 10 秒再讀取地震快照。'));
-    attemptedAt = now();
-    pending = Promise.resolve().then(fetcher).then(next => { if (data && next.fetchedAt < data.fetchedAt) throw new Error('拒絕較舊快照，已保留原有資料。'); data = next; readAt = now(); return { data, readAt, cached: false }; }).finally(() => { pending = null; });
-    return pending;
-  } };
+export function createEarthquakeStore({ fetcher = fetchEarthquakeSnapshot, now = nowMs, ttl = CACHE_POLICY.earthquakes, cooldown = CACHE_POLICY.cooldown, storage = null } = {}) {
+  return createSnapshotStore({ name: 'earthquakes', fetcher, now, ttl, cooldown, storage, validate: validateEarthquakeSnapshot, sourceDay: value => value.events.map(e => e.originTime).sort().at(-1) ?? value.fetchedAt });
 }
-export const earthquakeStore = createEarthquakeStore();
+export const earthquakeStore = createEarthquakeStore({ storage: browserCacheStorage() });

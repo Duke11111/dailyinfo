@@ -1,3 +1,4 @@
+import { nowMs } from '../../src/lib/time.js';
 export function assertCheckpointPublish(env) {
   if (env.CHECKPOINT_ONLY !== 'true') return;
   if (env.GITHUB_EVENT_NAME !== 'workflow_dispatch' || env.DEFAULT_BRANCH !== 'main' || env.GITHUB_REF !== 'refs/heads/main'
@@ -5,7 +6,7 @@ export function assertCheckpointPublish(env) {
     || env.PUBLISH_ENABLED !== 'true' || env.DEPLOY_TARGET !== 'pages'
     || !/^[1-9]\d*$/.test(env.APPROVED_CHECKPOINT_RUN ?? '')) throw Error('checkpoint_publish_not_authorized');
 }
-export async function selectCheckpoint(artifacts, getRun, { branch, exact = false, approvedRun, now = Date.now() }) {
+export async function selectCheckpoint(artifacts, getRun, { branch, exact = false, approvedRun, now = nowMs() }) {
   const candidates = artifacts.filter(item => !item.expired && item.name === 'dailyinfo-data-state' && item.workflow_run?.head_branch === branch
     && Date.parse(item.expires_at) > now && Date.parse(item.created_at) <= now)
     .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)).slice(0, 3);

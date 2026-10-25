@@ -1,3 +1,4 @@
+import { isoInstant } from '../src/lib/time.js';
 // Independent live comparison against the official NLSC administrative registry.
 import { writeFile } from 'node:fs/promises';
 import { regions } from '../src/services/regions.js';
@@ -27,6 +28,6 @@ for (const label of ['臺北市大安區', '苗栗縣竹南鎮', '高雄市左�
   if (field(body, 'townCode') !== r.id || field(body, 'ctyName') !== r.county || field(body, 'townName') !== r.district) throw new Error(`Point query mismatch: ${label}`);
   samples.push({ ...r, officialPointQuery: 'matched', source: url });
 }
-const result = { checkedAt: new Date().toISOString(), officialRegistry: 'https://api.nlsc.gov.tw/other/ListTown1', matchedDistricts: official.length, matchedCounties: countyItems.length, samples };
+const result = { checkedAt: isoInstant(), officialRegistry: 'https://api.nlsc.gov.tw/other/ListTown1', matchedDistricts: official.length, matchedCounties: countyItems.length, samples };
 await writeFile('data-sources/regions-live-check.json', JSON.stringify(result, null, 2) + '\n');
 console.log(JSON.stringify(result, null, 2));

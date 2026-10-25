@@ -1,3 +1,6 @@
+import { olderThan } from '../lib/time.js';
+import { CACHE_POLICY } from '../services/cache-policy.js';
+import { isoInstant, nowMs } from '../lib/time.js';
 import { startAutoRefresh } from '../services/auto-refresh.js';
 import { loadWatchlists, sortedStocks } from '../services/watchlists.js';
 import { quoteStore, QUOTE_SOURCE } from '../services/quotes.js';
@@ -15,6 +18,7 @@ import { renderAirQuality } from '../components/air-quality.js';
 import { mountHoroscope } from '../components/horoscope.js';
 import { mountTodayAgenda } from '../components/today-agenda.js';
 import { mountOverviewRegion } from '../components/overview-region.js';
+import { startTiming } from '../lib/timing.js';
 
 const el = (tag, text = '', className = '') => { const node = document.createElement(tag); node.textContent = text; node.className = className; return node; };
 function link(label, href, external = false) {
@@ -26,7 +30,7 @@ function button(label, action) { const node = el('button', label, 'overview-refr
 
 // Snapshot services perform validation and share their request/cache with full pages.
 // Personal region changes are explicit and delegated to the application.
-export function mountOverview(host, { weatherState, airState, onRefreshWeather, regionSetting, onSaveRegion, quotes = quoteStore, news = newsStore, earthquakes = earthquakeStore, watchlists = loadWatchlists(), loadCatalog = loadStockCatalog, now = Date.now } = {}) {
+export function mountOverview(host, { weatherState, airState, onRefreshWeather, regionSetting, onSaveRegion, quotes = quoteStore, news = newsStore, earthquakes = earthquakeStore, watchlists = loadWatchlists(), loadCatalog = loadStockCatalog, now = nowMs } = {}) {
   let alive = true;
   const jobs = [];
   const grid = el('div', '', 'overview-grid');
@@ -63,13 +67,13 @@ export function mountOverview(host, { weatherState, airState, onRefreshWeather, 
     weather.content.replaceChildren(); weather.error.hidden = state.status !== 'error';
     weather.error.textContent = state.status === 'error' ? state.error?.message || '天氣查詢失敗，請重試。' : '';
     weatherRefresh.disabled = state.status === 'loading'; weather.node.setAttribute('aria-busy', String(state.status === 'loading'));
-    weather.status.textContent = `${regionLabel(state.region)} · ${state.status === 'loading' ? '正在查詢天氣…' : '數值模式預報，非測站即時觀測'}`;
+    weather.status.textContent = `${regionLabel(state.region)} · ${state.status === 'loading' ? state.data ? '更新中，暫示前次資料…' : '正在查詢天氣…' : '數值模式預報，非測站即時觀測'}`;
     weather.metadata.textContent = '降雨為每日最高預報機率；缺值以「—」表示。';
-    if (state.status !== 'success' || !state.data) return;
+    if (!state.data) return;
     const w = state.data, current = el('div', '', 'overview-weather-current');
     const today = todayForecast(w, now());
     if (!today || weatherDate(Date.parse(w.time)) !== weatherDate(now())) {
-      weather.error.hidden = false; weather.error.textContent = '非當日有效天氣，請重新取得資料；不將舊預報視為今天。';
+      weather.error.hidden = false; weather.error.textContent += ' 非當日有效天氣，請重新取得資料；不將舊預報視為今天。';
     }
     const symbol = el('span', '', 'overview-weather-symbol'); symbol.innerHTML = weatherIcon(w.code); // trusted, fixed SVG only
     current.append(symbol, el('strong', `${formatNumber(w.temperature)}°C`), el('span', weatherCondition(w.code).label), el('span', `今日降雨 ${formatNumber(today?.rain)}${today?.rain == null ? '' : '%'}`));
@@ -89,7 +93,7 @@ export function mountOverview(host, { weatherState, airState, onRefreshWeather, 
 
   const stocks = card('stocks', '自選股摘要', 'STOCKS / 盤後行情', '臺灣證券交易所', QUOTE_SOURCE);
   let groupId = watchlists.data.activeId;
-  let explorationCatalog = null, catalogRequested = false, catalogLoading = false, catalogError = '';
+  let explorationCatalog = loadCatalog.peek?.() ?? null, catalogRequested = false, catalogLoading = false, catalogError = '';
   const catalogController = new AbortController();
   jobs.push(() => catalogController.abort());
   async function requestExplorationCatalog() {
@@ -157,20 +161,23 @@ export function mountOverview(host, { weatherState, airState, onRefreshWeather, 
     const refresh = button('重新讀取快照', () => load(true)); view.actions.append(refresh);
     function render() {
       if (!alive) return;
+      const name = store === quotes ? 'quotes' : store === news ? 'news' : 'earthquakes';
+      const end = startTiming(`${name}.${snapshot ? 'cache-render' : 'render'}`);
       refresh.disabled = busy; view.node.setAttribute('aria-busy', String(busy));
-      const stale = snapshot && now() - Date.parse(snapshot.fetchedAt) > 86400000;
+      const stale = snapshot && olderThan(snapshot.fetchedAt, CACHE_POLICY.snapshotWarning, now());
       view.status.textContent = `${busy ? '正在讀取快照… ' : ''}${snapshot ? describe(snapshot) : '尚無有效快照。'}${stale ? ' 快照已超過 24 小時，可能過期。' : ''}`;
       view.error.hidden = !error; view.error.textContent = error;
-      view.metadata.textContent = `${snapshot ? dates(snapshot) : '擷取時間尚無資料'}${readAt ? ` · 網頁讀取：${formatTime(new Date(readAt).toISOString())}` : ''}`;
+      view.metadata.textContent = `${snapshot ? dates(snapshot) : '擷取時間尚無資料'}${readAt ? ` · 網頁讀取：${formatTime(isoInstant(readAt))}` : ''}`;
       paint(snapshot);
+      end();
     }
     async function load(force = false) {
       const token = ++generation; busy = true; error = ''; render();
-      try { const result = await store.load({ force }); if (!alive || token !== generation) return; snapshot = result.data; readAt = result.readAt; }
+      try { const result = await store.load({ force }); if (!alive || token !== generation) return; snapshot = result.data; readAt = result.pageReadAt ?? now(); }
       catch (failure) { if (alive && token === generation) error = `${failure.message || '快照讀取失敗'}；既有有效資料與個人設定均保留。`; }
       finally { if (alive && token === generation) { busy = false; render(); } }
     }
-    if (store === news || store === earthquakes) jobs.push(startAutoRefresh([{ interval: 5 * 60000, run: () => load(true) }]));
+    if (store === news || store === earthquakes) jobs.push(startAutoRefresh([{ interval: CACHE_POLICY.news, run: () => load(true) }]));
     jobs.push(() => { generation++; }); load(); return render;
   }
   return { updateWeather, updateAirQuality, dispose() { alive = false; jobs.forEach(cancel => cancel()); } };

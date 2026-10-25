@@ -1,7 +1,9 @@
+import { nowMs } from '../lib/time.js';
+import { formatTaipei } from '../lib/time.js';
 import { SIGNS, HOROSCOPE_SOURCE, loadDefaultSign, saveDefaultSign, taipeiDate, readingUrl, validSign } from '../services/horoscope.js';
 import { liveHoroscopeStore } from '../services/horoscope-live.js';
 const el = (tag, text = '', cls = '') => { const node = document.createElement(tag); node.textContent = text; node.className = cls; return node; };
-export function mountHoroscope(host, { store = liveHoroscopeStore, storage, now = Date.now } = {}) {
+export function mountHoroscope(host, { store = liveHoroscopeStore, storage, now = nowMs } = {}) {
   let alive = true, generation = 0, snapshot, readAt, loading = false, error = '', problem = '', mode = 'snapshot';
   let controller, requestSign, requestDay, pending, midnightTimer;
   const saved = loadDefaultSign(storage);
@@ -50,7 +52,7 @@ export function mountHoroscope(host, { store = liveHoroscopeStore, storage, now 
         toggle.textContent = expanded ? '收合運勢' : '展開完整運勢';
       }
       updatePreview(); body.append(text, toggle);
-      body.append(el('p', `${mode === 'live' ? '即時 API 取得' : '快照擷取'}：${new Date(snapshot.fetchedAt).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false })} · 網頁讀取：${new Date(readAt).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false })}（臺灣時間）`, 'horoscope-meta'));
+      body.append(el('p', `${mode === 'live' ? '即時 API 取得' : '快照擷取'}：${formatTaipei(snapshot.fetchedAt, { seconds: true })} · 網頁讀取：${formatTaipei(readAt, { seconds: true })}（臺灣時間）`, 'horoscope-meta'));
     } else if (!loading) body.append(el('p', '目前沒有可用的運勢資料；其他每日資訊仍可正常使用。'));
     card.append(body);
     const footer = el('div', '', 'horoscope-meta'), source = el('a', 'Powered by FreeHoroscopeAPI'); source.href = HOROSCOPE_SOURCE; source.target = '_blank'; source.rel = 'noopener noreferrer';
