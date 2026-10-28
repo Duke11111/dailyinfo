@@ -1,5 +1,5 @@
 import { mountHistoryChart, loadHistoryChart } from './stock-history-chart.js';
-import { QUOTE_SOURCE } from '../services/quotes.js';
+import { quoteSourceDetails } from '../services/quotes.js';
 import { stockHistory } from '../services/stock-history.js';
 import { formatTime } from '../lib/format.js';
 
@@ -20,7 +20,8 @@ export function openQuoteDetails(host, stock, quote, snapshot, { historyService 
   }
   dialog.append(grid, el('p', quote?.status ?? '官方此批行情未提供該代號；保留自選資料。', 'stock-help'));
   dialog.append(el('p', '漲跌幅＝漲跌額 ÷（收盤價 − 漲跌額）× 100%。參考價無效或特殊參考狀態不計算。', 'stock-help'));
-  const link = el('a', '來源：TWSE STOCK_DAY_ALL'); link.href = QUOTE_SOURCE; link.target = '_blank'; link.rel = 'noopener noreferrer'; dialog.append(link);
+  const source = quoteSourceDetails(snapshot);
+  const link = el('a', '來源：' + source.label); link.href = source.url; link.target = '_blank'; link.rel = 'noopener noreferrer'; dialog.append(link);
   if (snapshot) dialog.append(el('p', `來源擷取時間：${formatTime(snapshot.fetchedAt)}（臺灣時間）`, 'stock-help'));
   const historyHost = el('section', '', 'quote-history'); historyHost.append(el('h3', '最近五個交易日收盤走勢'));
   const historyResult = el('div'); historyResult.setAttribute('role', 'status');

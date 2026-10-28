@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createHash } from 'node:crypto';
-import { validateQuoteSnapshot } from '../../src/services/quotes.js';
+import { validateQuoteSnapshot, quoteExpectedTradeDate } from '../../src/services/quotes.js';
 import { validateNewsSnapshot } from '../../src/services/news.js';
 import { validateEarthquakeSnapshot } from '../../src/services/earthquakes.js';
 import { validateHoroscope, taipeiDate } from '../../src/services/horoscope.js';
@@ -118,7 +118,7 @@ export async function updateData({ root = PROJECT_ROOT, sources = SOURCES, sched
         const next = validateData(source, rawNext, now());
         if (previous && compareSnapshots(source, next, previous) < 0) throw safeFailure('validation_failed');
         if (source === 'horoscope' && next.readings[0].date !== taipeiDate(now())) throw safeFailure('source_delayed');
-        const delayed = source === 'quotes' && next.tradeDate < taipeiDate(now());
+        const delayed = source === 'quotes' && next.tradeDate < quoteExpectedTradeDate(next, now());
         const changed = !previous || contentDigest(previous) !== contentDigest(next);
         if (changed) { await mkdir(join(root, 'public/data'), { recursive: true }); rawNext.updatedAt = isoInstant(now()); validateData(source, rawNext, now()); await atomicWrite(target, rawNext); }
         const item = { attemptedAt: startedAt, status: changed ? 'updated' : 'unchanged', code: delayed ? 'source_delayed' : 'ok',

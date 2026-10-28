@@ -2,7 +2,7 @@ import { isoInstant, nowMs } from '../lib/time.js';
 import { loadStockCatalog, searchStocks, STOCK_TYPES } from '../services/stock-catalog.js';
 import { loadWatchlists, persistWatchlists, updateWatchlists, emptyWatchlists, sortedStocks, SORTS } from '../services/watchlists.js';
 import { formatTime } from '../lib/format.js';
-import { quoteStore, QUOTE_SORTS, sortByQuote, taipeiDate } from '../services/quotes.js';
+import { quoteStore, quoteSourceDetails, QUOTE_SORTS, sortByQuote, taipeiDate } from '../services/quotes.js';
 import { quoteNumber, signedQuote, quoteDirection, openQuoteDetails } from '../components/quote-details.js';
 import { explorationEntries, EXPLORATION_MODES } from '../services/stock-exploration.js';
 
@@ -254,7 +254,7 @@ export function mountStocks(host, { quotes = quoteStore } = {}) {
     const status = find('#quote-status'); status.replaceChildren();
     status.append(element('strong', snapshot ? `交易日期 ${snapshot.tradeDate} · 盤後快照` : '盤後行情尚未載入'));
     if (snapshot) {
-      status.append(element('p', `來源：TWSE STOCK_DAY_ALL · 來源擷取時間：${formatTime(snapshot.fetchedAt)}（臺灣時間）`, 'stock-help'));
+      status.append(element('p', `來源：${quoteSourceDetails(snapshot).label} · 來源擷取時間：${formatTime(snapshot.fetchedAt)}（臺灣時間）`, 'stock-help'));
       if (snapshot.tradeDate < taipeiDate(isoInstant())) status.append(element('p', '非當日行情：可能為休市、來源尚未發布或網站尚未更新；以標示交易日為準。', 'stock-help'));
     }
     if (quoteReadAt) status.append(element('p', `網頁讀取時間：${formatTime(quoteReadAt)}${quoteCached ? ' · 使用共用快取' : ''}`, 'stock-help'));

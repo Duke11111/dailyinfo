@@ -1,10 +1,58 @@
 import { isoInstant, nowMs } from '../lib/time.js';
 import { createSnapshotStore, browserCacheStorage } from './snapshot-store.js';
 import { CACHE_POLICY, quoteCacheTTL } from './cache-policy.js';
-import { taipeiDate, validDateOnly, optionalUpdatedAt } from '../lib/time.js';
+import { taipeiDate, validDateOnly, optionalUpdatedAt, taipeiStartOfDay, calendarWeekday } from '../lib/time.js';
 import { validCode, validText } from './stock-catalog.js';
 
 export const QUOTE_SOURCE = 'https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL';
+export const QUOTE_FALLBACK_SOURCE = 'https://www.twse.com.tw/exchangeReport/MI_INDEX';
+export const QUOTE_MARKET_SOURCE = 'https://www.twse.com.tw/exchangeReport/FMTQIK';
+export function quoteReportUrl(source, day) {
+  if (!validDateOnly(day) || ![QUOTE_FALLBACK_SOURCE, QUOTE_MARKET_SOURCE].includes(source)) throw Error('行情來源日期異常。');
+  return `${source}?response=json&${source === QUOTE_FALLBACK_SOURCE ? 'type=ALLBUT0999&' : ''}date=${day.replaceAll('-', '')}`;
+}
+export function quoteSourceDetails(snapshot) {
+  return snapshot?.source === QUOTE_FALLBACK_SOURCE
+    ? { label: 'TWSE MI_INDEX（日期專屬盤後行情）', url: quoteReportUrl(QUOTE_FALLBACK_SOURCE, snapshot.tradeDate) }
+    : { label: 'TWSE STOCK_DAY_ALL', url: QUOTE_SOURCE };
+}
+export function quoteExpectedTradeDate(snapshot, now = nowMs()) {
+  const evidence = snapshot.evidence;
+  return evidence && taipeiDate(evidence.checkedAt) === taipeiDate(now)
+    && now - Date.parse(evidence.checkedAt) >= 0 && now - Date.parse(evidence.checkedAt) <= 15 * 60000
+    ? evidence.eligibleTradeDate : taipeiDate(now);
+}
+function quoteEvidence(data) {
+  if (data.evidence === undefined && data.source === QUOTE_SOURCE) return {};
+  const e = data.evidence, today = e && taipeiDate(e.checkedAt);
+  const validDay = day => validDateOnly(day) && day >= '2000-01-01' && ![0, 6].includes(calendarWeekday(day));
+  let dateProof;
+  if (e?.dateProof !== undefined) {
+    const p = e.dateProof;
+    if (!p || !validDay(p.tradeDate) || p.tradeDate !== data.tradeDate || p.tradeDate !== e.eligibleTradeDate
+      || p.url !== quoteReportUrl(QUOTE_FALLBACK_SOURCE, p.tradeDate) || !/^[a-f0-9]{64}$/.test(p.sha256)
+      || !/T.*(?:Z|[+-]\d{2}:\d{2})$/.test(p.fetchedAt) || !Number.isFinite(Date.parse(p.fetchedAt))
+      || Date.parse(p.fetchedAt) > nowMs() + 300000 || taipeiDate(p.fetchedAt) < p.tradeDate
+      || data.source === QUOTE_FALLBACK_SOURCE && (p.sha256 !== data.sha256 || p.fetchedAt !== data.fetchedAt)) throw Error('官方日期專屬行情證據異常。');
+    dateProof = { tradeDate: p.tradeDate, url: p.url, sha256: p.sha256, fetchedAt: p.fetchedAt };
+  }
+  if (!e || e.version !== 1 || !Number.isFinite(Date.parse(e.checkedAt)) || !/T.*(?:Z|[+-]\d{2}:\d{2})$/.test(e.checkedAt)
+    || Date.parse(e.checkedAt) > nowMs() + 300000
+    || !validDay(e.latestPublishedTradeDate) || !validDay(e.eligibleTradeDate)
+    || e.eligibleTradeDate > e.latestPublishedTradeDate || e.latestPublishedTradeDate > today
+    || data.tradeDate > e.eligibleTradeDate || data.source === QUOTE_FALLBACK_SOURCE && data.tradeDate !== e.eligibleTradeDate
+    || !validDateOnly(e.marketDate) || e.marketDate > today
+    || !dateProof && e.eligibleTradeDate.slice(0, 7) !== e.marketDate.slice(0, 7)
+    || !/^[a-f0-9]{64}$/.test(e.marketSha256) || !/^[a-f0-9]{64}$/.test(data.sha256)
+    || !/^[a-f0-9]{64}$/.test(e.publicationSha256) || e.publicationUrl !== quoteReportUrl(QUOTE_MARKET_SOURCE, today)
+    || e.marketUrl !== quoteReportUrl(QUOTE_MARKET_SOURCE, e.marketDate)
+    || e.method !== (data.source === QUOTE_SOURCE ? 'twse-openapi' : 'twse-mi-index')
+    || e.dataUrl !== (data.source === QUOTE_SOURCE ? QUOTE_SOURCE : quoteReportUrl(QUOTE_FALLBACK_SOURCE, data.tradeDate))
+    || e.eligibleTradeDate === today && Date.parse(e.checkedAt) < taipeiStartOfDay(today) + (17 * 60 + 17) * 60000) throw Error('官方行情日期證據異常。');
+  return { evidence: { version: 1, method: e.method, dataUrl: e.dataUrl, marketUrl: e.marketUrl, marketDate: e.marketDate,
+    latestPublishedTradeDate: e.latestPublishedTradeDate, eligibleTradeDate: e.eligibleTradeDate, checkedAt: e.checkedAt, marketSha256: e.marketSha256,
+    publicationUrl: e.publicationUrl, publicationSha256: e.publicationSha256, ...(dateProof ? { dateProof } : {}) } };
+}
 const missing = new Set(['', '--', '---', 'N/A', 'NA', 'NULL', '不適用']);
 export { taipeiDate } from '../lib/time.js';
 export function parseTradingDate(raw) {
@@ -64,12 +112,12 @@ export function parseQuoteRows(rows, fetchedAt = isoInstant()) {
   return { version: 1, source: QUOTE_SOURCE, fetchedAt, tradeDate: dates[0], quotes };
 }
 export function validateQuoteSnapshot(data) {
-  if (!data || data.version !== 1 || data.source !== QUOTE_SOURCE || !Array.isArray(data.quotes)) throw new Error('行情快照格式異常。');
+  if (!data || data.version !== 1 || ![QUOTE_SOURCE, QUOTE_FALLBACK_SOURCE].includes(data.source) || !Array.isArray(data.quotes)) throw new Error('行情快照格式異常。');
   if (!data.quotes.every(q => q && ['open', 'high', 'low', 'close', 'change', 'volume', 'value', 'transactions'].every(key => Object.hasOwn(q, key)))) throw new Error('行情快照欄位不完整。');
   // Revalidate normalized snapshots with the same rules as the official response.
   const parsed = parseQuoteRows(data.quotes.map(q => ({ Code: q?.code, Name: q?.name, Date: q?.date, OpeningPrice: q?.open, HighestPrice: q?.high, LowestPrice: q?.low, ClosingPrice: q?.close, Change: q?.status === '特殊參考狀態，漲跌不適用' ? 'X' : q?.change, TradeVolume: q?.volume, TradeValue: q?.value, Transaction: q?.transactions })), data.fetchedAt);
   if (parsed.tradeDate !== data.tradeDate) throw new Error('快照交易日標記不一致。');
-  return { ...parsed, ...optionalUpdatedAt(data), sha256: typeof data.sha256 === 'string' ? data.sha256 : null };
+  return { ...parsed, source: data.source, ...optionalUpdatedAt(data), sha256: typeof data.sha256 === 'string' ? data.sha256 : null, ...quoteEvidence(data) };
 }
 export async function fetchQuoteSnapshot({ fetchImpl = fetch, timeout = CACHE_POLICY.timeout } = {}) {
   const controller = new AbortController(), timer = setTimeout(() => controller.abort(), timeout);
