@@ -1,5 +1,7 @@
 # Phase 8B：GitHub Pages 部署準備
 
+> 歷史階段紀錄（Historical）：以下保留當時的測試數、Commit、Run ID、部署與開關狀態，不代表目前 production；2026/10/29 正式狀態以 [README](../README.md) 為準。
+
 2026-10-20：Repository https://github.com/Duke11111/dailyinfo 已公開，main 基線 `399edd1`。Pages 尚未部署，預定網址 https://Duke11111.github.io/dailyinfo/ 不是已上線驗收結果。Repository Actions 仍 disabled，兩個 DATA 開關未設定。本階段只修改本機公開版，未 Commit、Push、建立 Pages、執行雲端 workflow 或設定 Secrets。
 
 ## 子路徑與離線驗收

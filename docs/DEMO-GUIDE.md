@@ -1,8 +1,8 @@
 # DailyInfo 期中展示指南
 
-整理日期：2026/10/21。預定展示：2026/10/30。建議講解時間：5～8 分鐘。
+整理日期：2026/10/29。預定展示：2026/10/30。建議講解時間：5～8 分鐘。
 
-本指南依目前程式、套件、Workflow 與已完成驗收整理。本次只新增文件，未重新執行測試、部署或資料更新。部分舊 README／階段文件仍保留當時「未部署」文字；目前行事曆、今日行程與 Chart.js 圖表已經 Phase 8F-2 正式發布。介面的 v0.10.0／Phase 6C 字樣是現有版本文字，不代表目前只有 Phase 6C 功能。
+本指南依目前 production 程式與已完成驗收整理。GitHub Pages、自動更新與自動發布已上線；內部 Phase 只用於追溯歷史，不代表目前使用者介面版本。本輪只調整文件與 metadata，不更新外部資料。
 
 ## 1. 專案介紹與開發目的
 
@@ -14,8 +14,8 @@
 
 - 正式網站：[DailyInfo](https://duke11111.github.io/dailyinfo/)
 - 公開程式庫：[Duke11111/dailyinfo](https://github.com/Duke11111/dailyinfo)
-- 本次整合版本：`a49287c39edd53f3fb9ecc6d7d64718456ad2c56`
-- 已完成的正式發布：Run `39558866212`；既有完整測試 **617／617 通過**，本文件作業未重跑。
+- 本次整合版本：`4cdaf4fdd287f524fc5d9d4497fd4ff89197b5fc`
+- 最近已核對的正式發布證據：Run `40666970356`；完整測試 **1093 / 1093 PASS；64 test files PASS**。此 Run 為驗收紀錄，非永久最新 Run。
 
 ## 2. 技術與部署架構
 
@@ -32,23 +32,26 @@
 | localStorage | 地區、外觀、自選股、新聞收藏、預設星座與個人行程 |
 | Vitest、jsdom | 資料解析、錯誤、儲存、路由、元件與回歸測試 |
 
-### 三條不同的資料路徑
+### 資料與自動發布路徑
 
 ```text
 瀏覽器 ── 查詢 API ── Open-Meteo 天氣／AQI
+瀏覽器 ── 所選星座即時查詢 ── FreeHoroscopeAPI（臺灣當日驗證，失敗回用已標示日期的快照）
 瀏覽器 ── 按需查詢 ── TWSE 個股歷史月資料 ── 最近五筆有效收盤價
 瀏覽器 ── 讀取靜態 JSON ── GitHub Pages 已發布的股票／新聞／地震／星座快照
 
-Node.js 更新腳本 ── 官方 API／RSS ── 驗證候選資料
-   └─ GitHub Actions ── Checkpoint v2 ── 通過測試／建置／安全檢查
-                                        └─ 經授權發布至 GitHub Pages
+Cloudflare Worker Cron（primary）／GitHub native schedule（fallback）
+   → GitHub workflow_dispatch（external_schedule=true）／原生 schedule
+   → scheduled due rules（Asia/Taipei）→ 官方來源更新 → validation
+   → latest-valid-wins → 有新有效資料才 tests / build / security verify → Deploy
+   → 成功後 Checkpoint v2（無新資料可續存，deploy skipped）
 
 個人行程／收藏／設定 ── 僅存目前瀏覽器 localStorage
 ```
 
 GitHub Pages 只提供靜態 HTML、JS、CSS、授權檔與 JSON，不會在伺服器執行 Node.js，也不代替外部 API。網站重新讀取快照不等於向資料提供者更新。
 
-**目前自動排程與長期自動發布仍未啟用。** Workflow 已有每小時第 17 分鐘的 cron，但排程 Job 另受開關保護；不能把存在 cron 宣稱為已持續更新。正式發布可使用核准的 checkpoint-only 模式，不重新請求四個資料來源。
+**目前 continuous 自動更新與長期自動發布已啟用並完成雲端驗收。** Cloudflare Worker 主排程與 GitHub native fallback 均為臺灣 08:17～23:17 每小時一次；外部觸發仍走 due checks，不繞過授權。沒有新有效資料時 update／checkpoint 可以成功，但 deploy skipped；Workflow 綠色不代表每個來源成功或已發布。
 
 前端目前有前景刷新機制：天氣約 15 分鐘、AQI 約 30 分鐘；新聞與地震頁及首頁相關摘要約每 5 分鐘重讀已發布 JSON。背景分頁不啟動這些輪詢，回到前景再檢查到期；這與 GitHub 雲端更新是兩回事。
 
@@ -78,6 +81,8 @@ GitHub Pages 只提供靜態 HTML、JS、CSS、授權檔與 JSON，不會在伺�
 | 行事曆 | 繁中月曆、上／下月、今天；新增、查看、編輯、頁內二次確認刪除 | 個人資料只在目前瀏覽器；沒有提醒、週期或跨裝置同步 |
 | 設定 | 淺色／深色／跟隨系統、五種強調色、小／標準／大字級 | 儲存在目前瀏覽器，與不同網站來源的設定不共用 |
 
+**股票盤後可靠性：**STOCK_DAY_ALL 為 primary；FMTQIK 提供官方交易日／市場發布資訊；date-specific MI_INDEX 為官方 fallback。完整有效 MI_INDEX 可證明其交易日已發布，不受較慢 FMTQIK 阻擋。latest-valid-wins 先比較 tradeDate 再比較 fetchedAt；實際 Runner 已驗證 2026/10/28 的 1,386 筆行情與 2330 收盤 2425。展示時以當下正式資料日期為準。
+
 **股票五日圖表：**沿用同一個歷史服務，按需讀取 TWSE `STOCK_DAY` 月資料，查詢範圍是行情快照交易日以前 30 個日曆日。轉換民國日期、排除無效價格與較晚日期後，取最後五筆並依日期升序顯示。休市日不補價；不足五筆就顯示實際筆數，零筆顯示無資料。圖表與文字清單使用相同資料，關閉／切換時銷毀 Chart 實例。
 
 **行事曆與今日行程：**標題必填、最多 120 字；可設定日期、時間、全天與五種顏色，結束不得早於開始。全天結束日期包含當日；有時間行程使用排他結束時間，午夜結束不誤列入隔日。首頁依臺灣日期讀取同一份資料，排序後最多顯示五筆，點擊可定位原事件；返回首頁重新讀取最新行程。
@@ -97,7 +102,7 @@ GitHub Pages 只提供靜態 HTML、JS、CSS、授權檔與 JSON，不會在伺�
 | 3:35～4:20 | 地震選一筆，展示地圖定位及縣市震度 | 「規模與震度是不同欄位；各縣市震度採官方觀測，不從規模推算。」 |
 | 4:20～5:50 | 行事曆新增今日的「期中展示」行程、修改時間、重新整理，再回首頁點今日行程 | 「行程沒有傳給伺服器；首頁直接讀取同一份保存資料，沒有第二套行程清單。」 |
 | 5:50～6:25 | 回事件，先取消刪除，再確認刪除；切換外觀，指出星座切換 | 「刪除需二次確認；外觀與預設選擇可保存。星座暫時切換不會自動改預設。」 |
-| 6:25～7:00 | 用架構圖收尾，說明測試及限制 | 「完整測試已有 617 項通過；正式網站是靜態部署，四來源資料更新與發布有分開授權，長期排程尚未啟用。」 |
+| 6:25～7:00 | 用架構圖收尾，說明測試及限制 | 「完整測試 1093 / 1093 PASS、64 test files PASS；Cloudflare 主排程與 GitHub fallback 已啟用，只有新有效資料通過檢查才自動發布。」 |
 
 - **縮至 5 分鐘：**只示範一檔股票；新聞、地震各選一個重點；星座與主題用口頭介紹，保留行事曆保存及資料日期說明。
 - **延長至 8 分鐘：**展示股票跨群組移動、地震複合篩選，或回答一題技術問題，不額外觸發資料更新。
@@ -112,7 +117,7 @@ GitHub Pages 只提供靜態 HTML、JS、CSS、授權檔與 JSON，不會在伺�
 
 ### 2. 沒有後端，怎麼整合不同來源？
 
-天氣、AQI 與股票歷史由瀏覽器呼叫允許跨來源的 API；盤後股票、新聞、地震、星座由 Node.js 整理為 JSON，再隨靜態網站發布。訪客不需要氣象署金鑰，也不會每開一次網站就抓四個外部來源。
+天氣、AQI、所選星座即時資料與股票歷史由瀏覽器呼叫允許跨來源的 API；盤後股票、新聞、地震、星座由 Node.js 整理為 JSON，再隨靜態網站發布。訪客不需要氣象署金鑰，也不會每開一次網站就抓四個外部來源。
 
 ### 3. 為什麼使用 Hash Router 與 `/dailyinfo/` base？
 
@@ -140,18 +145,18 @@ GitHub Pages 專案網站位於子路徑，Vite base 確保 JS、CSS、JSON 路�
 
 ### 9. 自動更新與 Checkpoint 是什麼？現在啟用了嗎？
 
-四來源分開更新與驗證，成功後保存含 Manifest、SHA-256 的 Checkpoint v2，期限七天；失敗保留最後有效資料，沒有有效 Checkpoint 時不自動初始化。更新與發布分開授權，目前長期排程及自動發布仍關閉，不能把已寫好的 cron 說成正在持續更新。
+四來源分開更新與驗證，成功後保存含 Manifest、SHA-256 的 Checkpoint v2，期限七天；失敗保留最後有效資料，沒有有效 Checkpoint 時不自動初始化。**有，目前已啟用並驗收。** Cloudflare Worker Cron → GitHub workflow_dispatch → scheduled due rules → 官方來源更新 → validation → latest-valid-wins → tests / build / security verify → 有新有效資料才 Deploy → Checkpoint。GitHub native schedule 同時保留作 fallback；更新與發布仍分開授權，無新資料時 deploy skipped。Git committed snapshot 可能比 production 舊，應核對正式 Manifest 與最新成功 Checkpoint，不以 raw Git JSON 判斷網站是否更新。
 
 ### 10. 如何測試與避免圖表／日曆造成記憶體問題？
 
-Vitest／jsdom 測解析、邊界日期、儲存損壞與失敗、CRUD、頁面與安全行為，Mock 讓測試不依賴外部 API；617 項完整測試已有通過紀錄。另做正式建置、安全驗證及 Chrome 驗收。圖表按需載入，重繪／關閉時銷毀實例與主題觀察器；行事曆離頁銷毀，前景刷新清理計時器。單元測試通過不代表所有實體手機皆已驗證。
+Vitest／jsdom 測解析、邊界日期、儲存損壞與失敗、CRUD、頁面與安全行為，Mock 讓測試不依賴外部 API；1093 / 1093 項完整測試、64 test files 已有通過紀錄。另做正式建置、安全驗證及 Chrome 驗收。圖表按需載入，重繪／關閉時銷毀實例與主題觀察器；行事曆離頁銷毀，前景刷新清理計時器。單元測試通過不代表所有實體手機皆已驗證。
 
 ## 6. API 失敗或斷網時的展示備案
 
 ### 展示前的最小準備
 
 1. 確認正式網站能開啟，記下畫面顯示的各來源日期，不必在展示當天強制更新所有資料。
-2. 若要用本機備援，應在斷網前備妥 Node.js、已安裝的依賴、現有 `dist/` 與本機伺服器操作方式。首次 `npm.cmd ci` 需要網路，本文件作業不安裝任何東西。
+2. 若要用本機備援，應在斷網前備妥 Node.js 24 LTS、npm、Git、可存取 Actions artifact 的 gh、Windows PowerShell、已安裝的依賴及已驗證的現有 `dist/`。首次 `npm.cmd ci` 需要網路，依鎖檔安裝既有版本；不需要新增套件或更動系統設定。
 3. 可事先保存實際成功畫面的截圖或錄影，標示拍攝時間；僅在確實已保存時才將它列為可用備案。本次只寫指南，沒有新增截圖或錄影。
 
 ### 本機靜態備援操作（供展示者日後執行，本次未執行）
@@ -162,7 +167,7 @@ Vitest／jsdom 測解析、邊界日期、儲存損壞與失敗、CRUD、頁面�
 npm.cmd run preview -- --port 4173 --strictPort
 ```
 
-開啟 `http://127.0.0.1:4173/dailyinfo/`。若尚無建置，但依賴已安裝，可先執行 `npm.cmd run build -- --base=/dailyinfo/`。建置本身不執行四來源更新，也不需要讀取 API Key。若指定埠被占用，改用另一個本機埠並使用終端機顯示的網址，不修改 PATH 或系統設定。
+開啟 `http://127.0.0.1:4173/dailyinfo/`。若尚無建置，須先連網取得並驗證有效 Checkpoint（prebuild 會執行 latest-valid baseline restore），且依賴已安裝，才執行 `npm.cmd run build -- --base=/dailyinfo/`。建置本身不執行四來源更新，也不需要讀取 API Key。若指定埠被占用，改用另一個本機埠並使用終端機顯示的網址，不修改 PATH 或系統設定。
 
 | 故障 | 展示備案 | 不可宣稱的內容 |
 | --- | --- | --- |
@@ -199,7 +204,7 @@ npm.cmd run preview -- --port 4173 --strictPort
 - 天氣／AQI 代表模式網格，不保證每個鄉鎮都有獨立測站。
 - 行程、收藏與設定沒有帳號同步、伺服器備份或提醒；不存放敏感私人行程作公開展示。
 - 免費 API 的 CORS、限流與日期供應不在專案控制範圍；資料來源時間、擷取時間、網頁讀取時間不可混用。
-- Checkpoint 七天到期；沒有有效備份時更新會停止，不會自動初始化。雲端排程有延遲可能，尚未長期啟用。
+- Checkpoint 七天到期；沒有有效備份時更新會停止，不會自動初始化。長期排程與自動發布已啟用，但外部平台仍可能延遲、限流或停用，沒有準點 SLA。
 - 正式網站的行事曆資料不會隨部署上傳，但展示者在自己瀏覽器新增的行程會留在該瀏覽器，應自行清理展示資料。
 
 收尾可以說：「這個專案的重點是把不同格式與更新週期的資料安全整合，讓使用者知道資料從哪裡來、是哪一天，以及失敗時還能使用什麼功能。」

@@ -1,5 +1,7 @@
 # GitHub Actions 完整 SHA 查證紀錄
 
+> 歷史階段紀錄（Historical）：以下保留當時的測試數、Commit、Run ID、部署與開關狀態，不代表目前 production；2026/10/29 正式狀態以 [README](../README.md) 為準。
+
 查證日期：2026-10-20。僅對 `github.com/actions/` 官方 repository 執行唯讀 `git ls-remote`，查詢對應主版本標籤及 annotated tag 的 peeled ref；未建立遠端、推送或執行 Actions。以下為查證當時實際回傳的完整 commit SHA，沒有自行推測。
 
 | 官方 Action | 查證標籤 | 固定 Commit |

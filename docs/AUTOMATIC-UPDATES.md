@@ -1,5 +1,17 @@
 # 零付費自動更新與發布驗收狀態
 
+## 2026/10/29 Current Production Status
+
+- main HEAD：`4cdaf4fdd287f524fc5d9d4497fd4ff89197b5fc`。
+- continuous mode 已啟用；Cloudflare external scheduler 已完成雲端驗收，為主排程；GitHub native schedule 為 fallback。兩者 UTC cron `17 0-15 * * *`，臺灣 08:17～23:17。
+- `DATA_AUTO_PUBLISH_ENABLED=true`，GitHub Pages auto deploy 已完成驗收；更新與發布獨立授權，只有新有效資料才 Build／Deploy。
+- Checkpoint v2 持續建立，status v1、SHA-256、Schema、來源 Commit、期限與 Artifact 防護維持；無新資料可續存 Checkpoint，deploy skipped。
+- latest-valid-wins 生效；股票 TWSE STOCK_DAY_ALL primary、FMTQIK publication verification、MI_INDEX official fallback 已正式部署並通過 Runner 實測。
+- 完整測試：64 test files PASS；1093 / 1093 PASS。
+- Git 中 baseline 不一定是 production 最新資料；以正式 Manifest、最新成功 deployment／有效 Checkpoint 驗證，見 [README](../README.md)。本輪未查改雲端設定。
+
+> 以下為當時階段驗收紀錄，不能視為目前 production 狀態。舊開關表、首次 Manifest 404、三時段與未提交描述均保留為歷史證據；不是重新初始化或停用現有服務的操作指示。
+
 2026/10/25 更新：下方「來源與時間」描述基於正式 main `882c87e` 的 hourly 本機候選，尚未 Commit／Push；早期 D4／D5 段落是歷史驗收紀錄，不代表目前雲端開關。此次未查改 Variables、Secrets 或 Billing，未執行任何雲端 Workflow。
 
 2026/10/22 驗收紀錄（依已確認的階段結果，不代表即時雲端查詢）：

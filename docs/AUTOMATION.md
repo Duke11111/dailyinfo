@@ -1,5 +1,7 @@
 # DailyInfo 四來源資料更新與發布
 
+> 2026/10/29 現況：目前 continuous 自動更新／發布已啟用，Cloudflare 主排程、GitHub hourly fallback；最新狀態與維護請見 AUTOMATIC-UPDATES.md。 現況彙整見 [README](../README.md)；下方階段狀態依原紀錄保留。
+
 只管理 quotes、news、earthquakes、horoscope。all 與 core 都選擇這四個來源；個別來源仍可手動選擇。stocks.json 是獨立靜態目錄，不屬於更新 Checkpoint。天氣與 AQI 保留前端 API／快取。移除前的完整版本保存在本機分支 backup/pre-remove-exchange-20261020，沒有推送或重寫歷史。
 
 ## 更新與安全開關

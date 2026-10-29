@@ -1,5 +1,7 @@
 # 本機公開候選版本
 
+> 歷史階段紀錄（Historical）：以下保留當時的測試數、Commit、Run ID、部署與開關狀態，不代表目前 production；2026/10/29 正式狀態以 [README](../README.md) 為準。
+
 目前狀態（Phase 8B）：已於 Phase 8A 公開至 https://github.com/Duke11111/dailyinfo ，main 為全新根提交 `399edd1`。Actions 整體停用、Pages 未部署、資料更新未啟用。以下保留候選版建立時的歷史過程；部署準備見 [PAGES.md](PAGES.md)，本階段變更尚未 Commit／Push。
 
 此版本由完整工作樹匯出，包含 Phase 6D 自動更新架構；沒有複製原始 Git 歷史、環境檔、依賴、快取、使用者資料或舊建置產物。原始開發專案及其歷史保留不變。

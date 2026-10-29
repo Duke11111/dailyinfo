@@ -1,5 +1,7 @@
 # 最新有效資料基線
 
+> 2026/10/29 現況：latest-valid-wins 與 baseline restore 已提交並正式部署；全新 worktree 必須採用含此機制的版本並取得有效 Checkpoint，不能從舊 Git JSON 假裝最新。 現況彙整見 [README](../README.md)；下方階段狀態依原紀錄保留。
+
 ## 選擇規則
 
 所有候選必須先通過各來源的 Schema、時間與公開資料安全驗證，再比較：

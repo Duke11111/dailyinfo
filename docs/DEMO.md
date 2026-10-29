@@ -1,5 +1,15 @@
 # DailyInfo 期中展示指南
 
+## 2026/10/29 展示入口（目前版本）
+
+正式網站：https://duke11111.github.io/dailyinfo/ 。Production HEAD：`4cdaf4fdd287f524fc5d9d4497fd4ff89197b5fc`；64 test files、1093 / 1093 PASS。Cloudflare Worker 為 primary scheduler、GitHub native schedule 為 fallback；臺灣 08:17～23:17 每小時一次，continuous 自動更新及自動發布已啟用並驗收。有新有效資料才 Build／Deploy，無新資料 deploy skipped；失敗保留有效資料。
+
+目前含天氣／AQI、股票、新聞、地震、星座、個人行事曆與今日行程。首頁及完整天氣頁使用獨立地區；首頁星座優先取得臺灣當日即時資料，失敗回用帶日期警告的快照。股票含 STOCK_DAY_ALL／FMTQIK／MI_INDEX 官方 fallback 與 latest-valid-wins。Git baseline 可能比正式資料舊，須核對 Manifest／Checkpoint。完整 5～8 分鐘流程與問答請使用 [DEMO-GUIDE.md](DEMO-GUIDE.md)。
+
+Windows 本機需 Node.js 24 LTS、npm、Git、可存取本儲存庫 Actions artifact 的 gh，以及 Windows PowerShell／powershell.exe。dev／build 的 prehook 會驗證並還原 latest-valid Checkpoint；無有效基線會拒絕，不能只裝 Node 就保證全新 clone 可啟動。預覽網址為 `http://127.0.0.1:4173/dailyinfo/`；斷網前應備妥已驗證產物。
+
+> 歷史階段紀錄（Historical）：以下保留當時的測試數、Commit、Run ID、部署與開關狀態，不代表目前 production；2026/10/29 正式狀態以 [README](../README.md) 為準。
+
 展示日期：2026/10/30。Phase 6B / v0.9.0。
 
 ## 系統目的與技術

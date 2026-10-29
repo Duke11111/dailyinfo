@@ -1,5 +1,7 @@
 # D4 一次性排程驗收（本機準備，未啟用）
 
+> 歷史階段紀錄（Historical）：以下保留當時的測試數、Commit、Run ID、部署與開關狀態，不代表目前 production；2026/10/29 正式狀態以 [README](../README.md) 為準。
+
 原始基準 main：`0471d5a64afaea5af87384c1763b566d36cdef64`。D4 初版 `709b95069064268f6a3eda12e93ecbc6a04fc865` 已推送；本次 Runner 權限修正只在隔離分支 `test/d4-one-shot-acceptance` 處理，未啟用雲端驗收，未修改 D5 worktree。
 
 ## 有限授權，不需要人在 20:43 守候

@@ -1,5 +1,7 @@
 # 每日星座運勢資料來源（2026-10-20 查核）
 
+> 2026/10/29 現況：首頁星座即時整合已正式部署；FreeHoroscopeAPI 當日資料優先，JSON 快照保留為安全 fallback，非今日資料必須明示。下列候選版／未提交描述屬當時歷史。 現況彙整見 [README](../README.md)；下方階段狀態依原紀錄保留。
+
 - 官方首頁／使用條款：https://freehoroscopeapi.com/#usage-terms
 - OpenAPI 1.1.0：https://www.freehoroscopeapi.com/openapi.json
 - GET `https://freehoroscopeapi.com/api/v1/get-horoscope/daily?sign=aries`，十二星座各一次。無帳號、金鑰、費用或背景排程。

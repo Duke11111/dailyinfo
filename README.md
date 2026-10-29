@@ -1,5 +1,32 @@
 # DailyInfo 每日資訊整合平台
 
+## 2026/10/29 正式繳交狀態
+
+DailyInfo 每日資訊整合平台整合天氣、空氣品質、股票、新聞、地震、星座與個人行事曆，提供繁體中文資訊總覽與個人化查詢。預定繳交日為 2026/10/30。
+
+- **Production HEAD：** `4cdaf4fdd287f524fc5d9d4497fd4ff89197b5fc`。
+- **正式網站：** https://duke11111.github.io/dailyinfo/ — GitHub Pages 已正式部署。
+- **完整測試：** **64 test files PASS；1093 / 1093 PASS**。
+- **自動更新：** Cloudflare Worker primary scheduler，GitHub Actions native schedule fallback；continuous mode 已啟用。
+- **排程：** Asia/Taipei 每日 **08:17～23:17，每小時第 17 分鐘**（UTC cron：`17 0-15 * * *`）。外部排程與 GitHub fallback 皆受 due、去重及安全閘門保護，不保證準點 SLA。
+- **自動發布：** **Enabled**，`DATA_AUTO_PUBLISH_ENABLED=true`；已完成真實雲端與 GitHub Pages 自動部署驗收。有新有效資料才測試、Build、security verify 及 Deploy；無新資料可續存 Checkpoint，deploy skipped。
+- **四個 snapshot：** quotes / news / earthquakes / horoscope 由 GitHub Actions 驗證、Checkpoint 續存，必要時自動發布。
+- **天氣／AQI：** 瀏覽器直接查 Open-Meteo，不走 snapshot scheduler；首頁星座另可按需讀取 FreeHoroscopeAPI 當日資料，快照作安全 fallback。
+- **股票可靠性：** STOCK_DAY_ALL primary、FMTQIK publication verification、MI_INDEX 官方 date-specific fallback，採 latest-valid-wins。GitHub Runner 已實際成功使用 MI_INDEX；2026/10/28 驗收為 1,386 筆，2330 收盤價 2425，這是當次證據而非永久最新行情。
+- **可追溯證據：** [Runner 驗證 Run 40666582734](https://github.com/Duke11111/dailyinfo/actions/runs/40666582734)；[正式部署 Run 40666970356](https://github.com/Duke11111/dailyinfo/actions/runs/40666970356)。Checkpoint、Deployment 與資料日期會持續更新，操作前須重新核對；本文依已確認驗收結果整理，本輪未重新查改雲端設定。
+
+## Production 資料與 Git 快照
+
+1. Git main 的 `public/data/*.json` 是版本庫中的 validated baseline，不一定等於正式站目前最新資料。
+2. Production 最新資料由 GitHub Actions 最新成功且通過驗證的 Checkpoint／deployment artifact 提供，並由正式 `release-manifest.json` 記錄五份 JSON 的 SHA-256、來源日期與 fetchedAt。
+3. 自動更新成功後不一定把 snapshot commit 回 main；這是刻意設計，避免每小時產生資料 commit。
+4. 不能只看 GitHub raw `public/data/quotes.json` 判斷正式網站行情日期。應核對正式網站與最新成功 deployment／Checkpoint，並驗證 Manifest、Schema、雜湊及日期。
+5. latest-valid-wins 防止舊 Git JSON、Checkpoint 或 localStorage 蓋掉較新有效資料；來源日期／交易日、fetchedAt 與 pageReadAt 保持不同語意。無法驗證時安全停止，不能假裝已更新。
+
+## 歷史功能與階段紀錄
+
+> 以下為歷史開發階段紀錄，不代表目前 production 狀態。舊 Commit、Run ID、測試數與「未啟用／未部署」描述僅適用當時；現況見本文最前方。
+
 Phase 8F 已完成並發布 Chart.js 股票五日走勢：沿用 TWSE 歷史服務，僅顯示行情快照交易日以前最近五筆有效收盤價；支援價格提示、主題、字級與手機版。使用免費 MIT Chart.js 4.5.1，授權保留於 public/licenses。
 
 Phase 8H-2C 已完成並發布免費 [個人行事曆](docs/CALENDAR.md)：繁中月曆、月份切換、新增／編輯／確認刪除行程、全天與跨日時間、五色及獨立 localStorage 保存；首頁顯示臺灣日期的今日行程（最多五筆，可點擊查看），支援全站主題及字級；不提供同步或提醒。
@@ -18,15 +45,23 @@ D5-Guard 已在 `test/d5-integration` 整合至 `ee30aed`，仍僅為尚未推�
 
 使用 Vite、Vanilla JavaScript ES Modules、HTML5、CSS3 與 Vitest。繁體中文介面，無資料庫及登入功能。
 
-## 本地啟動
+## 本地啟動（目前版本）
 
-### Phase 6D：資料自動更新準備
+### 更新入口與環境需求
 
 已新增統一入口 `npm.cmd run update:data`、指定來源 `npm.cmd run update:data -- --sources=quotes,news` 及驗證 `npm.cmd run verify:data`。`--scheduled` 是 Workflow 專用的到期檢查入口，需完整的事件、模式與授權 context，直接在本機無設定執行會拒絕。各來源隔離執行、驗證後才替換；失敗保留舊快照，內容未變不重複發布。天氣與 AQI 維持原有前端查詢。
 
-資料更新工作流程保留手動入口與預設關閉的三時段 schedule，更新、排程、自動發布授權分離。既有 CWA Repository Secret 僅供地震更新使用，前端不需金鑰。實際雲端開關及最新有效 Checkpoint 須操作前重新確認。[目前自動更新狀態](docs/AUTOMATIC-UPDATES.md)；[Phase 8B 說明](docs/PAGES.md) 為歷史部署準備紀錄。舊基線 `7fed01f` 僅為開發紀錄，不在公開 Git 歷史內。
+資料更新工作流程保留手動入口與 hourly continuous schedule，更新、排程、自動發布授權分離。正式環境已啟用外部排程與自動發布，詳見本文最前方狀態。既有 CWA Repository Secret 僅供地震更新使用，前端不需金鑰。實際雲端開關及最新有效 Checkpoint 須操作前重新確認。[目前自動更新狀態](docs/AUTOMATIC-UPDATES.md)；[Phase 8B 說明](docs/PAGES.md) 為歷史部署準備紀錄。舊基線 `7fed01f` 僅為開發紀錄，不在公開 Git 歷史內。
 
-建議 Node.js 24 LTS。本次環境：Node.js 24.19.0、npm 11.17.0。
+Windows 開發環境需求：
+
+- Node.js 24 LTS 與 npm。
+- Git。
+- GitHub CLI `gh`，必須能存取 Duke11111/dailyinfo 的 Actions artifact；僅能瀏覽公開網站不等於具備 Artifact 存取權限。
+- Windows PowerShell／`powershell.exe`（Checkpoint 壓縮檔的安全解壓與驗證使用）。
+- 首次安裝依賴及取得最新已驗證 Checkpoint 需要網路。
+
+`npm run dev` 與 `npm run build` 的 predev／prebuild 會先執行 `scripts/restore-local-baseline.mjs`：選取最新有效 Checkpoint、核對來源 Commit、digest、Manifest v2、SHA-256 與 Schema，再逐來源保留較新有效資料。網路失敗時只能回用已驗證且未過期、重新驗證成功的本機 Checkpoint；全新 clone 無可驗證基線時安全拒絕啟動／建置，不能用舊 Git snapshot 假裝最新。CI 則沿用 Workflow 已還原的核准 Checkpoint，不進行第二次本機還原。
 
 ```powershell
 npm.cmd ci
@@ -42,9 +77,11 @@ npm.cmd run preview
 node scripts/check-weather.mjs
 ```
 
-Vite 預設 base 為 `/dailyinfo/`；`preview` 網址為 <http://127.0.0.1:4173/dailyinfo/>。建置輸出為 `dist/`，不可直接以 `file://` 開啟 ES Modules。離線部署驗收：`npm.cmd run build -- --base=/dailyinfo/`，再執行 `npm.cmd run verify -- --dist`；不呼叫外部更新 API。
+Vite 預設 base 為 `/dailyinfo/`；`preview` 網址為 <http://127.0.0.1:4173/dailyinfo/>。建置輸出為 `dist/`，不可直接以 `file://` 開啟 ES Modules。完成有效基線還原後的建置驗收：`npm.cmd run build -- --base=/dailyinfo/`，再執行 `npm.cmd run verify -- --dist`；不呼叫外部更新 API。
 
 ## Phase 6A：空氣品質與 US AQI
+
+> 此節保留原階段紀錄；舊日期與操作限制不代表目前 production，現況見本文開頭。
 
 - 沿用 22 縣市、368 鄉鎮市區與既有地區儲存，依同一代表座標查詢 Open-Meteo Air Quality API；臺灣指定 CAMS 全球模式，不增加 API Key、行政區資料或第三方依賴。
 - 天氣頁顯示**美國 AQI（US AQI）**、分級文字及色條、PM2.5／PM10（µg/m³）、模式有效時間、API 擷取時間、網頁讀取時間與五分鐘快取期限。這是**模式估計／預報，非臺灣環境部測站實測值**，約 45 km 網格也不代表每個行政區都有獨立測站。
@@ -249,6 +286,8 @@ node scripts/check-weather.mjs   # 三個指定地區的真實天氣查詢，更
 
 ## 天氣來源與限制
 
+> 此節保留原階段紀錄；舊日期與操作限制不代表目前 production，現況見本文開頭。
+
 來源：[Open-Meteo Forecast API](https://open-meteo.com/en/docs)，採用無金鑰的免費非商業用途服務。本專案不含 API Key、Token 或付費服務。
 
 座標取自所選行政區的驗證代表點，預設臺北市大安區 `25.030179, 121.539770`，時區 `Asia/Taipei`。依官方欄位使用 `current.temperature_2m`、`current.relative_humidity_2m`、`current.weather_code` 與 `daily` 預報。
@@ -291,11 +330,13 @@ dailyinfo/
 
 ## Git 與安全範圍
 
+> 此節保留原階段紀錄；舊日期與操作限制不代表目前 production，現況見本文開頭。
+
 本專案獨立 Git 儲存庫位於 `dailyinfo/.git`，分支 `main`。Phase 1 基線 **`b3f2e98`**、Phase 1.5 **`b52eca5`**、Phase 2A **`329ca3f`**、Phase 2B **`1db256e`**。Phase 4 前排除敏感檔案，將 Phase 3、七日排版及天氣圖示修復建立本地基線 **`eb001a3`**；Phase 5 前將已完成的 Phase 4 建立本地基線 **`44abf3a`**。Phase 5 已建立本地基線 **`8ce561a`**；Phase 5.1 已建立本地基線 **`e577ba1`**；Phase 6A 已建立本地基線 **`7837083`**；Phase 6B 變更保留於工作目錄供驗收，未推送遠端。`.env.local` 保持忽略與未追蹤；未修改 NoteNest、全域環境或 PATH。
 
 前端打包內容可由使用者查看，未來需要金鑰的服務必須透過安全後端代理，不能放入 `VITE_*` 或前端程式。環境變數檔預設忽略。
 
-## 尚未實作
+## Phase 6B 當時尚未實作（Historical）
 
 - 股票即時行情、複雜 K 線圖、地震預測／預警／推播（本專案不提供）。
 - 登入、資料庫、通知及自動更新。

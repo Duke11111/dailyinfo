@@ -1,5 +1,7 @@
 # 正式發布防倒退與部署互斥（D5-Guard，本機待驗收）
 
+> 2026/10/29 現況：首次可信 release-manifest.json 接軌及後續自動發布已完成雲端驗收。下列首次 HTTP 404 與舊 approval 只屬歷史證據，不能重新使用過期信任根或重放初始化。Guard、Checkpoint 與共用 production concurrency 仍須每次完整驗證。 現況彙整見 [README](../README.md)；下方階段狀態依原紀錄保留。
+
 本機準備，未 Push、執行 Actions 或部署。沒有新增服務、套件、Secrets、預算或付費方案；本次完整驗收後僅依授權建立本機整合 Commit。
 
 本次已在 `test/d5-integration` 將此 Guard 接到 `ee30aed` 的 D4 程式：兩條正式部署路徑同用下述防護；`DATA_SCHEDULE_MODE=d4` 永不部署，`continuous` 才可在獨立完整授權與真實新資料條件下自動發布。未設定模式不啟動排程。原 `dailyinfo-d5-prep` 修改完整保留；首次 Manifest 接軌已有嚴格本機實作，實際雲端執行仍需另行核准。

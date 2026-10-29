@@ -1,5 +1,7 @@
 # D4 一次性自動驗收：本機報告
 
+> 歷史階段紀錄（Historical）：以下保留當時的測試數、Commit、Run ID、部署與開關狀態，不代表目前 production；2026/10/29 正式狀態以 [README](../README.md) 為準。
+
 日期：2026/10/22。本機分支 `test/d4-one-shot-acceptance`，由 main `0471d5a64afaea5af87384c1763b566d36cdef64` 建立；所有變更尚未提交或啟用。
 
 | 項目 | 本機結果 |

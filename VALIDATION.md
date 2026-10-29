@@ -1,5 +1,14 @@
 # DailyInfo 驗收紀錄
 
+## 2026/10/29 正式繳交基準
+
+Production Commit：`4cdaf4fdd287f524fc5d9d4497fd4ff89197b5fc`。既有完整驗收 **64 test files PASS、1093 / 1093 PASS**；TWSE fallback 已在 GitHub Runner 驗證並部署（Run 40666582734／40666970356）。Cloudflare 主排程、GitHub fallback 與 continuous 自動發布均已啟用。最新資料須核對正式 Manifest／有效 Checkpoint，不能以 Git 內 JSON 代替。
+
+- 本輪隔離文件驗證：64 test files、1093／1093 通過；Vite Production Build、`verify -- --dist`（五份 JSON、隱私與子路徑）通過。為遵守本輪不得改寫 public/data，建置僅在本次程序使用既有 CI 分支略過本機 baseline restore；使用版本庫 validated baseline 作編譯／安全驗證，不表示該 dist 含 production 最新資料，也不作部署產物。
+- actionlint v1.7.12（`-shellcheck=`，未執行額外 ShellCheck）、diff whitespace 與新增文字敏感資訊檢查通過。核心程式、Workflow、Worker、依賴版本與公開 JSON 不變；未 Commit、Push、Deploy 或操作雲端設定。本輪不重做 Chrome 功能驗收。
+
+> 以下全部為歷史階段驗收紀錄（Historical），舊測試數、Commit、未部署或未啟用狀態僅適用當時；目前狀態見 README。既有 Chrome 紀錄不代表本輪重測。
+
 ## Phase 8G-D1：三時段排程與有限補跑（2026/10/22，僅本機）
 
 - 基線 ab82abb，起始工作樹乾淨。本機 cron 改為 UTC `37 2 * * *`／`43 12 * * *`／`47 14 * * *`，對應臺灣 10:37／20:43／22:47；所有既有更新、免費確認、發布與 main 安全閘門保留。沒有操作 GitHub Variables、Secrets、Budget 或觸發雲端流程。
